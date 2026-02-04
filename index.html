@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flex-Check Pro</title>
+    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+
+  <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
+    <div x-data="app()" x-init="init()" class="max-w-2xl mx-auto p-4">
+      <div
+        class="fixed top-4 right-4 flex items-center gap-2 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border text-[10px] font-black tracking-tighter"
+      >
+        <div
+          :class="{
+            'bg-green-500': syncStatus === 'Connected',
+            'bg-blue-500 animate-pulse': syncStatus === 'Syncing',
+            'bg-red-500': syncStatus === 'Error',
+            'bg-slate-300': syncStatus === 'Offline'
+        }"
+          class="w-2 h-2 rounded-full"
+        ></div>
+        <span x-text="syncStatus"></span>
+      </div>
+
+      <header class="mb-8 pt-6">
+        <div class="flex justify-between items-end mb-6">
+          <div>
+            <h1 class="text-3xl font-black italic tracking-tighter">
+              FLEX<span class="text-blue-600">CHECK</span>
+            </h1>
+            <p
+              class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
+              x-text="todayString"
+            ></p>
+          </div>
+          <nav class="flex bg-slate-200 p-1 rounded-2xl">
+            <button
+              @click="view = 'checkin'; selectedUser = null"
+              :class="view === 'checkin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
+              class="px-5 py-2 rounded-xl text-xs font-black transition"
+            >
+              CHECK-IN
+            </button>
+            <button
+              @click="view = 'admin'; selectedUser = null"
+              :class="view === 'admin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
+              class="px-5 py-2 rounded-xl text-xs font-black transition"
+            >
+              ROSTER
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      <div x-show="view === 'checkin'" x-transition>
+        <input
+          type="text"
+          x-model="searchQuery"
+          @input="search()"
+          placeholder="Type student name..."
+          class="w-full p-5 rounded-3xl border-none shadow-2xl focus:ring-2 focus:ring-blue-500 outline-none text-xl mb-8"
+        />
+
+        <div class="space-y-4">
+          <template x-for="user in searchResults" :key="user.uuid">
+            <div
+              class="bg-white p-6 rounded-[2rem] shadow-sm border flex justify-between items-center transition"
+              :class="user.hasCheckedIn ? 'opacity-40 grayscale' : (user.balance < 0 ? 'border-red-100 bg-red-50/30' : 'border-transparent')"
+            >
+              <div>
+                <span
+                  class="font-black text-xl block leading-tight"
+                  x-text="user.firstName + ' ' + user.lastName"
+                ></span>
+                <div class="flex items-center gap-2 mt-1">
+                  <span
+                    :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                    class="text-sm font-mono font-black"
+                    x-text="'$' + user.balance.toFixed(2)"
+                  ></span>
+                  <template x-if="user.hasCheckedIn">
+                    <span
+                      class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-black"
+                      >COMPLETED</span
+                    >
+                  </template>
+                </div>
+              </div>
+              <button
+                @click="performCheckIn(user)"
+                :disabled="user.hasCheckedIn"
+                :class="user.hasCheckedIn ? 'bg-slate-200' : 'bg-slate-900 text-white hover:scale-105'"
+                class="px-8 py-4 rounded-2xl font-black transition active:scale-95 shadow-lg"
+              >
+                CHECK IN
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div x-show="view === 'admin'" x-transition>
+        <template x-if="selectedUser">
+          <div
+            class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-t-8 border-blue-600 mb-8 animate-in slide-in-from-bottom"
+          >
+            <div class="flex justify-between items-start mb-6">
+              <h2
+                class="text-2xl font-black tracking-tight"
+                x-text="selectedUser.firstName + ' ' + selectedUser.lastName"
+              ></h2>
+              <button
+                @click="selectedUser = null"
+                class="text-slate-300 text-4xl hover:text-slate-600 transition"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div class="space-y-6">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label class="text-[10px] font-black text-slate-400 uppercase"
+                    >Parent Email</label
+                  >
+                  <input
+                    type="email"
+                    x-model="selectedUser.parentEmail"
+                    @change="saveUser(selectedUser)"
+                    class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[10px] font-black text-slate-400 uppercase"
+                    >Parent Phone</label
+                  >
+                  <input
+                    type="text"
+                    x-model="selectedUser.parentPhone"
+                    @change="saveUser(selectedUser)"
+                    class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div
+                class="bg-emerald-50 p-6 rounded-3xl flex items-center justify-between"
+              >
+                <div>
+                  <p class="text-[10px] font-black text-emerald-700 uppercase">
+                    Current Balance
+                  </p>
+                  <p
+                    class="text-3xl font-mono font-black text-emerald-600"
+                    x-text="'$' + selectedUser.balance.toFixed(2)"
+                  ></p>
+                </div>
+                <div class="flex gap-2">
+                  <input
+                    type="number"
+                    x-model="depositAmount"
+                    class="w-24 p-3 rounded-xl border-none shadow-inner"
+                    placeholder="0.00"
+                  />
+                  <button
+                    @click="addFunds()"
+                    class="bg-emerald-600 text-white px-5 rounded-xl font-black"
+                  >
+                    ADD
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <div class="mb-6 flex justify-between items-center">
+          <button
+            @click="showBulk = !showBulk"
+            class="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-full"
+            x-text="showBulk ? 'CLOSE IMPORT' : '+ BULK IMPORT STUDENTS'"
+          ></button>
+          <button
+            @click="connectGoogle()"
+            class="text-[10px] font-black text-slate-400 hover:text-blue-600 transition"
+          >
+            GOOGLE AUTH
+          </button>
+        </div>
+
+        <div
+          x-show="showBulk"
+          class="bg-white p-6 rounded-3xl shadow-sm border-2 border-dashed border-blue-200 mb-6"
+        >
+          <textarea
+            x-model="bulkText"
+            rows="4"
+            class="w-full p-4 text-sm bg-slate-50 rounded-2xl mb-3"
+            placeholder="John Smith&#10;Doe, Jane"
+          ></textarea>
+          <button
+            @click="processBulk()"
+            class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black"
+          >
+            IMPORT LIST
+          </button>
+        </div>
+
+        <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden">
+          <table class="w-full text-left">
+            <thead
+              class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase"
+            >
+              <tr>
+                <th class="p-5">Student</th>
+                <th class="p-5 text-right">Balance</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              <template x-for="user in allUsers" :key="user.uuid">
+                <tr
+                  @click="showUser(user)"
+                  class="hover:bg-blue-50/50 cursor-pointer transition"
+                >
+                  <td class="p-5">
+                    <p
+                      class="font-bold text-slate-800"
+                      x-text="user.firstName + ' ' + user.lastName"
+                    ></p>
+                    <p
+                      class="text-[10px] text-slate-400 font-bold"
+                      x-text="user.parentEmail || 'NO PARENT EMAIL'"
+                    ></p>
+                  </td>
+                  <td
+                    class="p-5 text-right font-mono font-black"
+                    :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                    x-text="'$' + user.balance.toFixed(2)"
+                  ></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function app() {
+        return {
+          view: "checkin",
+          db: null,
+          syncStatus: "Offline",
+          searchQuery: "",
+          searchResults: [],
+          allUsers: [],
+          allTransactions: [],
+          selectedUser: null,
+          userHistory: [],
+          depositAmount: null,
+          showBulk: false,
+          bulkText: "",
+          todayString: new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          }),
+
+          // GOOGLE PARAMS
+          CLIENT_ID: "PASTE_YOUR_CLIENT_ID_HERE",
+          SCOPES:
+            "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send",
+
+          async init() {
+            this.db = new Dexie("FlexCheck_V2");
+            this.db.version(1).stores({
+              users: "uuid, nameSearch",
+              transactions: "++id, uuid, userUuid, dayKey, timestamp",
+            });
+            await this.refresh();
+            setInterval(() => this.syncWithDrive(), 300000); // 5 min auto-sync
+          },
+
+          async refresh() {
+            const users = await this.db.users.toArray();
+            const txs = await this.db.transactions.toArray();
+            this.allTransactions = txs;
+            const today = new Date().toISOString().split("T")[0];
+
+            this.allUsers = users
+              .map((u) => {
+                const uTxs = txs.filter((t) => t.userUuid === u.uuid);
+                return {
+                  ...u,
+                  balance: uTxs.reduce((s, t) => s + t.amount, 0),
+                  hasCheckedIn: uTxs.some(
+                    (t) => t.dayKey === `${today}-${u.uuid}`
+                  ),
+                };
+              })
+              .sort((a, b) => a.balance - b.balance);
+            this.search();
+          },
+
+          search() {
+            const q = this.searchQuery.toLowerCase();
+            this.searchResults = this.allUsers
+              .filter((u) => u.nameSearch.includes(q))
+              .slice(0, 8);
+          },
+
+          async performCheckIn(user) {
+            const today = new Date().toISOString().split("T")[0];
+            const tx = {
+              uuid: crypto.randomUUID(),
+              userUuid: user.uuid,
+              dayKey: `${today}-${user.uuid}`,
+              amount: -30.0,
+              type: "checkin",
+              timestamp: new Date().toISOString(),
+            };
+            await this.db.transactions.add(tx);
+            await this.refresh();
+            this.notifyParent(user, user.balance - 30.0);
+            this.syncWithDrive();
+          },
+
+          async notifyParent(student, balance) {
+            if (!student.parentEmail) return;
+            const token = localStorage.getItem("gdrive_token");
+            if (!token) return;
+
+            const subject = `${student.firstName} Checked In`;
+            const msg = `To: ${student.parentEmail}\r\nSubject: ${subject}\r\n\r\nHello,\n\n${student.firstName} checked in today. Remaining balance: $${balance.toFixed(2)}.`;
+            const raw = btoa(unescape(encodeURIComponent(msg)))
+              .replace(/\+/g, "-")
+              .replace(/\//g, "_")
+              .replace(/=+$/, "");
+
+            fetch(
+              "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ raw }),
+              }
+            );
+          },
+
+          async processBulk() {
+            const lines = this.bulkText
+              .split("\n")
+              .filter((l) => l.trim() !== "");
+            for (let line of lines) {
+              let first, last;
+              if (line.includes(",")) {
+                [last, first] = line.split(",").map((s) => s.trim());
+              } else {
+                const pts = line.trim().split(" ");
+                first = pts[0];
+                last = pts.slice(1).join(" ") || "Student";
+              }
+              await this.db.users.add({
+                uuid: crypto.randomUUID(),
+                firstName: first,
+                lastName: last,
+                nameSearch: `${first} ${last}`.toLowerCase(),
+                parentEmail: "",
+                parentPhone: "",
+                isActive: 1,
+                createdAt: new Date().toISOString(),
+              });
+            }
+            this.bulkText = "";
+            this.showBulk = false;
+            await this.refresh();
+          },
+
+          async showUser(user) {
+            this.selectedUser = user;
+            this.view = "admin";
+          },
+          async saveUser(user) {
+            await this.db.users.put(JSON.parse(JSON.stringify(user)));
+            await this.refresh();
+          },
+          async addFunds() {
+            const amt = parseFloat(this.depositAmount);
+            if (!this.selectedUser || isNaN(amt) || amt <= 0) return;
+            await this.db.transactions.add({
+              uuid: crypto.randomUUID(),
+              userUuid: this.selectedUser.uuid,
+              amount: amt,
+              type: "deposit",
+              timestamp: new Date().toISOString(),
+            });
+            this.depositAmount = null;
+            await this.refresh();
+            this.showUser(
+              this.allUsers.find((u) => u.uuid === this.selectedUser.uuid)
+            );
+            this.syncWithDrive();
+          },
+
+          // DRIVE SYNC ENGINE
+          connectGoogle() {
+            google.accounts.oauth2
+              .initTokenClient({
+                client_id: this.CLIENT_ID,
+                scope: this.SCOPES,
+                callback: (res) => {
+                  localStorage.setItem("gdrive_token", res.access_token);
+                  localStorage.setItem(
+                    "gdrive_exp",
+                    Date.now() + res.expires_in * 1000
+                  );
+                  this.syncStatus = "Connected";
+                  this.syncWithDrive();
+                },
+              })
+              .requestAccessToken();
+          },
+
+          async syncWithDrive() {
+            const token = localStorage.getItem("gdrive_token");
+            const exp = localStorage.getItem("gdrive_exp");
+            if (!token || Date.now() > exp) {
+              this.syncStatus = "Offline";
+              return;
+            }
+
+            this.syncStatus = "Syncing";
+            try {
+              let fileId = localStorage.getItem("gdrive_file_id");
+              if (!fileId) {
+                const list = await (
+                  await fetch(
+                    'https://www.googleapis.com/drive/v3/files?q=name="flexcheck_data.json"',
+                    {
+                      headers: { Authorization: `Bearer ${token}` },
+                    }
+                  )
+                ).json();
+                if (list.files?.length) {
+                  fileId = list.files[0].id;
+                  localStorage.setItem("gdrive_file_id", fileId);
+                }
+              }
+
+              let remote = { users: [], transactions: [] };
+              if (fileId) {
+                const res = await fetch(
+                  `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                  {
+                    headers: { Authorization: `Bearer ${token}` },
+                  }
+                );
+                if (res.ok) remote = await res.json();
+              }
+
+              const localUsers = await this.db.users.toArray();
+              const localTxs = await this.db.transactions.toArray();
+
+              const mUsers = this.merge(remote.users, localUsers);
+              const mTxs = this.merge(remote.transactions, localTxs);
+
+              await this.db.users.bulkPut(mUsers);
+              await this.db.transactions.bulkPut(mTxs);
+
+              const form = new FormData();
+              form.append(
+                "metadata",
+                new Blob(
+                  [
+                    JSON.stringify({
+                      name: "flexcheck_data.json",
+                      mimeType: "application/json",
+                    }),
+                  ],
+                  { type: "application/json" }
+                )
+              );
+              form.append(
+                "file",
+                new Blob(
+                  [JSON.stringify({ users: mUsers, transactions: mTxs })],
+                  { type: "application/json" }
+                )
+              );
+
+              const url = fileId
+                ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+                : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+              const push = await (
+                await fetch(url, {
+                  method: fileId ? "PATCH" : "POST",
+                  headers: { Authorization: `Bearer ${token}` },
+                  body: form,
+                })
+              ).json();
+              if (!fileId) localStorage.setItem("gdrive_file_id", push.id);
+
+              this.syncStatus = "Connected";
+              await this.refresh();
+            } catch (e) {
+              this.syncStatus = "Error";
+            }
+          },
+
+          merge(a1, a2) {
+            const m = new Map();
+            [...(a1 || []), ...(a2 || [])].forEach((i) =>
+              m.set(i.uuid, { ...(m.get(i.uuid) || {}), ...i })
+            );
+            return Array.from(m.values());
+          },
+        };
+      }
+    </script>
+  </body>
+</html>
