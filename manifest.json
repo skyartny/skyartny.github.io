@@ -1,0 +1,23 @@
+{
+  "name": "FlexCheck Student Pro",
+  "short_name": "FlexCheck",
+  "description": "Student check-in, relational billing, and parent notification system.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/9512/9512214.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/9512/9512214.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
