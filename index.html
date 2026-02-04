@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flex-Check Pro</title>
+
+    <link rel="manifest" href="manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="https://cdn-icons-png.flaticon.com/512/9512/9512214.png"
+    />
+
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
@@ -16,7 +28,7 @@
   <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
     <div x-data="app()" x-init="init()" class="max-w-2xl mx-auto p-4">
       <div
-        class="fixed top-4 right-4 flex items-center gap-2 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border text-[10px] font-black tracking-tighter"
+        class="fixed top-4 right-4 flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-full shadow-sm border text-[10px] font-black z-50"
       >
         <div
           :class="{
@@ -33,12 +45,12 @@
       <header class="mb-8 pt-6">
         <div class="flex justify-between items-end mb-6">
           <div>
-            <h1 class="text-3xl font-black italic tracking-tighter">
-              FLEX<span class="text-blue-600">CHECK</span>
+            <h1 class="text-3xl font-black italic tracking-tighter uppercase">
+              Flex<span class="text-blue-600">Check</span>
             </h1>
             <p
               class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"
-              x-text="todayString"
+              x-text="todayDate"
             ></p>
           </div>
           <nav class="flex bg-slate-200 p-1 rounded-2xl">
@@ -50,7 +62,7 @@
               CHECK-IN
             </button>
             <button
-              @click="view = 'admin'; selectedUser = null"
+              @click="tryAccessAdmin()"
               :class="view === 'admin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
               class="px-5 py-2 rounded-xl text-xs font-black transition"
             >
@@ -66,13 +78,13 @@
           x-model="searchQuery"
           @input="search()"
           placeholder="Type student name..."
-          class="w-full p-5 rounded-3xl border-none shadow-2xl focus:ring-2 focus:ring-blue-500 outline-none text-xl mb-8"
+          class="w-full p-5 rounded-3xl border-none shadow-xl focus:ring-2 focus:ring-blue-500 outline-none text-xl mb-8"
         />
 
         <div class="space-y-4">
           <template x-for="user in searchResults" :key="user.uuid">
             <div
-              class="bg-white p-6 rounded-[2rem] shadow-sm border flex justify-between items-center transition"
+              class="bg-white p-6 rounded-[2rem] border flex justify-between items-center transition"
               :class="user.hasCheckedIn ? 'opacity-40 grayscale' : (user.balance < 0 ? 'border-red-100 bg-red-50/30' : 'border-transparent')"
             >
               <div>
@@ -88,8 +100,8 @@
                   ></span>
                   <template x-if="user.hasCheckedIn">
                     <span
-                      class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-black"
-                      >COMPLETED</span
+                      class="text-[10px] font-black text-blue-600 uppercase italic"
+                      >✓ Checked In</span
                     >
                   </template>
                 </div>
@@ -97,10 +109,10 @@
               <button
                 @click="performCheckIn(user)"
                 :disabled="user.hasCheckedIn"
-                :class="user.hasCheckedIn ? 'bg-slate-200' : 'bg-slate-900 text-white hover:scale-105'"
-                class="px-8 py-4 rounded-2xl font-black transition active:scale-95 shadow-lg"
+                :class="user.hasCheckedIn ? 'bg-slate-200 text-slate-400' : 'bg-slate-900 text-white hover:scale-105 shadow-lg'"
+                class="px-8 py-4 rounded-2xl font-black transition active:scale-95 uppercase tracking-tighter"
               >
-                CHECK IN
+                Check In
               </button>
             </div>
           </template>
@@ -140,87 +152,92 @@
                 </div>
                 <div class="space-y-1">
                   <label class="text-[10px] font-black text-slate-400 uppercase"
-                    >Parent Phone</label
+                    >Deposit Funds</label
                   >
-                  <input
-                    type="text"
-                    x-model="selectedUser.parentPhone"
-                    @change="saveUser(selectedUser)"
-                    class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
-                  />
+                  <div class="flex gap-2">
+                    <input
+                      type="number"
+                      x-model="depositAmount"
+                      class="w-full p-3 bg-emerald-50 rounded-xl text-sm border-none shadow-inner"
+                      placeholder="0.00"
+                    />
+                    <button
+                      @click="addFunds()"
+                      class="bg-emerald-600 text-white px-5 rounded-xl font-black"
+                    >
+                      ADD
+                    </button>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div
-                class="bg-emerald-50 p-6 rounded-3xl flex items-center justify-between"
-              >
-                <div>
-                  <p class="text-[10px] font-black text-emerald-700 uppercase">
-                    Current Balance
-                  </p>
-                  <p
-                    class="text-3xl font-mono font-black text-emerald-600"
-                    x-text="'$' + selectedUser.balance.toFixed(2)"
-                  ></p>
+            <h3
+              class="text-[10px] font-black text-slate-400 uppercase mt-8 mb-2"
+            >
+              Bill History
+            </h3>
+            <div class="max-h-60 overflow-y-auto divide-y border-t">
+              <template x-for="tx in userHistory" :key="tx.uuid">
+                <div class="py-4 flex justify-between items-center">
+                  <div>
+                    <p
+                      class="text-sm font-black text-slate-700"
+                      x-text="tx.description"
+                    ></p>
+                    <p
+                      class="text-[10px] text-slate-400 font-bold"
+                      x-text="formatDate(tx.timestamp) + ' ' + formatTime(tx.timestamp)"
+                    ></p>
+                  </div>
+                  <span
+                    :class="tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'"
+                    class="font-mono font-black"
+                    x-text="(tx.amount > 0 ? '+' : '') + tx.amount.toFixed(2)"
+                  ></span>
                 </div>
-                <div class="flex gap-2">
-                  <input
-                    type="number"
-                    x-model="depositAmount"
-                    class="w-24 p-3 rounded-xl border-none shadow-inner"
-                    placeholder="0.00"
-                  />
-                  <button
-                    @click="addFunds()"
-                    class="bg-emerald-600 text-white px-5 rounded-xl font-black"
-                  >
-                    ADD
-                  </button>
-                </div>
-              </div>
+              </template>
             </div>
           </div>
         </template>
 
-        <div class="mb-6 flex justify-between items-center">
-          <button
-            @click="showBulk = !showBulk"
-            class="text-[10px] font-black text-blue-600 bg-blue-50 px-4 py-2 rounded-full"
-            x-text="showBulk ? 'CLOSE IMPORT' : '+ BULK IMPORT STUDENTS'"
-          ></button>
-          <button
-            @click="connectGoogle()"
-            class="text-[10px] font-black text-slate-400 hover:text-blue-600 transition"
-          >
-            GOOGLE AUTH
-          </button>
-        </div>
-
-        <div
-          x-show="showBulk"
-          class="bg-white p-6 rounded-3xl shadow-sm border-2 border-dashed border-blue-200 mb-6"
-        >
-          <textarea
-            x-model="bulkText"
-            rows="4"
-            class="w-full p-4 text-sm bg-slate-50 rounded-2xl mb-3"
-            placeholder="John Smith&#10;Doe, Jane"
-          ></textarea>
-          <button
-            @click="processBulk()"
-            class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black"
-          >
-            IMPORT LIST
-          </button>
-        </div>
-
         <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden">
+          <div
+            class="p-4 bg-slate-50 flex justify-between items-center border-b"
+          >
+            <button
+              @click="showBulk = !showBulk"
+              class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full uppercase tracking-widest"
+            >
+              + Bulk Import
+            </button>
+            <button
+              @click="connectGoogle()"
+              class="text-[10px] font-black text-slate-400 hover:text-blue-600 transition uppercase tracking-widest"
+            >
+              Connect Google
+            </button>
+          </div>
+          <div x-show="showBulk" class="p-6 bg-blue-50 border-b">
+            <textarea
+              x-model="bulkText"
+              rows="4"
+              class="w-full p-4 rounded-2xl border-none shadow-inner text-sm mb-3"
+              placeholder="John Smith&#10;Doe, Jane"
+            ></textarea>
+            <button
+              @click="processBulk()"
+              class="w-full bg-blue-600 text-white py-3 rounded-xl font-black"
+            >
+              IMPORT LIST
+            </button>
+          </div>
           <table class="w-full text-left">
             <thead
               class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase"
             >
               <tr>
-                <th class="p-5">Student</th>
+                <th class="p-5">Student Name</th>
                 <th class="p-5 text-right">Balance</th>
               </tr>
             </thead>
@@ -232,12 +249,12 @@
                 >
                   <td class="p-5">
                     <p
-                      class="font-bold text-slate-800"
+                      class="font-black text-slate-800"
                       x-text="user.firstName + ' ' + user.lastName"
                     ></p>
                     <p
-                      class="text-[10px] text-slate-400 font-bold"
-                      x-text="user.parentEmail || 'NO PARENT EMAIL'"
+                      class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
+                      x-text="user.parentEmail || 'No Parent Contact'"
                     ></p>
                   </td>
                   <td
@@ -257,8 +274,9 @@
       function app() {
         return {
           view: "checkin",
-          db: null,
+          isAdminUnlocked: false,
           syncStatus: "Offline",
+          db: null,
           searchQuery: "",
           searchResults: [],
           allUsers: [],
@@ -268,84 +286,92 @@
           depositAmount: null,
           showBulk: false,
           bulkText: "",
-          todayString: new Date().toLocaleDateString("en-US", {
+          todayDate: new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
             day: "numeric",
           }),
 
-          // GOOGLE PARAMS
-          CLIENT_ID:
-            "211330619801-3vrmtmel7d3o3uuoqrs75qk0jqr4988n.apps.googleusercontent.com",
+          // CONFIG (Replace CLIENT_ID)
+          CLIENT_ID: "PASTE_YOUR_CLIENT_ID_HERE",
           SCOPES:
             "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send",
 
           async init() {
-            this.db = new Dexie("FlexCheck_V2");
+            this.db = new Dexie("FlexCheck_V4");
             this.db.version(1).stores({
               users: "uuid, nameSearch",
-              transactions: "++id, uuid, userUuid, dayKey, timestamp",
+              transactions: "uuid, userUuid, dayKey, timestamp",
+              settings: "id",
             });
             await this.refresh();
-            setInterval(() => this.syncWithDrive(), 300000); // 5 min auto-sync
+            // Start Auto-Sync
+            setInterval(() => this.syncWithDrive(), 300000);
           },
 
-          async refresh() {
-            const users = await this.db.users.toArray();
-            const txs = await this.db.transactions.toArray();
-            this.allTransactions = txs;
-            const today = new Date().toISOString().split("T")[0];
-
-            this.allUsers = users
-              .map((u) => {
-                const uTxs = txs.filter((t) => t.userUuid === u.uuid);
-                return {
-                  ...u,
-                  balance: uTxs.reduce((s, t) => s + t.amount, 0),
-                  hasCheckedIn: uTxs.some(
-                    (t) => t.dayKey === `${today}-${u.uuid}`
-                  ),
-                };
-              })
-              .sort((a, b) => a.balance - b.balance);
-            this.search();
+          async hash(str) {
+            const msgBuffer = new TextEncoder().encode(str);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+            return Array.from(new Uint8Array(hashBuffer))
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
           },
 
-          search() {
-            const q = this.searchQuery.toLowerCase();
-            this.searchResults = this.allUsers
-              .filter((u) => u.nameSearch.includes(q))
-              .slice(0, 8);
+          async tryAccessAdmin() {
+            const config = await this.db.settings.get("admin_config");
+            if (this.isAdminUnlocked) {
+              this.view = "admin";
+              return;
+            }
+
+            if (!config) {
+              const setup = prompt("Create a new Roster Password:");
+              if (!setup) return;
+              const hashed = await this.hash(setup);
+              await this.db.settings.put({
+                id: "admin_config",
+                passwordHash: hashed,
+              });
+              this.isAdminUnlocked = true;
+              this.view = "admin";
+              this.syncWithDrive();
+            } else {
+              const pass = prompt("Enter Roster Password:");
+              if ((await this.hash(pass)) === config.passwordHash) {
+                this.isAdminUnlocked = true;
+                this.view = "admin";
+              } else {
+                alert("Incorrect Password.");
+              }
+            }
           },
 
           async performCheckIn(user) {
             const today = new Date().toISOString().split("T")[0];
-            const tx = {
-              uuid: crypto.randomUUID(),
+            const uuid = crypto.randomUUID();
+            await this.db.transactions.add({
+              uuid,
               userUuid: user.uuid,
               dayKey: `${today}-${user.uuid}`,
               amount: -30.0,
               type: "checkin",
+              description: "Check-in Fee",
               timestamp: new Date().toISOString(),
-            };
-            await this.db.transactions.add(tx);
+            });
             await this.refresh();
-            this.notifyParent(user, user.balance - 30.0);
+            this.sendEmail(user, user.balance - 30.0);
             this.syncWithDrive();
           },
 
-          async notifyParent(student, balance) {
+          async sendEmail(student, balance) {
             if (!student.parentEmail) return;
             const token = localStorage.getItem("gdrive_token");
             if (!token) return;
-
-            const subject = `${student.firstName} Checked In`;
-            const msg = `To: ${student.parentEmail}\r\nSubject: ${subject}\r\n\r\nHello,\n\n${student.firstName} checked in today. Remaining balance: $${balance.toFixed(2)}.`;
+            const msg = `To: ${student.parentEmail}\r\nSubject: ${student.firstName} Checked In\r\n\r\n${student.firstName} has checked in. Current balance: $${balance.toFixed(2)}.`;
             const raw = btoa(unescape(encodeURIComponent(msg)))
               .replace(/\+/g, "-")
               .replace(/\//g, "_")
               .replace(/=+$/, "");
-
             fetch(
               "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
               {
@@ -359,62 +385,180 @@
             );
           },
 
+          async syncWithDrive() {
+            const token = localStorage.getItem("gdrive_token");
+            const exp = localStorage.getItem("gdrive_exp");
+            if (!token || Date.now() > exp) {
+              this.syncStatus = "Offline";
+              return;
+            }
+
+            this.syncStatus = "Syncing";
+            try {
+              let fileId = localStorage.getItem("gdrive_file_id");
+              if (!fileId) {
+                const list = await (
+                  await fetch(
+                    'https://www.googleapis.com/drive/v3/files?q=name="flexcheck_master.json"',
+                    { headers: { Authorization: `Bearer ${token}` } }
+                  )
+                ).json();
+                if (list.files?.length) {
+                  fileId = list.files[0].id;
+                  localStorage.setItem("gdrive_file_id", fileId);
+                }
+              }
+
+              let remote = { users: [], transactions: [], settings: [] };
+              if (fileId) {
+                const res = await fetch(
+                  `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                  { headers: { Authorization: `Bearer ${token}` } }
+                );
+                if (res.ok) remote = await res.json();
+              }
+
+              const mUsers = this.merge(
+                remote.users,
+                await this.db.users.toArray()
+              );
+              const mTxs = this.merge(
+                remote.transactions,
+                await this.db.transactions.toArray()
+              );
+              const mSets = this.merge(
+                remote.settings,
+                await this.db.settings.toArray()
+              );
+
+              await this.db.users.bulkPut(mUsers);
+              await this.db.transactions.bulkPut(mTxs);
+              await this.db.settings.bulkPut(mSets);
+
+              const content = JSON.stringify({
+                users: mUsers,
+                transactions: mTxs,
+                settings: mSets,
+              });
+              const meta = {
+                name: "flexcheck_master.json",
+                mimeType: "application/json",
+              };
+              const form = new FormData();
+              form.append(
+                "metadata",
+                new Blob([JSON.stringify(meta)], { type: "application/json" })
+              );
+              form.append(
+                "file",
+                new Blob([content], { type: "application/json" })
+              );
+
+              const url = fileId
+                ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+                : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+              const push = await (
+                await fetch(url, {
+                  method: fileId ? "PATCH" : "POST",
+                  headers: { Authorization: `Bearer ${token}` },
+                  body: form,
+                })
+              ).json();
+
+              if (!fileId) localStorage.setItem("gdrive_file_id", push.id);
+              this.syncStatus = "Connected";
+              await this.refresh();
+            } catch (e) {
+              this.syncStatus = "Error";
+            }
+          },
+
+          merge(a1, a2) {
+            const m = new Map();
+            [...(a1 || []), ...(a2 || [])].forEach((i) =>
+              m.set(i.uuid || i.id, { ...(m.get(i.uuid || i.id) || {}), ...i })
+            );
+            return Array.from(m.values());
+          },
+
+          async refresh() {
+            const u = await this.db.users.toArray();
+            const t = await this.db.transactions.toArray();
+            this.allTransactions = t;
+            const today = new Date().toISOString().split("T")[0];
+            this.allUsers = u
+              .map((user) => {
+                const ut = t.filter((x) => x.userUuid === user.uuid);
+                return {
+                  ...user,
+                  balance: ut.reduce((s, x) => s + x.amount, 0),
+                  hasCheckedIn: ut.some(
+                    (x) => x.dayKey === `${today}-${user.uuid}`
+                  ),
+                };
+              })
+              .sort((a, b) => a.balance - b.balance);
+            this.search();
+          },
+
+          search() {
+            const q = this.searchQuery.toLowerCase();
+            this.searchResults = this.allUsers
+              .filter((u) => u.nameSearch.includes(q))
+              .slice(0, 10);
+          },
+          async showUser(u) {
+            this.selectedUser = u;
+            this.userHistory = this.allTransactions
+              .filter((x) => x.userUuid === u.uuid)
+              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          },
+          async saveUser(u) {
+            await this.db.users.put(JSON.parse(JSON.stringify(u)));
+            await this.refresh();
+          },
+          async addFunds() {
+            const a = parseFloat(this.depositAmount);
+            if (isNaN(a) || a <= 0) return;
+            await this.db.transactions.add({
+              uuid: crypto.randomUUID(),
+              userUuid: this.selectedUser.uuid,
+              amount: a,
+              type: "deposit",
+              description: "Account Refill",
+              timestamp: new Date().toISOString(),
+            });
+            this.depositAmount = null;
+            await this.refresh();
+            this.showUser(
+              this.allUsers.find((x) => x.uuid === this.selectedUser.uuid)
+            );
+            this.syncWithDrive();
+          },
           async processBulk() {
-            const lines = this.bulkText
-              .split("\n")
-              .filter((l) => l.trim() !== "");
-            for (let line of lines) {
-              let first, last;
-              if (line.includes(",")) {
-                [last, first] = line.split(",").map((s) => s.trim());
+            const lines = this.bulkText.split("\n").filter((l) => l.trim());
+            for (let l of lines) {
+              let f, ls;
+              if (l.includes(",")) {
+                [ls, f] = l.split(",").map((s) => s.trim());
               } else {
-                const pts = line.trim().split(" ");
-                first = pts[0];
-                last = pts.slice(1).join(" ") || "Student";
+                const p = l.trim().split(" ");
+                f = p[0];
+                ls = p.slice(1).join(" ") || "Student";
               }
               await this.db.users.add({
                 uuid: crypto.randomUUID(),
-                firstName: first,
-                lastName: last,
-                nameSearch: `${first} ${last}`.toLowerCase(),
+                firstName: f,
+                lastName: ls,
+                nameSearch: `${f} ${ls}`.toLowerCase(),
                 parentEmail: "",
-                parentPhone: "",
                 isActive: 1,
-                createdAt: new Date().toISOString(),
               });
             }
             this.bulkText = "";
             this.showBulk = false;
             await this.refresh();
           },
-
-          async showUser(user) {
-            this.selectedUser = user;
-            this.view = "admin";
-          },
-          async saveUser(user) {
-            await this.db.users.put(JSON.parse(JSON.stringify(user)));
-            await this.refresh();
-          },
-          async addFunds() {
-            const amt = parseFloat(this.depositAmount);
-            if (!this.selectedUser || isNaN(amt) || amt <= 0) return;
-            await this.db.transactions.add({
-              uuid: crypto.randomUUID(),
-              userUuid: this.selectedUser.uuid,
-              amount: amt,
-              type: "deposit",
-              timestamp: new Date().toISOString(),
-            });
-            this.depositAmount = null;
-            await this.refresh();
-            this.showUser(
-              this.allUsers.find((u) => u.uuid === this.selectedUser.uuid)
-            );
-            this.syncWithDrive();
-          },
-
-          // DRIVE SYNC ENGINE
           connectGoogle() {
             google.accounts.oauth2
               .initTokenClient({
@@ -432,99 +576,14 @@
               })
               .requestAccessToken();
           },
-
-          async syncWithDrive() {
-            const token = localStorage.getItem("gdrive_token");
-            const exp = localStorage.getItem("gdrive_exp");
-            if (!token || Date.now() > exp) {
-              this.syncStatus = "Offline";
-              return;
-            }
-
-            this.syncStatus = "Syncing";
-            try {
-              let fileId = localStorage.getItem("gdrive_file_id");
-              if (!fileId) {
-                const list = await (
-                  await fetch(
-                    'https://www.googleapis.com/drive/v3/files?q=name="flexcheck_data.json"',
-                    {
-                      headers: { Authorization: `Bearer ${token}` },
-                    }
-                  )
-                ).json();
-                if (list.files?.length) {
-                  fileId = list.files[0].id;
-                  localStorage.setItem("gdrive_file_id", fileId);
-                }
-              }
-
-              let remote = { users: [], transactions: [] };
-              if (fileId) {
-                const res = await fetch(
-                  `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-                  {
-                    headers: { Authorization: `Bearer ${token}` },
-                  }
-                );
-                if (res.ok) remote = await res.json();
-              }
-
-              const localUsers = await this.db.users.toArray();
-              const localTxs = await this.db.transactions.toArray();
-
-              const mUsers = this.merge(remote.users, localUsers);
-              const mTxs = this.merge(remote.transactions, localTxs);
-
-              await this.db.users.bulkPut(mUsers);
-              await this.db.transactions.bulkPut(mTxs);
-
-              const form = new FormData();
-              form.append(
-                "metadata",
-                new Blob(
-                  [
-                    JSON.stringify({
-                      name: "flexcheck_data.json",
-                      mimeType: "application/json",
-                    }),
-                  ],
-                  { type: "application/json" }
-                )
-              );
-              form.append(
-                "file",
-                new Blob(
-                  [JSON.stringify({ users: mUsers, transactions: mTxs })],
-                  { type: "application/json" }
-                )
-              );
-
-              const url = fileId
-                ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
-                : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
-              const push = await (
-                await fetch(url, {
-                  method: fileId ? "PATCH" : "POST",
-                  headers: { Authorization: `Bearer ${token}` },
-                  body: form,
-                })
-              ).json();
-              if (!fileId) localStorage.setItem("gdrive_file_id", push.id);
-
-              this.syncStatus = "Connected";
-              await this.refresh();
-            } catch (e) {
-              this.syncStatus = "Error";
-            }
+          formatTime(iso) {
+            return new Date(iso).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
           },
-
-          merge(a1, a2) {
-            const m = new Map();
-            [...(a1 || []), ...(a2 || [])].forEach((i) =>
-              m.set(i.uuid, { ...(m.get(i.uuid) || {}), ...i })
-            );
-            return Array.from(m.values());
+          formatDate(iso) {
+            return new Date(iso).toLocaleDateString();
           },
         };
       }
