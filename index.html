@@ -90,7 +90,7 @@
                   </template>
                   <span
                     class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2"
-                    x-text="user.balance.toFixed(1) + ' Classes'"
+                    x-text="Math.floor(user.balance) + ' Classes'"
                   ></span>
                 </div>
               </div>
@@ -427,7 +427,7 @@
                     <span
                       :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
                       class="text-sm font-mono font-black mt-1 block"
-                      x-text="'Classes Left: ' + selectedUser.balance.toFixed(1)"
+                      x-text="'Classes Left: ' + Math.floor(selectedUser.balance)"
                     ></span>
                   </div>
                   <button
@@ -551,11 +551,11 @@
                         <span
                           :class="tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'"
                           class="font-mono font-black block"
-                          x-text="(tx.amount > 0 ? '+' : '') + tx.amount.toFixed(1)"
+                          x-text="(tx.amount > 0 ? '+' : '') + Math.round(tx.amount)"
                         ></span>
                         <span
                           class="text-[10px] text-slate-400 font-mono font-bold block"
-                          x-text="'Bal: ' + tx.runningBalance.toFixed(1)"
+                          x-text="'Bal: ' + Math.floor(tx.runningBalance)"
                         ></span>
                       </div>
                     </div>
@@ -644,7 +644,7 @@
                         <span
                           class="font-mono font-black block"
                           :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                          x-text="user.balance.toFixed(1)"
+                          x-text="Math.floor(user.balance)"
                         ></span>
                       </td>
                     </tr>
@@ -1035,7 +1035,7 @@
                     ? `${user.firstName} ${user.lastName}`
                     : "Unknown",
                   parentEmail: user ? user.parentEmail : "",
-                  classesLeft: balance.toFixed(1),
+                  classesLeft: Math.floor(balance),
                 };
               })
               .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
