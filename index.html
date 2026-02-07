@@ -591,6 +591,14 @@
                       ></span>
                     </div>
                   </div>
+                  <div class="pt-4">
+                    <button
+                      @click="confirmDeleteUser()"
+                      class="w-full text-red-500 text-xs font-black uppercase tracking-widest hover:text-red-700 transition border border-red-100 bg-red-50 py-3 rounded-xl"
+                    >
+                      Delete Student Account
+                    </button>
+                  </div>
                 </div>
 
                 <h3
@@ -1166,6 +1174,34 @@
             await this.refresh();
             this.syncWithDrive();
           },
+          
+          async confirmDeleteUser() {
+            if (!this.selectedUser) return;
+            const name = `${this.selectedUser.firstName} ${this.selectedUser.lastName}`;
+            
+            if (confirm(`Are you sure you want to PERMANENTLY DELETE ${name}? \n\nThis action cannot be undone. All transaction history for this student will also be deleted.\n\nTip: You can deactivate the student instead to keep their history but hide them from check-in.`)) {
+                try {
+                    const uuid = this.selectedUser.uuid;
+                    
+                    // Delete all transactions for this user
+                    const userTransactions = this.allTransactions.filter(t => t.userUuid === uuid);
+                    const txIds = userTransactions.map(t => t.uuid);
+                    await this.db.transactions.bulkDelete(txIds);
+                    
+                    // Delete the user
+                    await this.db.users.delete(uuid);
+                    
+                    alert(`${name} has been deleted.`);
+                    this.selectedUser = null;
+                    await this.refresh();
+                    this.syncWithDrive();
+                } catch (e) {
+                    console.error(e);
+                    alert("Error deleting user: " + e.message);
+                }
+            }
+          },
+
           async addFunds() {
             const a = parseFloat(this.depositAmount);
             if (isNaN(a) || a === 0) return;
