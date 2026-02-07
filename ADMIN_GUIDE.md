@@ -4,6 +4,21 @@ This guide is designed to help administrators effectively manage student rosters
 
 ## 1. Getting Started
 
+### Install App Icon (Add to Home Screen)
+For quick access, you can add Flex-Check Pro to your device's home screen like a native app.
+
+**iPhone / iPad (Safari):**
+1. Open the app link in **Safari**.
+2. Tap the **Share** icon (square with arrow up) at the bottom or top.
+3. Scroll down and tap **Add to Home Screen**.
+4. Tap **Add**.
+
+**Android (Chrome):**
+1. Open the app link in **Chrome**.
+2. Tap the **Menu** icon (three dots) at the top right.
+3. Tap **Install app** or **Add to Home Screen**.
+4. Follow the prompt to install.
+
 ### Initial Setup
 When you first launch the application, you must set up the admin account to secure the Roster data.
 1.  Click on the **ROSTER** tab.
