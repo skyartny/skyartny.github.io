@@ -387,10 +387,16 @@
                         class="font-black text-sm block"
                         x-text="checkin.userName"
                       ></span>
-                      <span
-                        class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter"
-                        x-text="checkin.parentEmail || 'No Email'"
-                      ></span>
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter"
+                          x-text="checkin.parentEmail || 'No Email'"
+                        ></span>
+                        <span
+                          class="text-[10px] font-black text-blue-600 uppercase tracking-tighter"
+                          x-text="checkin.classesLeft + ' Left'"
+                        ></span>
+                      </div>
                     </div>
                     <span
                       class="text-[10px] font-bold text-slate-400"
@@ -1028,6 +1034,7 @@
           },
 
           getDailyCheckins() {
+            const fee = parseFloat(this.defaultCheckInAmount) || 30.0;
             return this.allTransactions
               .filter(
                 (t) =>
@@ -1037,12 +1044,14 @@
               )
               .map((t) => {
                 const user = this.allUsers.find((u) => u.uuid === t.userUuid);
+                const balance = user ? user.balance : 0;
                 return {
                   ...t,
                   userName: user
                     ? `${user.firstName} ${user.lastName}`
                     : "Unknown",
                   parentEmail: user ? user.parentEmail : "",
+                  classesLeft: Math.floor(balance / fee),
                 };
               })
               .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
