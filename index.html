@@ -109,14 +109,18 @@
                     x-text="'$' + user.balance.toFixed(2)"
                   ></span>
                   <template x-if="user.hasCheckedIn">
-                    <span
-                      class="text-[10px] font-black text-blue-600 uppercase italic"
-                      >✓ Checked In</span
-                    >
-                  </template>
-                </div>
-              </div>
-              <button
+                        <span
+                          class="text-[10px] font-black text-blue-600 uppercase italic"
+                          >✓ Checked In</span
+                        >
+                      </template>
+                      <span
+                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2"
+                        x-text="Math.floor(user.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left'"
+                      ></span>
+                    </div>
+                  </div>
+                  <button
                 @click="performCheckIn(user)"
                 :disabled="user.hasCheckedIn"
                 :class="user.hasCheckedIn ? 'bg-slate-200 text-slate-400' : 'bg-slate-900 text-white hover:scale-105 shadow-lg'"
@@ -495,11 +499,11 @@
                       class="text-2xl font-black tracking-tight"
                       x-text="selectedUser.firstName + ' ' + selectedUser.lastName"
                     ></h2>
-                    <span
-                      :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                      class="text-sm font-mono font-black mt-1 block"
-                      x-text="'Current Balance: $' + selectedUser.balance.toFixed(2)"
-                    ></span>
+                  <span
+                    :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                    class="text-sm font-mono font-black mt-1 block"
+                    x-text="'Current Balance: $' + selectedUser.balance.toFixed(2) + ' (' + Math.floor(selectedUser.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left)'"
+                  ></span>
                   </div>
                   <button
                     @click="selectedUser = null"
@@ -694,11 +698,17 @@
                           x-text="user.parentEmail || 'No Parent Contact'"
                         ></p>
                       </td>
-                      <td
-                        class="p-5 text-right font-mono font-black"
-                        :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                        x-text="'$' + user.balance.toFixed(2)"
-                      ></td>
+                      <td class="p-5 text-right">
+                        <span
+                          class="font-mono font-black block"
+                          :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                          x-text="'$' + user.balance.toFixed(2)"
+                        ></span>
+                        <span
+                          class="text-[10px] text-slate-400 font-bold uppercase"
+                          x-text="Math.floor(user.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left'"
+                        ></span>
+                      </td>
                     </tr>
                   </template>
                 </tbody>
@@ -1419,7 +1429,24 @@
             if (!student.parentEmail) return;
             const token = localStorage.getItem("gdrive_token");
             if (!token) return;
-            const msg = `To: ${student.parentEmail}\r\nSubject: ${student.firstName} Checked In\r\n\r\n${student.firstName} has checked in. Current balance: $${balance.toFixed(2)}.`;
+            const dateStr = new Date().toLocaleDateString("zh-CN", {
+              month: "long",
+              day: "numeric",
+            });
+            const todayFull = new Date().toLocaleDateString("zh-CN", {
+              month: "numeric",
+              day: "numeric",
+              weekday: "long"
+            }).replace("/", "/"); // Ensure format like 11/28 星期五
+
+            // Calculate classes left (assuming $30 per class for estimation, or just show balance)
+            // For now, let's just show the balance as requested, or time left if you have that logic.
+            // The prompt asks for "Time Left: 4". Assuming balance / fee.
+            const fee = parseFloat(this.defaultCheckInAmount) || 30.0;
+            const timeLeft = Math.floor(balance / fee);
+
+            const msg = `To: ${student.parentEmail}\r\nSubject: 感谢来石开画画 [${dateStr}]\r\n\r\n${student.firstName} 的家长，\n\n您好！\n\n感谢孩子(们)于 ${todayFull} 来石开画室上课。\n根据记录，今天上完课后，课时情况如下：\n\nFirst Name                     Last Name     Time Left\n${student.firstName} (${student.lastName}) \t${student.lastName}\t${timeLeft} \n\n\n学生每次来工作室的时候请记得在前台登记。\n如您有任何疑问请直接回电邮，或微信联系石开老师。\n\n感谢您的支持！\n\n石开画廊与艺术中心\nSky Gallery & Art Center\n1 N Tyson Ave.\n2nd Floor\nFloral Park NY 11001\n------\nPlease make payment in advance. Thank you! \nAccepted payment method:\nCash\nCheck: Payable to Sky Gallery & Art Center\nZelle: skyskteacher@gmail.com (Sky Gallery & Art Center)`;
+            
             const raw = btoa(unescape(encodeURIComponent(msg)))
               .replace(/\+/g, "-")
               .replace(/\//g, "_")
