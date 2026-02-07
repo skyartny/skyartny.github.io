@@ -22,35 +22,9 @@
       defer
       src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
     <div x-data="app()" x-init="init()" class="max-w-2xl mx-auto p-4">
-      <div
-        class="fixed top-4 right-4 flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-full shadow-sm border text-[10px] font-black z-50"
-      >
-        <template x-if="syncStatus === 'Offline'">
-          <button
-            @click="connectGoogle()"
-            class="text-blue-600 hover:text-blue-800 transition uppercase tracking-widest"
-          >
-            Connect Google
-          </button>
-        </template>
-        <template x-if="syncStatus !== 'Offline'">
-          <div class="flex items-center gap-2">
-            <div
-              :class="{
-            'bg-green-500': syncStatus === 'Connected',
-            'bg-blue-500 animate-pulse': syncStatus === 'Syncing',
-            'bg-red-500': syncStatus === 'Error'
-        }"
-              class="w-2 h-2 rounded-full"
-            ></div>
-            <span x-text="syncStatus"></span>
-          </div>
-        </template>
-      </div>
 
       <header class="mb-8 pt-6">
         <div class="flex justify-between items-end mb-6">
@@ -294,89 +268,9 @@
               <div>
                 <h2 class="text-2xl font-black mb-4">Reset Password</h2>
                 <div class="space-y-4">
-                  <template x-if="syncStatus !== 'Connected'">
-                    <div class="space-y-4">
-                      <p class="text-sm text-slate-500 mb-4">
-                        Please sign in with Google to verify your identity
-                        before resetting your password.
-                      </p>
-                      <button
-                        @click="connectGoogle()"
-                        class="w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition flex items-center justify-center gap-2"
-                      >
-                        <svg
-                          class="w-5 h-5"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                            fill="#FFFFFF"
-                          ></path>
-                          <path
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            fill="#FFFFFF"
-                          ></path>
-                          <path
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                            fill="#FFFFFF"
-                          ></path>
-                          <path
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                            fill="#FFFFFF"
-                          ></path>
-                        </svg>
-                        Verify with Google
-                      </button>
-                    </div>
-                  </template>
-
-                  <template x-if="syncStatus === 'Connected'">
-                    <div class="space-y-4">
-                      <p class="text-sm text-emerald-600 font-bold mb-4">
-                        ✓ Identity Verified with Google
-                      </p>
-                      <div class="relative">
-                        <input
-                          :type="resetShowNew ? 'text' : 'password'"
-                          x-model="resetNew"
-                          placeholder="New Password"
-                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                        />
-                        <button
-                          type="button"
-                          @click="resetShowNew = !resetShowNew"
-                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                        >
-                          <span x-text="resetShowNew ? '🙈' : '👁️'"></span>
-                        </button>
-                      </div>
-                      <div class="relative">
-                        <input
-                          :type="resetShowConfirm ? 'text' : 'password'"
-                          x-model="resetConfirm"
-                          placeholder="Confirm Password"
-                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                        />
-                        <button
-                          type="button"
-                          @click="resetShowConfirm = !resetShowConfirm"
-                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                        >
-                          <span x-text="resetShowConfirm ? '🙈' : '👁️'"></span>
-                        </button>
-                      </div>
-                      <button
-                        @click="confirmReset()"
-                        class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-700 transition"
-                      >
-                        Set New Password
-                      </button>
-                    </div>
-                  </template>
 
                   <template
-                    x-if="hasSecurityQuestion && syncStatus !== 'Connected'"
+                    x-if="hasSecurityQuestion"
                   >
                     <div class="space-y-4 pt-4">
                       <p
@@ -927,7 +821,6 @@
         return {
           view: "checkin",
           isAdminUnlocked: false,
-          syncStatus: "Offline",
           db: null,
           searchQuery: "",
           adminSearchQuery: "",
@@ -965,20 +858,12 @@
           resetShowNew: false,
           resetShowConfirm: false,
 
-          isSyncing: false,
-          lastSyncTime: 0,
           reportDate: new Date().toISOString().split("T")[0],
           todayDate: new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
             day: "numeric",
           }),
-
-          // CONFIG
-          CLIENT_ID:
-            "211330619801-3vrmtmel7d3o3uuoqrs75qk0jqr4988n.apps.googleusercontent.com",
-          SCOPES:
-            "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send",
 
           async init() {
             try {
@@ -1000,20 +885,6 @@
               }
 
               await this.refresh();
-
-              const token = localStorage.getItem("gdrive_token");
-              const exp = localStorage.getItem("gdrive_exp");
-
-              if (!token || Date.now() > exp) {
-                this.syncStatus = "Offline";
-                // Do NOT prompt automatically on load to avoid annoyance
-                // User can click button
-              } else {
-                this.syncWithDrive();
-              }
-
-              // Start Auto-Sync
-              setInterval(() => this.syncWithDrive(), 300000);
             } catch (e) {
               console.error("Initialization error:", e);
             }
@@ -1031,7 +902,6 @@
             this.view = "admin";
             this.passwordInput = "";
             this.resetAnswer = "";
-            this.syncWithDrive();
           },
 
           async initiateReset() {
@@ -1048,24 +918,11 @@
             } else {
               this.hasSecurityQuestion = false;
             }
-
-            // Check if already connected/have token
-            const token = localStorage.getItem("gdrive_token");
-            const exp = localStorage.getItem("gdrive_exp");
-            if (token && Date.now() < exp) {
-              this.syncStatus = "Connected";
-            }
           },
 
           async confirmReset() {
-            if (
-              this.hasSecurityQuestion &&
-              !this.resetAnswer &&
-              this.syncStatus !== "Connected"
-            ) {
-              alert(
-                "Please answer the security question or verify with Google."
-              );
+            if (this.hasSecurityQuestion && !this.resetAnswer) {
+              alert("Please answer the security question.");
               return;
             }
 
@@ -1082,9 +939,7 @@
 
             // Verification logic
             let verified = false;
-            if (this.syncStatus === "Connected") {
-              verified = true;
-            } else if (this.hasSecurityQuestion && this.resetAnswer) {
+            if (this.hasSecurityQuestion && this.resetAnswer) {
               const ansHash = await this.hash(
                 this.resetAnswer.trim().toLowerCase()
               );
@@ -1115,7 +970,6 @@
               this.isAdminUnlocked = true;
               this.passwordInput = "";
               this.resetAnswer = "";
-              this.syncWithDrive();
             }
           },
 
@@ -1151,8 +1005,6 @@
               timestamp: new Date().toISOString(),
             });
             await this.refresh();
-            this.sendEmail(user, user.balance - fee);
-            this.syncWithDrive();
           },
 
           async refresh() {
@@ -1221,7 +1073,6 @@
           async saveUser(u) {
             await this.db.users.put(JSON.parse(JSON.stringify(u)));
             await this.refresh();
-            this.syncWithDrive();
           },
 
           async confirmDeleteUser() {
@@ -1249,7 +1100,6 @@
                 alert(`${name} has been deleted.`);
                 this.selectedUser = null;
                 await this.refresh();
-                this.syncWithDrive();
               } catch (e) {
                 console.error(e);
                 alert("Error deleting user: " + e.message);
@@ -1273,7 +1123,6 @@
             this.showUser(
               this.allUsers.find((x) => x.uuid === this.selectedUser.uuid)
             );
-            this.syncWithDrive();
           },
           async saveCheckInFee() {
             await this.db.settings.put({
@@ -1281,7 +1130,6 @@
               amount: parseFloat(this.defaultCheckInAmount),
             });
             alert("Check-in fee updated successfully!");
-            this.syncWithDrive();
           },
 
           async processBulk() {
@@ -1308,7 +1156,6 @@
             this.bulkText = "";
             this.showBulk = false;
             await this.refresh();
-            this.syncWithDrive();
           },
           async exportBackup() {
             const users = await this.db.users.toArray();
@@ -1377,7 +1224,6 @@
 
                 alert("Backup restored successfully!");
                 await this.refresh();
-                this.syncWithDrive();
               } catch (err) {
                 console.error(err);
                 alert("Error importing backup: " + err.message);
@@ -1423,7 +1269,6 @@
             this.cpAnswer = "";
 
             alert("Admin account created successfully!");
-            this.syncWithDrive();
           },
 
           async submitChangePassword() {
@@ -1495,8 +1340,6 @@
               this.isAdminUnlocked = true;
               this.hasAdminConfig = true;
             }
-
-            this.syncWithDrive();
           },
           formatTime(iso) {
             return new Date(iso).toLocaleTimeString([], {
@@ -1506,245 +1349,6 @@
           },
           formatDate(iso) {
             return new Date(iso).toLocaleDateString();
-          },
-
-          connectGoogle() {
-            google.accounts.oauth2
-              .initTokenClient({
-                client_id: this.CLIENT_ID,
-                scope: this.SCOPES,
-                callback: (res) => {
-                  localStorage.setItem("gdrive_token", res.access_token);
-                  localStorage.setItem(
-                    "gdrive_exp",
-                    Date.now() + res.expires_in * 1000
-                  );
-                  this.syncStatus = "Connected";
-                  this.syncWithDrive();
-                },
-              })
-              .requestAccessToken();
-          },
-
-          async sendEmail(student, balance) {
-            if (!student.parentEmail) return;
-            const token = localStorage.getItem("gdrive_token");
-            if (!token) return;
-            const dateStr = new Date().toLocaleDateString("zh-CN", {
-              month: "long",
-              day: "numeric",
-            });
-            const todayFull = new Date()
-              .toLocaleDateString("zh-CN", {
-                month: "numeric",
-                day: "numeric",
-                weekday: "long",
-              })
-              .replace("/", "/");
-
-            const fee = parseFloat(this.defaultCheckInAmount) || 30.0;
-            const timeLeft = Math.floor(balance / fee);
-
-            const subject = `感谢来石开画画 [${dateStr}]`;
-
-            // Encode subject using RFC 2047 for UTF-8 compatibility
-            const subjectEncoded = `=?utf-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
-
-            const body = `
-${student.firstName} 的家长，
-
-您好！
-
-感谢孩子(们)于 ${todayFull} 来石开画室上课。
-根据记录，今天上完课后，课时情况如下：
-
-First Name                     Last Name     Time Left
-${student.firstName} (${student.lastName}) \t${student.lastName}\t${timeLeft}
-
-
-学生每次来工作室的时候请记得在前台登记。
-如您有任何疑问请直接回电邮，或微信联系石开老师。
-
-感谢您的支持！
-
-石开画廊与艺术中心
-Sky Gallery & Art Center
-1 N Tyson Ave.
-2nd Floor
-Floral Park NY 11001
-------
-Please make payment in advance. Thank you!
-Accepted payment method:
-Cash
-Check: Payable to Sky Gallery & Art Center
-Zelle: skyskteacher@gmail.com (Sky Gallery & Art Center)
-`;
-
-            // Construct raw email with proper headers
-            // 1. Encode Body to Base64 (Standard) and wrap lines at 76 chars
-            const bodyBase64 = btoa(unescape(encodeURIComponent(body)))
-              .match(/.{1,76}/g)
-              .join("\r\n");
-
-            const emailLines = [
-              `To: ${student.parentEmail.trim()}`,
-              `Subject: ${subjectEncoded}`,
-              `Date: ${new Date().toUTCString()}`,
-              "MIME-Version: 1.0",
-              "Content-Type: text/plain; charset=UTF-8",
-              "Content-Transfer-Encoding: base64",
-              "",
-              bodyBase64,
-            ];
-
-            const mimeMessage = emailLines.join("\r\n");
-
-            // 2. Encode entire message to Base64Url (Gmail API Requirement)
-            const raw = btoa(unescape(encodeURIComponent(mimeMessage)))
-              .replace(/\+/g, "-")
-              .replace(/\//g, "_")
-              .replace(/=+$/, "");
-
-            fetch(
-              "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ raw }),
-              }
-            ).then(async (res) => {
-              if (!res.ok) {
-                const err = await res.json();
-                console.error("Email API Error:", err);
-                alert(
-                  "Failed to send email: " +
-                    (err.error?.message || "Unknown error")
-                );
-              }
-            });
-          },
-
-          async syncWithDrive() {
-            if (this.isSyncing) return;
-            // Prevent excessively frequent syncing (min 10s between syncs)
-            if (Date.now() - this.lastSyncTime < 10000) return;
-
-            const token = localStorage.getItem("gdrive_token");
-            const exp = localStorage.getItem("gdrive_exp");
-            if (!token || Date.now() > exp) {
-              this.syncStatus = "Offline";
-              return;
-            }
-
-            this.isSyncing = true;
-            this.syncStatus = "Syncing";
-
-            try {
-              let fileId = localStorage.getItem("gdrive_file_id");
-              if (!fileId) {
-                const list = await (
-                  await fetch(
-                    'https://www.googleapis.com/drive/v3/files?q=name="flexcheck_master.json"',
-                    { headers: { Authorization: `Bearer ${token}` } }
-                  )
-                ).json();
-                if (list.files?.length) {
-                  fileId = list.files[0].id;
-                  localStorage.setItem("gdrive_file_id", fileId);
-                }
-              }
-
-              let remote = { users: [], transactions: [], settings: [] };
-              let remoteContentStr = JSON.stringify(remote);
-
-              if (fileId) {
-                const res = await fetch(
-                  `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
-                  { headers: { Authorization: `Bearer ${token}` } }
-                );
-                if (res.ok) {
-                  remote = await res.json();
-                  // Normalize remote to ensure consistency for comparison
-                  remote = {
-                    users: remote.users || [],
-                    transactions: remote.transactions || [],
-                    settings: remote.settings || [],
-                  };
-                  remoteContentStr = JSON.stringify(remote);
-                }
-              }
-
-              const mUsers = this.merge(
-                remote.users,
-                await this.db.users.toArray()
-              );
-              const mTxs = this.merge(
-                remote.transactions,
-                await this.db.transactions.toArray()
-              );
-              const mSets = this.merge(
-                remote.settings,
-                await this.db.settings.toArray()
-              );
-
-              await this.db.users.bulkPut(mUsers);
-              await this.db.transactions.bulkPut(mTxs);
-              await this.db.settings.bulkPut(mSets);
-
-              const newContent = {
-                users: mUsers,
-                transactions: mTxs,
-                settings: mSets,
-              };
-              const newContentStr = JSON.stringify(newContent);
-
-              // ONLY upload if content has changed from what was on remote
-              if (newContentStr !== remoteContentStr) {
-                const meta = {
-                  name: "flexcheck_master.json",
-                  mimeType: "application/json",
-                };
-                const form = new FormData();
-                form.append(
-                  "metadata",
-                  new Blob([JSON.stringify(meta)], { type: "application/json" })
-                );
-                form.append(
-                  "file",
-                  new Blob([newContentStr], { type: "application/json" })
-                );
-
-                const url = fileId
-                  ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
-                  : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
-
-                const pushRes = await fetch(url, {
-                  method: fileId ? "PATCH" : "POST",
-                  headers: { Authorization: `Bearer ${token}` },
-                  body: form,
-                });
-
-                const push = await pushRes.json();
-
-                if (!fileId && push.id)
-                  localStorage.setItem("gdrive_file_id", push.id);
-                console.log("Synced changes to Drive.");
-              } else {
-                console.log("No changes to sync to Drive.");
-              }
-
-              this.syncStatus = "Connected";
-              await this.refresh();
-              this.lastSyncTime = Date.now();
-            } catch (e) {
-              console.error(e);
-              this.syncStatus = "Error";
-            } finally {
-              this.isSyncing = false;
-            }
           },
 
           merge(a1, a2) {
