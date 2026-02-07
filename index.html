@@ -1045,6 +1045,13 @@
             const q = this.searchQuery.toLowerCase();
             this.searchResults = this.allUsers
               .filter((u) => u.isActive === 1 && u.nameSearch.includes(q))
+              .sort((a, b) => {
+                // Sort by checked-in status (false first, true last)
+                if (a.hasCheckedIn && !b.hasCheckedIn) return 1;
+                if (!a.hasCheckedIn && b.hasCheckedIn) return -1;
+                // Secondary sort by name if check-in status is same
+                return a.nameSearch.localeCompare(b.nameSearch);
+              })
               .slice(0, 10);
           },
           async showUser(u) {
