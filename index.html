@@ -1581,16 +1581,25 @@ Zelle: skyskteacher@gmail.com (Sky Gallery & Art Center)
 `;
 
             // Construct raw email with proper headers
+            // 1. Encode Body to Base64 (Standard) and wrap lines at 76 chars
+            const bodyBase64 = btoa(unescape(encodeURIComponent(body)))
+              .match(/.{1,76}/g)
+              .join("\r\n");
+
             const emailLines = [
-              `To: ${student.parentEmail}`,
+              `To: ${student.parentEmail.trim()}`,
               `Subject: ${subjectEncoded}`,
+              `Date: ${new Date().toUTCString()}`,
               "MIME-Version: 1.0",
-              "Content-Type: text/plain; charset=utf-8",
+              "Content-Type: text/plain; charset=UTF-8",
               "Content-Transfer-Encoding: base64",
               "",
-              btoa(unescape(encodeURIComponent(body))),
+              bodyBase64,
             ];
+
             const mimeMessage = emailLines.join("\r\n");
+
+            // 2. Encode entire message to Base64Url (Gmail API Requirement)
             const raw = btoa(unescape(encodeURIComponent(mimeMessage)))
               .replace(/\+/g, "-")
               .replace(/\//g, "_")
@@ -1606,7 +1615,16 @@ Zelle: skyskteacher@gmail.com (Sky Gallery & Art Center)
                 },
                 body: JSON.stringify({ raw }),
               }
-            );
+            ).then(async (res) => {
+              if (!res.ok) {
+                const err = await res.json();
+                console.error("Email API Error:", err);
+                alert(
+                  "Failed to send email: " +
+                    (err.error?.message || "Unknown error")
+                );
+              }
+            });
           },
 
           async syncWithDrive() {
