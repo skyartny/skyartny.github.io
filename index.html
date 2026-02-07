@@ -109,18 +109,18 @@
                     x-text="'$' + user.balance.toFixed(2)"
                   ></span>
                   <template x-if="user.hasCheckedIn">
-                        <span
-                          class="text-[10px] font-black text-blue-600 uppercase italic"
-                          >✓ Checked In</span
-                        >
-                      </template>
-                      <span
-                        class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2"
-                        x-text="Math.floor(user.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left'"
-                      ></span>
-                    </div>
-                  </div>
-                  <button
+                    <span
+                      class="text-[10px] font-black text-blue-600 uppercase italic"
+                      >✓ Checked In</span
+                    >
+                  </template>
+                  <span
+                    class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2"
+                    x-text="Math.floor(user.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left'"
+                  ></span>
+                </div>
+              </div>
+              <button
                 @click="performCheckIn(user)"
                 :disabled="user.hasCheckedIn"
                 :class="user.hasCheckedIn ? 'bg-slate-200 text-slate-400' : 'bg-slate-900 text-white hover:scale-105 shadow-lg'"
@@ -145,42 +145,53 @@
                 <template x-if="!hasAdminConfig">
                   <div>
                     <h2 class="text-2xl font-black mb-4">Setup Admin</h2>
-                    <form @submit.prevent="createAdminAccount" class="space-y-4">
-                        <div class="relative">
-                          <input
-                            :type="cpShowNew ? 'text' : 'password'"
-                            x-model="cpNew"
-                            placeholder="Create Password"
-                            class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                          />
-                          <button
-                            type="button"
-                            @click="cpShowNew = !cpShowNew"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                          >
-                            <span x-text="cpShowNew ? '🙈' : '👁️'"></span>
-                          </button>
-                        </div>
-                        
-                        <div class="relative">
-                          <input
-                            :type="cpShowConfirm ? 'text' : 'password'"
-                            x-model="cpConfirm"
-                            placeholder="Confirm Password"
-                            class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                          />
-                          <button
-                            type="button"
-                            @click="cpShowConfirm = !cpShowConfirm"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                          >
-                            <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
-                          </button>
-                        </div>
+                    <form
+                      @submit.prevent="createAdminAccount"
+                      class="space-y-4"
+                    >
+                      <div class="relative">
+                        <input
+                          :type="cpShowNew ? 'text' : 'password'"
+                          x-model="cpNew"
+                          placeholder="Create Password"
+                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
+                        />
+                        <button
+                          type="button"
+                          @click="cpShowNew = !cpShowNew"
+                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                        >
+                          <span x-text="cpShowNew ? '🙈' : '👁️'"></span>
+                        </button>
+                      </div>
 
-                      <div class="text-left space-y-2 bg-slate-50 p-4 rounded-xl border">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase">Security Question (Required)</label>
-                        <select x-model="cpQuestion" class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm">
+                      <div class="relative">
+                        <input
+                          :type="cpShowConfirm ? 'text' : 'password'"
+                          x-model="cpConfirm"
+                          placeholder="Confirm Password"
+                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
+                        />
+                        <button
+                          type="button"
+                          @click="cpShowConfirm = !cpShowConfirm"
+                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                        >
+                          <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
+                        </button>
+                      </div>
+
+                      <div
+                        class="text-left space-y-2 bg-slate-50 p-4 rounded-xl border"
+                      >
+                        <label
+                          class="block text-[10px] font-black text-slate-400 uppercase"
+                          >Security Question (Required)</label
+                        >
+                        <select
+                          x-model="cpQuestion"
+                          class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm"
+                        >
                           <option>What is your mother's maiden name?</option>
                           <option>What was the name of your first pet?</option>
                           <option>What city were you born in?</option>
@@ -286,8 +297,8 @@
                   <template x-if="syncStatus !== 'Connected'">
                     <div class="space-y-4">
                       <p class="text-sm text-slate-500 mb-4">
-                        Please sign in with Google to verify your identity before
-                        resetting your password.
+                        Please sign in with Google to verify your identity
+                        before resetting your password.
                       </p>
                       <button
                         @click="connectGoogle()"
@@ -325,36 +336,36 @@
                       <p class="text-sm text-emerald-600 font-bold mb-4">
                         ✓ Identity Verified with Google
                       </p>
-                        <div class="relative">
-                          <input
-                            :type="resetShowNew ? 'text' : 'password'"
-                            x-model="resetNew"
-                            placeholder="New Password"
-                            class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                          />
-                          <button
-                            type="button"
-                            @click="resetShowNew = !resetShowNew"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                          >
-                            <span x-text="resetShowNew ? '🙈' : '👁️'"></span>
-                          </button>
-                        </div>
-                        <div class="relative">
-                          <input
-                            :type="resetShowConfirm ? 'text' : 'password'"
-                            x-model="resetConfirm"
-                            placeholder="Confirm Password"
-                            class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                          />
-                          <button
-                            type="button"
-                            @click="resetShowConfirm = !resetShowConfirm"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                          >
-                            <span x-text="resetShowConfirm ? '🙈' : '👁️'"></span>
-                          </button>
-                        </div>
+                      <div class="relative">
+                        <input
+                          :type="resetShowNew ? 'text' : 'password'"
+                          x-model="resetNew"
+                          placeholder="New Password"
+                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
+                        />
+                        <button
+                          type="button"
+                          @click="resetShowNew = !resetShowNew"
+                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                        >
+                          <span x-text="resetShowNew ? '🙈' : '👁️'"></span>
+                        </button>
+                      </div>
+                      <div class="relative">
+                        <input
+                          :type="resetShowConfirm ? 'text' : 'password'"
+                          x-model="resetConfirm"
+                          placeholder="Confirm Password"
+                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
+                        />
+                        <button
+                          type="button"
+                          @click="resetShowConfirm = !resetShowConfirm"
+                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                        >
+                          <span x-text="resetShowConfirm ? '🙈' : '👁️'"></span>
+                        </button>
+                      </div>
                       <button
                         @click="confirmReset()"
                         class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-700 transition"
@@ -364,19 +375,26 @@
                     </div>
                   </template>
 
-                  <template x-if="hasSecurityQuestion && syncStatus !== 'Connected'">
+                  <template
+                    x-if="hasSecurityQuestion && syncStatus !== 'Connected'"
+                  >
                     <div class="space-y-4 pt-4">
-                      <p class="text-xs text-slate-400 font-black uppercase mb-1">
+                      <p
+                        class="text-xs text-slate-400 font-black uppercase mb-1"
+                      >
                         Security Question
                       </p>
-                      <p class="text-sm font-bold text-slate-700 mb-2" x-text="securityQuestion"></p>
+                      <p
+                        class="text-sm font-bold text-slate-700 mb-2"
+                        x-text="securityQuestion"
+                      ></p>
                       <input
                         type="text"
                         x-model="resetAnswer"
                         placeholder="Your Answer"
                         class="w-full p-3 rounded-xl border bg-slate-50 text-center focus:ring-2 focus:ring-blue-500"
                       />
-                      
+
                       <!-- Only show password fields if answer is typed (visual cue) or we do validation on submit -->
                       <div x-show="resetAnswer.length > 0" x-transition>
                         <div class="relative mt-2">
@@ -406,7 +424,9 @@
                             @click="resetShowConfirm = !resetShowConfirm"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
                           >
-                            <span x-text="resetShowConfirm ? '🙈' : '👁️'"></span>
+                            <span
+                              x-text="resetShowConfirm ? '🙈' : '👁️'"
+                            ></span>
                           </button>
                         </div>
                         <button
@@ -422,7 +442,8 @@
                   <template x-if="!hasSecurityQuestion">
                     <div class="text-center p-4">
                       <p class="text-sm text-red-500 font-bold">
-                        No security question set. Please contact support or reset the application (clear data).
+                        No security question set. Please contact support or
+                        reset the application (clear data).
                       </p>
                     </div>
                   </template>
@@ -460,7 +481,10 @@
                 />
               </div>
               <div class="max-h-60 overflow-y-auto divide-y">
-                <template x-for="checkin in getDailyCheckins()" :key="checkin.uuid">
+                <template
+                  x-for="checkin in getDailyCheckins()"
+                  :key="checkin.uuid"
+                >
                   <div
                     class="p-4 flex justify-between items-center hover:bg-slate-50"
                   >
@@ -570,10 +594,13 @@
                     </div>
                   </div>
                   <div class="space-y-1">
-                    <label class="text-[10px] font-black text-slate-400 uppercase"
+                    <label
+                      class="text-[10px] font-black text-slate-400 uppercase"
                       >Status</label
                     >
-                    <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl">
+                    <div
+                      class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl"
+                    >
                       <button
                         @click="selectedUser.isActive = selectedUser.isActive ? 0 : 1; saveUser(selectedUser)"
                         class="relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -695,10 +722,16 @@
                             x-text="user.firstName + ' ' + user.lastName"
                           ></p>
                           <template x-if="user.isActive === 0">
-                            <span class="text-[9px] text-red-500 font-black uppercase bg-red-50 px-2 py-0.5 rounded-full">Inactive</span>
+                            <span
+                              class="text-[9px] text-red-500 font-black uppercase bg-red-50 px-2 py-0.5 rounded-full"
+                              >Inactive</span
+                            >
                           </template>
                           <template x-if="user.isActive === 1">
-                            <span class="text-[9px] text-green-600 font-black uppercase bg-green-50 px-2 py-0.5 rounded-full">Active</span>
+                            <span
+                              class="text-[9px] text-green-600 font-black uppercase bg-green-50 px-2 py-0.5 rounded-full"
+                              >Active</span
+                            >
                           </template>
                         </div>
                         <p
@@ -759,7 +792,10 @@
               <!-- Password Management -->
               <div class="p-6 border-t bg-slate-50 space-y-4">
                 <div class="bg-white p-4 rounded-xl border">
-                  <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Check-in Fee ($)</label>
+                  <label
+                    class="block text-[10px] font-black text-slate-400 uppercase mb-2"
+                    >Check-in Fee ($)</label
+                  >
                   <div class="flex gap-2">
                     <input
                       type="number"
@@ -840,14 +876,17 @@
                     <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
                   </button>
                 </div>
-                
+
                 <div class="border-t pt-4 mt-4">
-                  <label 
-                    class="block text-xs font-black text-slate-400 uppercase mb-2" 
+                  <label
+                    class="block text-xs font-black text-slate-400 uppercase mb-2"
                     x-text="!hasAdminConfig ? 'Security Question (Required)' : 'Security Question (Optional)'"
                   >
                   </label>
-                  <select x-model="cpQuestion" class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 text-sm mb-2">
+                  <select
+                    x-model="cpQuestion"
+                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 text-sm mb-2"
+                  >
                     <option>What is your mother's maiden name?</option>
                     <option>What was the name of your first pet?</option>
                     <option>What city were you born in?</option>
@@ -916,16 +955,16 @@
           cpShowCurrent: false,
           cpShowNew: false,
           cpShowConfirm: false,
-          
+
           hasAdminConfig: false,
-          
+
           // Reset State
           resetAnswer: "",
           securityQuestion: "",
           hasSecurityQuestion: false,
           resetShowNew: false,
           resetShowConfirm: false,
-          
+
           isSyncing: false,
           lastSyncTime: 0,
           reportDate: new Date().toISOString().split("T")[0],
@@ -936,9 +975,11 @@
           }),
 
           // CONFIG
-          CLIENT_ID: "211330619801-3vrmtmel7d3o3uuoqrs75qk0jqr4988n.apps.googleusercontent.com",
-          SCOPES: "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send",
-          
+          CLIENT_ID:
+            "211330619801-3vrmtmel7d3o3uuoqrs75qk0jqr4988n.apps.googleusercontent.com",
+          SCOPES:
+            "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send",
+
           async init() {
             try {
               this.db = new Dexie("FlexCheck_V4");
@@ -951,7 +992,7 @@
               // Check for admin config immediately (before loading data)
               const config = await this.db.settings.get("admin_config");
               this.hasAdminConfig = !!config;
-              
+
               // Load Check-in Fee
               const feeConfig = await this.db.settings.get("checkin_fee");
               if (feeConfig) {
@@ -998,7 +1039,7 @@
             this.resetNew = "";
             this.resetConfirm = "";
             this.resetAnswer = "";
-            
+
             // Check config for security question
             const config = await this.db.settings.get("admin_config");
             if (config && config.securityQuestion) {
@@ -1017,11 +1058,17 @@
           },
 
           async confirmReset() {
-            if (this.hasSecurityQuestion && !this.resetAnswer && this.syncStatus !== 'Connected') {
-               alert("Please answer the security question or verify with Google.");
-               return;
+            if (
+              this.hasSecurityQuestion &&
+              !this.resetAnswer &&
+              this.syncStatus !== "Connected"
+            ) {
+              alert(
+                "Please answer the security question or verify with Google."
+              );
+              return;
             }
-            
+
             if (!this.resetNew || !this.resetConfirm) {
               alert("Please enter a new password.");
               return;
@@ -1032,22 +1079,24 @@
             }
 
             const config = await this.db.settings.get("admin_config");
-            
+
             // Verification logic
             let verified = false;
-            if (this.syncStatus === 'Connected') {
-               verified = true;
+            if (this.syncStatus === "Connected") {
+              verified = true;
             } else if (this.hasSecurityQuestion && this.resetAnswer) {
-               const ansHash = await this.hash(this.resetAnswer.trim().toLowerCase());
-               if (ansHash === config.securityAnswerHash) {
-                 verified = true;
-               } else {
-                 alert("Incorrect security answer.");
-                 return;
-               }
+              const ansHash = await this.hash(
+                this.resetAnswer.trim().toLowerCase()
+              );
+              if (ansHash === config.securityAnswerHash) {
+                verified = true;
+              } else {
+                alert("Incorrect security answer.");
+                return;
+              }
             } else {
-               alert("Authentication failed.");
-               return;
+              alert("Authentication failed.");
+              return;
             }
 
             if (verified) {
@@ -1056,9 +1105,9 @@
                 id: "admin_config",
                 passwordHash: newHash,
                 securityQuestion: config.securityQuestion,
-                securityAnswerHash: config.securityAnswerHash
+                securityAnswerHash: config.securityAnswerHash,
               };
-              
+
               await this.db.settings.put(updates);
 
               alert("Password reset successfully. You are now logged in.");
@@ -1083,8 +1132,8 @@
                 this.passwordInput = "";
               }
             } else {
-                // Fallback if UI state is out of sync, though init() should catch this
-                alert("Please reload the page to set up the admin account.");
+              // Fallback if UI state is out of sync, though init() should catch this
+              alert("Please reload the page to set up the admin account.");
             }
           },
 
@@ -1174,31 +1223,37 @@
             await this.refresh();
             this.syncWithDrive();
           },
-          
+
           async confirmDeleteUser() {
             if (!this.selectedUser) return;
             const name = `${this.selectedUser.firstName} ${this.selectedUser.lastName}`;
-            
-            if (confirm(`Are you sure you want to PERMANENTLY DELETE ${name}? \n\nThis action cannot be undone. All transaction history for this student will also be deleted.\n\nTip: You can deactivate the student instead to keep their history but hide them from check-in.`)) {
-                try {
-                    const uuid = this.selectedUser.uuid;
-                    
-                    // Delete all transactions for this user
-                    const userTransactions = this.allTransactions.filter(t => t.userUuid === uuid);
-                    const txIds = userTransactions.map(t => t.uuid);
-                    await this.db.transactions.bulkDelete(txIds);
-                    
-                    // Delete the user
-                    await this.db.users.delete(uuid);
-                    
-                    alert(`${name} has been deleted.`);
-                    this.selectedUser = null;
-                    await this.refresh();
-                    this.syncWithDrive();
-                } catch (e) {
-                    console.error(e);
-                    alert("Error deleting user: " + e.message);
-                }
+
+            if (
+              confirm(
+                `Are you sure you want to PERMANENTLY DELETE ${name}? \n\nThis action cannot be undone. All transaction history for this student will also be deleted.\n\nTip: You can deactivate the student instead to keep their history but hide them from check-in.`
+              )
+            ) {
+              try {
+                const uuid = this.selectedUser.uuid;
+
+                // Delete all transactions for this user
+                const userTransactions = this.allTransactions.filter(
+                  (t) => t.userUuid === uuid
+                );
+                const txIds = userTransactions.map((t) => t.uuid);
+                await this.db.transactions.bulkDelete(txIds);
+
+                // Delete the user
+                await this.db.users.delete(uuid);
+
+                alert(`${name} has been deleted.`);
+                this.selectedUser = null;
+                await this.refresh();
+                this.syncWithDrive();
+              } catch (e) {
+                console.error(e);
+                alert("Error deleting user: " + e.message);
+              }
             }
           },
 
@@ -1223,7 +1278,7 @@
           async saveCheckInFee() {
             await this.db.settings.put({
               id: "checkin_fee",
-              amount: parseFloat(this.defaultCheckInAmount)
+              amount: parseFloat(this.defaultCheckInAmount),
             });
             alert("Check-in fee updated successfully!");
             this.syncWithDrive();
@@ -1343,12 +1398,16 @@
               return;
             }
             if (!this.cpAnswer || this.cpAnswer.trim() === "") {
-              alert("Please answer the security question for account recovery.");
+              alert(
+                "Please answer the security question for account recovery."
+              );
               return;
             }
 
             const passwordHash = await this.hash(this.cpNew);
-            const securityAnswerHash = await this.hash(this.cpAnswer.trim().toLowerCase());
+            const securityAnswerHash = await this.hash(
+              this.cpAnswer.trim().toLowerCase()
+            );
 
             await this.db.settings.put({
               id: "admin_config",
@@ -1362,7 +1421,7 @@
             this.cpNew = "";
             this.cpConfirm = "";
             this.cpAnswer = "";
-            
+
             alert("Admin account created successfully!");
             this.syncWithDrive();
           },
@@ -1372,31 +1431,31 @@
               alert("Please fill in all fields.");
               return;
             }
-            
+
             const config = await this.db.settings.get("admin_config");
-            
+
             // If checking current password (only if config exists and we are not forcing setup)
             if (config && this.isAdminUnlocked) {
-               if (!this.cpCurrent) {
-                  alert("Please enter current password.");
-                  return;
-               }
-               const hashed = await this.hash(this.cpCurrent);
-               if (hashed !== config.passwordHash) {
-                 alert("Incorrect current password.");
-                 return;
-               }
+              if (!this.cpCurrent) {
+                alert("Please enter current password.");
+                return;
+              }
+              const hashed = await this.hash(this.cpCurrent);
+              if (hashed !== config.passwordHash) {
+                alert("Incorrect current password.");
+                return;
+              }
             }
 
             if (this.cpNew !== this.cpConfirm) {
               alert("New passwords do not match.");
               return;
             }
-            
+
             // Require security answer for first time setup
             if (!config && (!this.cpAnswer || this.cpAnswer.trim() === "")) {
-                alert("Please set a security answer for password recovery.");
-                return;
+              alert("Please set a security answer for password recovery.");
+              return;
             }
 
             const newHash = await this.hash(this.cpNew);
@@ -1404,33 +1463,39 @@
               id: "admin_config",
               passwordHash: newHash,
             };
-            
+
             // Only update security question if provided (or mandatory for first time)
             if (this.cpAnswer && this.cpAnswer.trim() !== "") {
               updates.securityQuestion = this.cpQuestion;
-              updates.securityAnswerHash = await this.hash(this.cpAnswer.trim().toLowerCase());
+              updates.securityAnswerHash = await this.hash(
+                this.cpAnswer.trim().toLowerCase()
+              );
             } else if (config && config.securityQuestion) {
-               // Preserve existing if not changing
-               updates.securityQuestion = config.securityQuestion;
-               updates.securityAnswerHash = config.securityAnswerHash;
+              // Preserve existing if not changing
+              updates.securityQuestion = config.securityQuestion;
+              updates.securityAnswerHash = config.securityAnswerHash;
             }
 
             await this.db.settings.put(updates);
-            
-            alert(config ? "Password updated successfully." : "Admin password and security question set!");
-            
+
+            alert(
+              config
+                ? "Password updated successfully."
+                : "Admin password and security question set!"
+            );
+
             this.showChangePasswordModal = false;
             this.cpCurrent = "";
             this.cpNew = "";
             this.cpConfirm = "";
             this.cpAnswer = "";
-            
+
             // Unlock if this was first time setup
             if (!config) {
-                this.isAdminUnlocked = true;
-                this.hasAdminConfig = true;
+              this.isAdminUnlocked = true;
+              this.hasAdminConfig = true;
             }
-            
+
             this.syncWithDrive();
           },
           formatTime(iso) {
@@ -1469,17 +1534,19 @@
               month: "long",
               day: "numeric",
             });
-            const todayFull = new Date().toLocaleDateString("zh-CN", {
-              month: "numeric",
-              day: "numeric",
-              weekday: "long"
-            }).replace("/", "/"); 
+            const todayFull = new Date()
+              .toLocaleDateString("zh-CN", {
+                month: "numeric",
+                day: "numeric",
+                weekday: "long",
+              })
+              .replace("/", "/");
 
             const fee = parseFloat(this.defaultCheckInAmount) || 30.0;
             const timeLeft = Math.floor(balance / fee);
 
             const subject = `感谢来石开画画 [${dateStr}]`;
-            
+
             // Encode subject using RFC 2047 for UTF-8 compatibility
             const subjectEncoded = `=?utf-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
 
@@ -1492,7 +1559,7 @@ ${student.firstName} 的家长，
 根据记录，今天上完课后，课时情况如下：
 
 First Name                     Last Name     Time Left
-${student.firstName} (${student.lastName}) \t${student.lastName}\t${timeLeft} 
+${student.firstName} (${student.lastName}) \t${student.lastName}\t${timeLeft}
 
 
 学生每次来工作室的时候请记得在前台登记。
@@ -1506,7 +1573,7 @@ Sky Gallery & Art Center
 2nd Floor
 Floral Park NY 11001
 ------
-Please make payment in advance. Thank you! 
+Please make payment in advance. Thank you!
 Accepted payment method:
 Cash
 Check: Payable to Sky Gallery & Art Center
@@ -1521,10 +1588,10 @@ Zelle: skyskteacher@gmail.com (Sky Gallery & Art Center)
               "Content-Type: text/plain; charset=utf-8",
               "Content-Transfer-Encoding: base64",
               "",
-              btoa(unescape(encodeURIComponent(body)))
+              btoa(unescape(encodeURIComponent(body))),
             ];
-
-            const raw = emailLines.join("\r\n")
+            const mimeMessage = emailLines.join("\r\n");
+            const raw = btoa(unescape(encodeURIComponent(mimeMessage)))
               .replace(/\+/g, "-")
               .replace(/\//g, "_")
               .replace(/=+$/, "");
