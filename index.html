@@ -356,9 +356,15 @@
               <div
                 class="p-4 bg-slate-200 flex justify-between items-center border-b"
               >
-                <h3 class="font-black text-slate-500 uppercase text-[10px]">
-                  Daily Report
-                </h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-black text-slate-500 uppercase text-[10px]">
+                    Daily Report
+                  </h3>
+                  <span
+                    class="bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full"
+                    x-text="getDailyCheckins().length"
+                  ></span>
+                </div>
                 <input
                   type="date"
                   x-model="reportDate"
