@@ -7,7 +7,7 @@ This guide is designed to help administrators effectively manage student rosters
 ### Install App Icon (Add to Home Screen)
 For quick access, you can add Flex-Check Pro to your device's home screen like a native app.
 
-**App URL:** [https://skyartny.github.io/](https://skyartny.github.io/)
+**App URL:** [https://flexcheck.framedghosts.com/](https://flexcheck.framedghosts.com/)
 
 **iPhone / iPad (Safari):**
 1. Open the app link above in **Safari**.

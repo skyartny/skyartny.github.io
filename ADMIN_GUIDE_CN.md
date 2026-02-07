@@ -7,7 +7,7 @@
 ### 安装应用图标 (添加到主屏幕)
 为了方便快速访问，您可以将 Flex-Check Pro 添加到设备的主屏幕，就像原生应用一样。
 
-**应用网址:** [https://skyartny.github.io/](https://skyartny.github.io/)
+**应用网址:** [https://flexcheck.framedghosts.com/](https://flexcheck.framedghosts.com/)
 
 **iPhone / iPad (Safari):**
 1. 在 **Safari** 浏览器中打开上述应用链接。
