@@ -7,17 +7,23 @@
 ### 安装应用图标 (添加到主屏幕)
 为了方便快速访问，您可以将 Flex-Check Pro 添加到设备的主屏幕，就像原生应用一样。
 
+**应用网址:** [https://skyartny.github.io/](https://skyartny.github.io/)
+
 **iPhone / iPad (Safari):**
-1. 在 **Safari** 浏览器中打开应用链接。
+1. 在 **Safari** 浏览器中打开上述应用链接。
 2. 点击底部或顶部的 **分享** 图标 (带有向上箭头的方框)。
 3. 向下滚动并点击 **添加到主屏幕** (Add to Home Screen)。
 4. 点击 **添加** (Add)。
 
+![iOS 安装指南](ios_install.png)
+
 **Android (Chrome):**
-1. 在 **Chrome** 浏览器中打开应用链接。
+1. 在 **Chrome** 浏览器中打开上述应用链接。
 2. 点击右上角的 **菜单** 图标 (三个点)。
 3. 点击 **安装应用** (Install app) 或 **添加到主屏幕** (Add to Home Screen)。
 4. 按照提示完成安装。
+
+![Android 安装指南](android_install.png)
 
 ### 初始设置
 首次启动应用程序时，您必须设置管理员账户以保护花名册数据。
