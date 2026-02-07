@@ -28,7 +28,10 @@ Built with a local-first architecture, it stores data instantly in your browser 
     *   View a chronological list of check-ins for any selected date.
     *   **Count Badge**: Shows the total number of check-ins for the day in the title.
     *   Displays student name, contact email, and remaining class balance.
-*   **Bulk Import**: Quickly add multiple students using a simple text format. Smartly handles duplicates by prompting for confirmation or renaming.
+*   **Bulk Import**: Quickly add multiple students using a simple text format. Smartly handles duplicates by prompting for confirmation or renaming. Shows total active student count.
+*   **Export Data**:
+    *   **Backup**: Download a complete JSON backup of all application data.
+    *   **Excel Export**: Export student list (with active status and balance) and transaction history to an Excel file (.xlsx).
 
 ### ⚙️ Configuration & Data
 *   **Class-Based System**: Tracks attendance by "Classes" (integers) rather than currency.
@@ -41,6 +44,7 @@ Built with a local-first architecture, it stores data instantly in your browser 
 *   **Tailwind CSS** (via CDN for styling)
 *   **Alpine.js** (via CDN for reactivity and state management)
 *   **Dexie.js** (Wrapper for IndexedDB)
+*   **SheetJS** (For Excel export)
 
 ## 🚀 Setup & Installation
 
