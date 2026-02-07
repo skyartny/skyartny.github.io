@@ -599,16 +599,17 @@
                   IMPORT LIST
                 </button>
               </div>
-              <table class="w-full text-left">
-                <thead
-                  class="bg-slate-100 text-[10px] font-black text-slate-400 uppercase"
-                >
-                  <tr>
-                    <th class="p-5">Student Name</th>
-                    <th class="p-5 text-right">Classes Left</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y">
+              <div class="max-h-[60vh] overflow-y-auto">
+                <table class="w-full text-left relative">
+                  <thead
+                    class="bg-slate-100 text-[10px] font-black text-slate-400 uppercase sticky top-0 z-10"
+                  >
+                    <tr>
+                      <th class="p-5">Student Name</th>
+                      <th class="p-5 text-right">Classes Left</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y">
                   <template
                     x-for="user in allUsers.filter(u => !adminSearchQuery || u.nameSearch.includes(adminSearchQuery.toLowerCase()))"
                     :key="user.uuid"
@@ -650,8 +651,9 @@
                       </td>
                     </tr>
                   </template>
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <!-- Data Management -->
