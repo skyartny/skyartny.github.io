@@ -393,7 +393,8 @@
                           x-text="checkin.parentEmail || 'No Email'"
                         ></span>
                         <span
-                          class="text-[10px] font-black text-blue-600 uppercase tracking-tighter"
+                          class="text-[10px] font-black uppercase tracking-tighter"
+                          :class="checkin.classesLeft < 0 ? 'text-red-500' : 'text-blue-600'"
                           x-text="checkin.classesLeft + ' Classes Left'"
                         ></span>
                       </div>
