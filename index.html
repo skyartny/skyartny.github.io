@@ -80,7 +80,7 @@
                   <span
                     :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
                     class="text-sm font-mono font-black"
-                    x-text="'$' + user.balance.toFixed(2)"
+                    x-text="Math.floor(user.balance)"
                   ></span>
                   <template x-if="user.hasCheckedIn">
                     <span
