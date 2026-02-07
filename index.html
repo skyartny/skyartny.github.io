@@ -1437,20 +1437,62 @@
               month: "numeric",
               day: "numeric",
               weekday: "long"
-            }).replace("/", "/"); // Ensure format like 11/28 星期五
+            }).replace("/", "/"); 
 
-            // Calculate classes left (assuming $30 per class for estimation, or just show balance)
-            // For now, let's just show the balance as requested, or time left if you have that logic.
-            // The prompt asks for "Time Left: 4". Assuming balance / fee.
             const fee = parseFloat(this.defaultCheckInAmount) || 30.0;
             const timeLeft = Math.floor(balance / fee);
 
-            const msg = `To: ${student.parentEmail}\r\nSubject: 感谢来石开画画 [${dateStr}]\r\n\r\n${student.firstName} 的家长，\n\n您好！\n\n感谢孩子(们)于 ${todayFull} 来石开画室上课。\n根据记录，今天上完课后，课时情况如下：\n\nFirst Name                     Last Name     Time Left\n${student.firstName} (${student.lastName}) \t${student.lastName}\t${timeLeft} \n\n\n学生每次来工作室的时候请记得在前台登记。\n如您有任何疑问请直接回电邮，或微信联系石开老师。\n\n感谢您的支持！\n\n石开画廊与艺术中心\nSky Gallery & Art Center\n1 N Tyson Ave.\n2nd Floor\nFloral Park NY 11001\n------\nPlease make payment in advance. Thank you! \nAccepted payment method:\nCash\nCheck: Payable to Sky Gallery & Art Center\nZelle: skyskteacher@gmail.com (Sky Gallery & Art Center)`;
+            const subject = `感谢来石开画画 [${dateStr}]`;
             
-            const raw = btoa(unescape(encodeURIComponent(msg)))
+            // Encode subject using RFC 2047 for UTF-8 compatibility
+            const subjectEncoded = `=?utf-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
+
+            const body = `
+${student.firstName} 的家长，
+
+您好！
+
+感谢孩子(们)于 ${todayFull} 来石开画室上课。
+根据记录，今天上完课后，课时情况如下：
+
+First Name                     Last Name     Time Left
+${student.firstName} (${student.lastName}) \t${student.lastName}\t${timeLeft} 
+
+
+学生每次来工作室的时候请记得在前台登记。
+如您有任何疑问请直接回电邮，或微信联系石开老师。
+
+感谢您的支持！
+
+石开画廊与艺术中心
+Sky Gallery & Art Center
+1 N Tyson Ave.
+2nd Floor
+Floral Park NY 11001
+------
+Please make payment in advance. Thank you! 
+Accepted payment method:
+Cash
+Check: Payable to Sky Gallery & Art Center
+Zelle: skyskteacher@gmail.com (Sky Gallery & Art Center)
+`;
+
+            // Construct raw email with proper headers
+            const emailLines = [
+              `To: ${student.parentEmail}`,
+              `Subject: ${subjectEncoded}`,
+              "MIME-Version: 1.0",
+              "Content-Type: text/plain; charset=utf-8",
+              "Content-Transfer-Encoding: base64",
+              "",
+              btoa(unescape(encodeURIComponent(body)))
+            ];
+
+            const raw = emailLines.join("\r\n")
               .replace(/\+/g, "-")
               .replace(/\//g, "_")
               .replace(/=+$/, "");
+
             fetch(
               "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
               {
