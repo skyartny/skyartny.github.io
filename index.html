@@ -499,11 +499,11 @@
                       class="text-2xl font-black tracking-tight"
                       x-text="selectedUser.firstName + ' ' + selectedUser.lastName"
                     ></h2>
-                  <span
-                    :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                    class="text-sm font-mono font-black mt-1 block"
-                    x-text="'Current Balance: $' + selectedUser.balance.toFixed(2) + ' (' + Math.floor(selectedUser.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left)'"
-                  ></span>
+                    <span
+                      :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                      class="text-sm font-mono font-black mt-1 block"
+                      x-text="'Current Balance: $' + selectedUser.balance.toFixed(2) + ' (' + Math.floor(selectedUser.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left)'"
+                    ></span>
                   </div>
                   <button
                     @click="selectedUser = null"
