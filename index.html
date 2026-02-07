@@ -17,6 +17,7 @@
     />
 
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
       defer
@@ -679,26 +680,34 @@
                   Data Management
                 </h3>
               </div>
-              <div class="p-6 flex gap-4">
-                <button
-                  @click="exportBackup()"
-                  class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition text-[10px]"
-                >
-                  Download Backup
-                </button>
-                <div class="flex-1 relative group">
-                  <input
-                    type="file"
-                    accept=".json"
-                    @change="importBackup($event)"
-                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
+              <div class="p-6 flex flex-col gap-4">
+                <div class="flex gap-4">
                   <button
-                    class="w-full bg-white border border-slate-200 text-slate-900 py-3 rounded-xl font-black uppercase tracking-widest group-hover:bg-slate-50 transition text-[10px]"
+                    @click="exportBackup()"
+                    class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition text-[10px]"
                   >
-                    Restore Backup
+                    Download Backup
                   </button>
+                  <div class="flex-1 relative group">
+                    <input
+                      type="file"
+                      accept=".json"
+                      @change="importBackup($event)"
+                      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <button
+                      class="w-full bg-white border border-slate-200 text-slate-900 py-3 rounded-xl font-black uppercase tracking-widest group-hover:bg-slate-50 transition text-[10px]"
+                    >
+                      Restore Backup
+                    </button>
+                  </div>
                 </div>
+                <button
+                  @click="exportExcel()"
+                  class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-700 transition text-[10px]"
+                >
+                  Export to Excel
+                </button>
               </div>
 
               <!-- Password Management -->
@@ -1249,6 +1258,61 @@
               alert(
                 `Import complete.\nAdded: ${importedCount}\nSkipped: ${skippedCount}`
               );
+            }
+          },
+          async exportExcel() {
+            try {
+              const users = await this.db.users.toArray();
+              const transactions = await this.db.transactions.toArray();
+
+              // 1. Prepare Users Sheet
+              const usersData = users.map((u) => {
+                const balance = transactions
+                  .filter((t) => t.userUuid === u.uuid)
+                  .reduce((sum, t) => sum + t.amount, 0);
+                return {
+                  "First Name": u.firstName,
+                  "Last Name": u.lastName,
+                  "Active": u.isActive ? "Yes" : "No",
+                  "Parent Email": u.parentEmail,
+                  "Parent Phone": u.parentPhone,
+                  "Classes Left": Math.floor(balance),
+                  "UUID": u.uuid,
+                };
+              });
+
+              // 2. Prepare Transactions Sheet
+              const txsData = transactions.map((t) => {
+                const user = users.find((u) => u.uuid === t.userUuid);
+                return {
+                  "Date": this.formatDate(t.timestamp),
+                  "Time": this.formatTime(t.timestamp),
+                  "Student": user
+                    ? `${user.firstName} ${user.lastName}`
+                    : "Unknown",
+                  "Type": t.type,
+                  "Description": t.description,
+                  "Amount (Classes)": Math.round(t.amount),
+                  "User UUID": t.userUuid,
+                };
+              });
+
+              // 3. Create Workbook
+              const wb = XLSX.utils.book_new();
+              const wsUsers = XLSX.utils.json_to_sheet(usersData);
+              const wsTxs = XLSX.utils.json_to_sheet(txsData);
+
+              XLSX.utils.book_append_sheet(wb, wsUsers, "Students");
+              XLSX.utils.book_append_sheet(wb, wsTxs, "Transactions");
+
+              // 4. Download
+              XLSX.writeFile(
+                wb,
+                `FlexCheck_Export_${new Date().toISOString().split("T")[0]}.xlsx`
+              );
+            } catch (e) {
+              console.error(e);
+              alert("Error exporting to Excel: " + e.message);
             }
           },
           async exportBackup() {
