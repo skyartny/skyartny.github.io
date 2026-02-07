@@ -30,16 +30,27 @@
       <div
         class="fixed top-4 right-4 flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-full shadow-sm border text-[10px] font-black z-50"
       >
-        <div
-          :class="{
+        <template x-if="syncStatus === 'Offline'">
+          <button
+            @click="connectGoogle()"
+            class="text-blue-600 hover:text-blue-800 transition uppercase tracking-widest"
+          >
+            Connect Google
+          </button>
+        </template>
+        <template x-if="syncStatus !== 'Offline'">
+          <div class="flex items-center gap-2">
+            <div
+              :class="{
             'bg-green-500': syncStatus === 'Connected',
             'bg-blue-500 animate-pulse': syncStatus === 'Syncing',
-            'bg-red-500': syncStatus === 'Error',
-            'bg-slate-300': syncStatus === 'Offline'
+            'bg-red-500': syncStatus === 'Error'
         }"
-          class="w-2 h-2 rounded-full"
-        ></div>
-        <span x-text="syncStatus"></span>
+              class="w-2 h-2 rounded-full"
+            ></div>
+            <span x-text="syncStatus"></span>
+          </div>
+        </template>
       </div>
 
       <header class="mb-8 pt-6">
@@ -55,7 +66,7 @@
           </div>
           <nav class="flex bg-slate-200 p-1 rounded-2xl">
             <button
-              @click="view = 'checkin'; selectedUser = null"
+              @click="view = 'checkin'; selectedUser = null; isAdminUnlocked = false"
               :class="view === 'checkin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
               class="px-5 py-2 rounded-xl text-xs font-black transition"
             >
@@ -120,153 +131,446 @@
       </div>
 
       <div x-show="view === 'admin'" x-transition>
-        <template x-if="selectedUser">
-          <div
-            class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-t-8 border-blue-600 mb-8 animate-in slide-in-from-bottom"
-          >
-            <div class="flex justify-between items-start mb-6">
-              <h2
-                class="text-2xl font-black tracking-tight"
-                x-text="selectedUser.firstName + ' ' + selectedUser.lastName"
-              ></h2>
-              <button
-                @click="selectedUser = null"
-                class="text-slate-300 text-4xl hover:text-slate-600 transition"
-              >
-                &times;
-              </button>
-            </div>
-
-            <div class="space-y-6">
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                  <label class="text-[10px] font-black text-slate-400 uppercase"
-                    >Parent Email</label
-                  >
-                  <input
-                    type="email"
-                    x-model="selectedUser.parentEmail"
-                    @change="saveUser(selectedUser)"
-                    class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div class="space-y-1">
-                  <label class="text-[10px] font-black text-slate-400 uppercase"
-                    >Deposit Funds</label
-                  >
-                  <div class="flex gap-2">
-                    <input
-                      type="number"
-                      x-model="depositAmount"
-                      class="w-full p-3 bg-emerald-50 rounded-xl text-sm border-none shadow-inner"
-                      placeholder="0.00"
-                    />
-                    <button
-                      @click="addFunds()"
-                      class="bg-emerald-600 text-white px-5 rounded-xl font-black"
+        <!-- LOCKED STATE -->
+        <template x-if="!isAdminUnlocked">
+          <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border text-center">
+            <h2 class="text-2xl font-black mb-4">Admin Access</h2>
+            <form @submit.prevent="tryUnlockAdmin" class="space-y-4">
+              <div class="relative">
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  x-model="passwordInput"
+                  placeholder="Enter Password"
+                  class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
+                />
+                <button
+                  type="button"
+                  @click="showPassword = !showPassword"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                >
+                  <template x-if="!showPassword">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-6 h-6"
                     >
-                      ADD
-                    </button>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </template>
+                  <template x-if="showPassword">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                      />
+                    </svg>
+                  </template>
+                </button>
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition"
+              >
+                Unlock
+              </button>
+            </form>
+          </div>
+        </template>
+
+        <!-- UNLOCKED STATE -->
+        <template x-if="isAdminUnlocked">
+          <div>
+            <!-- Daily Check-in Report -->
+            <div
+              class="bg-white rounded-[2rem] shadow-sm border overflow-hidden mb-6"
+            >
+              <div
+                class="p-4 bg-slate-200 flex justify-between items-center border-b"
+              >
+                <h3 class="font-black text-slate-500 uppercase text-[10px]">
+                  Daily Report
+                </h3>
+                <input
+                  type="date"
+                  x-model="reportDate"
+                  class="bg-white border px-3 py-1.5 rounded-lg text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div class="max-h-60 overflow-y-auto divide-y">
+                <template x-for="checkin in getDailyCheckins()" :key="checkin.uuid">
+                  <div
+                    class="p-4 flex justify-between items-center hover:bg-slate-50"
+                  >
+                    <span
+                      class="font-black text-sm"
+                      x-text="checkin.userName"
+                    ></span>
+                    <span
+                      class="text-[10px] font-bold text-slate-400"
+                      x-text="formatTime(checkin.timestamp)"
+                    ></span>
                   </div>
-                </div>
+                </template>
+                <template x-if="getDailyCheckins().length === 0">
+                  <div class="p-8 text-center text-slate-400 text-xs italic">
+                    No check-ins found for this date.
+                  </div>
+                </template>
               </div>
             </div>
 
-            <h3
-              class="text-[10px] font-black text-slate-400 uppercase mt-8 mb-2"
-            >
-              Bill History
-            </h3>
-            <div class="max-h-60 overflow-y-auto divide-y border-t">
-              <template x-for="tx in userHistory" :key="tx.uuid">
-                <div class="py-4 flex justify-between items-center">
+            <!-- Selected User Detail View -->
+            <template x-if="selectedUser">
+              <div
+                class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-t-8 border-blue-600 mb-8 animate-in slide-in-from-bottom"
+              >
+                <div class="flex justify-between items-start mb-6">
                   <div>
-                    <p
-                      class="text-sm font-black text-slate-700"
-                      x-text="tx.description"
-                    ></p>
-                    <p
-                      class="text-[10px] text-slate-400 font-bold"
-                      x-text="formatDate(tx.timestamp) + ' ' + formatTime(tx.timestamp)"
-                    ></p>
+                    <h2
+                      class="text-2xl font-black tracking-tight"
+                      x-text="selectedUser.firstName + ' ' + selectedUser.lastName"
+                    ></h2>
+                    <span
+                      :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                      class="text-sm font-mono font-black mt-1 block"
+                      x-text="'Current Balance: $' + selectedUser.balance.toFixed(2)"
+                    ></span>
                   </div>
-                  <span
-                    :class="tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'"
-                    class="font-mono font-black"
-                    x-text="(tx.amount > 0 ? '+' : '') + tx.amount.toFixed(2)"
-                  ></span>
+                  <button
+                    @click="selectedUser = null"
+                    class="text-slate-300 text-4xl hover:text-slate-600 transition"
+                  >
+                    &times;
+                  </button>
                 </div>
-              </template>
+
+                <div class="space-y-6">
+                  <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="space-y-1">
+                        <label
+                          class="text-[10px] font-black text-slate-400 uppercase"
+                          >Parent Email</label
+                        >
+                        <input
+                          type="email"
+                          x-model="selectedUser.parentEmail"
+                          @change="saveUser(selectedUser)"
+                          class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div class="space-y-1">
+                        <label
+                          class="text-[10px] font-black text-slate-400 uppercase"
+                          >Parent Phone</label
+                        >
+                        <input
+                          type="tel"
+                          x-model="selectedUser.parentPhone"
+                          @change="saveUser(selectedUser)"
+                          class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <div class="space-y-1">
+                      <label
+                        class="text-[10px] font-black text-slate-400 uppercase"
+                        >Deposit Funds</label
+                      >
+                      <div class="flex gap-2">
+                        <select
+                          x-model="depositDescription"
+                          class="bg-slate-50 rounded-xl text-sm border-none shadow-inner px-3 py-3 w-1/3 focus:ring-2 focus:ring-emerald-500"
+                        >
+                          <option value="Account Refill">Refill</option>
+                          <option value="Adjustment">Adjust</option>
+                        </select>
+                        <input
+                          type="number"
+                          x-model="depositAmount"
+                          class="w-full p-3 bg-emerald-50 rounded-xl text-sm border-none shadow-inner"
+                          placeholder="0.00"
+                        />
+                        <button
+                          @click="addFunds()"
+                          class="bg-emerald-600 text-white px-5 rounded-xl font-black"
+                        >
+                          ADD
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase"
+                      >Status</label
+                    >
+                    <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl">
+                      <button
+                        @click="selectedUser.isActive = selectedUser.isActive ? 0 : 1; saveUser(selectedUser)"
+                        class="relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        :class="selectedUser.isActive ? 'bg-green-500' : 'bg-slate-300'"
+                      >
+                        <span
+                          class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out"
+                          :class="selectedUser.isActive ? 'translate-x-6' : 'translate-x-0'"
+                        ></span>
+                      </button>
+                      <span
+                        class="text-xs font-black uppercase"
+                        :class="selectedUser.isActive ? 'text-green-600' : 'text-slate-400'"
+                        x-text="selectedUser.isActive ? 'Active' : 'Deactivated'"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+
+                <h3
+                  class="text-[10px] font-black text-slate-400 uppercase mt-8 mb-2"
+                >
+                  Bill History
+                </h3>
+                <div class="max-h-60 overflow-y-auto divide-y border-t">
+                  <template x-for="tx in userHistory" :key="tx.uuid">
+                    <div class="py-4 flex justify-between items-center">
+                      <div>
+                        <p
+                          class="text-sm font-black text-slate-700"
+                          x-text="tx.description"
+                        ></p>
+                        <p
+                          class="text-[10px] text-slate-400 font-bold"
+                          x-text="formatDate(tx.timestamp) + ' ' + formatTime(tx.timestamp)"
+                        ></p>
+                      </div>
+                      <div class="text-right">
+                        <span
+                          :class="tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'"
+                          class="font-mono font-black block"
+                          x-text="(tx.amount > 0 ? '+' : '') + tx.amount.toFixed(2)"
+                        ></span>
+                        <span
+                          class="text-[10px] text-slate-400 font-mono font-bold block"
+                          x-text="'Bal: $' + tx.runningBalance.toFixed(2)"
+                        ></span>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+
+            <!-- User List View -->
+            <div
+              class="bg-white rounded-[2rem] shadow-sm border overflow-hidden mb-6"
+            >
+              <div
+                class="p-4 bg-slate-200 flex justify-between items-center border-b"
+              >
+                <button
+                  @click="showBulk = !showBulk"
+                  class="text-[10px] font-black text-blue-600 bg-white px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm"
+                >
+                  + Bulk Import
+                </button>
+                <input
+                  type="text"
+                  x-model="adminSearchQuery"
+                  placeholder="Search..."
+                  class="bg-white border-none px-3 py-1.5 rounded-full text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
+                />
+              </div>
+              <div x-show="showBulk" class="p-6 bg-blue-50 border-b">
+                <textarea
+                  x-model="bulkText"
+                  rows="4"
+                  class="w-full p-4 rounded-2xl border-none shadow-inner text-sm mb-3"
+                  placeholder="John Smith&#10;Doe, Jane"
+                ></textarea>
+                <button
+                  @click="processBulk()"
+                  class="w-full bg-blue-600 text-white py-3 rounded-xl font-black"
+                >
+                  IMPORT LIST
+                </button>
+              </div>
+              <table class="w-full text-left">
+                <thead
+                  class="bg-slate-100 text-[10px] font-black text-slate-400 uppercase"
+                >
+                  <tr>
+                    <th class="p-5">Student Name</th>
+                    <th class="p-5 text-right">Balance</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
+                  <template
+                    x-for="user in allUsers.filter(u => !adminSearchQuery || u.nameSearch.includes(adminSearchQuery.toLowerCase()))"
+                    :key="user.uuid"
+                  >
+                    <tr
+                      @click="showUser(user)"
+                      class="hover:bg-blue-50/50 cursor-pointer transition"
+                    >
+                      <td class="p-5">
+                        <p
+                          class="font-black text-slate-800"
+                          x-text="user.firstName + ' ' + user.lastName"
+                        ></p>
+                        <p
+                          class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
+                          x-text="user.parentEmail || 'No Parent Contact'"
+                        ></p>
+                        <template x-if="user.isActive === 0">
+                          <span class="text-[9px] text-red-500 font-black uppercase bg-red-50 px-2 py-0.5 rounded-full mt-1 inline-block">Inactive</span>
+                        </template>
+                      </td>
+                      <td
+                        class="p-5 text-right font-mono font-black"
+                        :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                        x-text="'$' + user.balance.toFixed(2)"
+                      ></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Data Management -->
+            <div
+              class="bg-white rounded-[2rem] shadow-sm border overflow-hidden"
+            >
+              <div
+                class="p-4 bg-slate-200 flex justify-between items-center border-b"
+              >
+                <h3 class="font-black text-slate-500 uppercase text-[10px]">
+                  Data Management
+                </h3>
+              </div>
+              <div class="p-6 flex gap-4">
+                <button
+                  @click="exportBackup()"
+                  class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition text-[10px]"
+                >
+                  Download Backup
+                </button>
+                <div class="flex-1 relative group">
+                  <input
+                    type="file"
+                    accept=".json"
+                    @change="importBackup($event)"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <button
+                    class="w-full bg-white border border-slate-200 text-slate-900 py-3 rounded-xl font-black uppercase tracking-widest group-hover:bg-slate-50 transition text-[10px]"
+                  >
+                    Restore Backup
+                  </button>
+                </div>
+              </div>
+
+              <!-- Password Management -->
+              <div class="p-6 border-t bg-slate-50">
+                <button
+                  @click="showChangePasswordModal = true"
+                  class="w-full text-blue-600 text-xs font-black uppercase tracking-widest hover:text-blue-800 transition"
+                >
+                  Change Admin Password
+                </button>
+              </div>
             </div>
           </div>
         </template>
 
-        <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden">
+        <!-- Change Password Modal -->
+        <template x-if="showChangePasswordModal">
           <div
-            class="p-4 bg-slate-50 flex justify-between items-center border-b"
+            class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           >
-            <button
-              @click="showBulk = !showBulk"
-              class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full uppercase tracking-widest"
-            >
-              + Bulk Import
-            </button>
-            <button
-              @click="connectGoogle()"
-              class="text-[10px] font-black text-slate-400 hover:text-blue-600 transition uppercase tracking-widest"
-            >
-              Connect Google
-            </button>
-          </div>
-          <div x-show="showBulk" class="p-6 bg-blue-50 border-b">
-            <textarea
-              x-model="bulkText"
-              rows="4"
-              class="w-full p-4 rounded-2xl border-none shadow-inner text-sm mb-3"
-              placeholder="John Smith&#10;Doe, Jane"
-            ></textarea>
-            <button
-              @click="processBulk()"
-              class="w-full bg-blue-600 text-white py-3 rounded-xl font-black"
-            >
-              IMPORT LIST
-            </button>
-          </div>
-          <table class="w-full text-left">
-            <thead
-              class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase"
-            >
-              <tr>
-                <th class="p-5">Student Name</th>
-                <th class="p-5 text-right">Balance</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y">
-              <template x-for="user in allUsers" :key="user.uuid">
-                <tr
-                  @click="showUser(user)"
-                  class="hover:bg-blue-50/50 cursor-pointer transition"
+            <div class="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl">
+              <h3 class="text-xl font-black mb-6 text-center">
+                Change Password
+              </h3>
+              <div class="space-y-4">
+                <div class="relative">
+                  <input
+                    :type="cpShowCurrent ? 'text' : 'password'"
+                    x-model="cpCurrent"
+                    placeholder="Current Password"
+                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10"
+                  />
+                  <button
+                    @click="cpShowCurrent = !cpShowCurrent"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  >
+                    <span x-text="cpShowCurrent ? '🙈' : '👁️'"></span>
+                  </button>
+                </div>
+                <div class="relative">
+                  <input
+                    :type="cpShowNew ? 'text' : 'password'"
+                    x-model="cpNew"
+                    placeholder="New Password"
+                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10"
+                  />
+                  <button
+                    @click="cpShowNew = !cpShowNew"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  >
+                    <span x-text="cpShowNew ? '🙈' : '👁️'"></span>
+                  </button>
+                </div>
+                <div class="relative">
+                  <input
+                    :type="cpShowConfirm ? 'text' : 'password'"
+                    x-model="cpConfirm"
+                    placeholder="Confirm New Password"
+                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10"
+                  />
+                  <button
+                    @click="cpShowConfirm = !cpShowConfirm"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  >
+                    <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
+                  </button>
+                </div>
+              </div>
+              <div class="flex gap-4 mt-8">
+                <button
+                  @click="showChangePasswordModal = false; cpCurrent=''; cpNew=''; cpConfirm=''"
+                  class="flex-1 py-3 rounded-xl font-black text-slate-400 hover:bg-slate-50"
                 >
-                  <td class="p-5">
-                    <p
-                      class="font-black text-slate-800"
-                      x-text="user.firstName + ' ' + user.lastName"
-                    ></p>
-                    <p
-                      class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
-                      x-text="user.parentEmail || 'No Parent Contact'"
-                    ></p>
-                  </td>
-                  <td
-                    class="p-5 text-right font-mono font-black"
-                    :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                    x-text="'$' + user.balance.toFixed(2)"
-                  ></td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
+                  CANCEL
+                </button>
+                <button
+                  @click="submitChangePassword()"
+                  class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black shadow-lg hover:bg-blue-700"
+                >
+                  SAVE
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -278,14 +582,28 @@
           syncStatus: "Offline",
           db: null,
           searchQuery: "",
+          adminSearchQuery: "",
           searchResults: [],
           allUsers: [],
           allTransactions: [],
           selectedUser: null,
           userHistory: [],
           depositAmount: null,
+          depositDescription: "Account Refill",
           showBulk: false,
           bulkText: "",
+          passwordInput: "",
+          showPassword: false,
+          showChangePasswordModal: false,
+          cpCurrent: "",
+          cpNew: "",
+          cpConfirm: "",
+          cpShowCurrent: false,
+          cpShowNew: false,
+          cpShowConfirm: false,
+          isSyncing: false,
+          lastSyncTime: 0,
+          reportDate: new Date().toISOString().split("T")[0],
           todayDate: new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
@@ -306,8 +624,27 @@
               settings: "id",
             });
             await this.refresh();
+
+            // TEMPORARILY DISABLED FOR LOCAL TESTING
+            // const token = localStorage.getItem("gdrive_token");
+            // const exp = localStorage.getItem("gdrive_exp");
+
+            // if (!token || Date.now() > exp) {
+            //   this.syncStatus = "Offline";
+            //   if (
+            //     confirm(
+            //       "Would you like to connect to Google Drive to sync your data?"
+            //     )
+            //   ) {
+            //     this.connectGoogle();
+            //   }
+            // } else {
+            //   this.syncWithDrive();
+            // }
+
             // Start Auto-Sync
-            setInterval(() => this.syncWithDrive(), 300000);
+            // setInterval(() => this.syncWithDrive(), 300000);
+            this.syncStatus = "Offline (Local)";
           },
 
           async hash(str) {
@@ -319,30 +656,57 @@
           },
 
           async tryAccessAdmin() {
-            const config = await this.db.settings.get("admin_config");
-            if (this.isAdminUnlocked) {
-              this.view = "admin";
-              return;
-            }
+            this.view = "admin";
+            this.passwordInput = "";
+          },
 
+          async tryUnlockAdmin() {
+            if (!this.passwordInput) return;
+            
+            const config = await this.db.settings.get("admin_config");
+            
             if (!config) {
-              const setup = prompt("Create a new Roster Password:");
-              if (!setup) return;
-              const hashed = await this.hash(setup);
+              // First time setup - treat input as new password
+              const hashed = await this.hash(this.passwordInput);
               await this.db.settings.put({
                 id: "admin_config",
                 passwordHash: hashed,
               });
               this.isAdminUnlocked = true;
-              this.view = "admin";
+              this.passwordInput = "";
               this.syncWithDrive();
             } else {
-              const pass = prompt("Enter Roster Password:");
-              if ((await this.hash(pass)) === config.passwordHash) {
+              // Verify existing password
+              const hashed = await this.hash(this.passwordInput);
+              if (hashed === config.passwordHash) {
                 this.isAdminUnlocked = true;
-                this.view = "admin";
+                this.passwordInput = "";
               } else {
-                alert("Incorrect Password.");
+                alert("Incorrect Password");
+                this.passwordInput = "";
+              }
+            }
+          },
+
+          async tryUnlockAdmin() {
+            const config = await this.db.settings.get("admin_config");
+            if (!config) {
+              // First time setup
+              const hashed = await this.hash(this.passwordInput);
+              await this.db.settings.put({
+                id: "admin_config",
+                passwordHash: hashed,
+              });
+              this.isAdminUnlocked = true;
+              this.syncWithDrive();
+            } else {
+              // Verify password
+              const hashed = await this.hash(this.passwordInput);
+              if (hashed === config.passwordHash) {
+                this.isAdminUnlocked = true;
+              } else {
+                alert("Incorrect Password");
+                this.passwordInput = "";
               }
             }
           },
@@ -387,6 +751,12 @@
           },
 
           async syncWithDrive() {
+            console.log("Sync disabled for local testing.");
+            return;
+            if (this.isSyncing) return;
+            // Prevent excessively frequent syncing (min 10s between syncs)
+            if (Date.now() - this.lastSyncTime < 10000) return;
+
             const token = localStorage.getItem("gdrive_token");
             const exp = localStorage.getItem("gdrive_exp");
             if (!token || Date.now() > exp) {
@@ -394,7 +764,9 @@
               return;
             }
 
+            this.isSyncing = true;
             this.syncStatus = "Syncing";
+
             try {
               let fileId = localStorage.getItem("gdrive_file_id");
               if (!fileId) {
@@ -411,12 +783,23 @@
               }
 
               let remote = { users: [], transactions: [], settings: [] };
+              let remoteContentStr = JSON.stringify(remote);
+
               if (fileId) {
                 const res = await fetch(
                   `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
                   { headers: { Authorization: `Bearer ${token}` } }
                 );
-                if (res.ok) remote = await res.json();
+                if (res.ok) {
+                  remote = await res.json();
+                  // Normalize remote to ensure consistency for comparison
+                  remote = {
+                    users: remote.users || [],
+                    transactions: remote.transactions || [],
+                    settings: remote.settings || [],
+                  };
+                  remoteContentStr = JSON.stringify(remote);
+                }
               }
 
               const mUsers = this.merge(
@@ -436,41 +819,56 @@
               await this.db.transactions.bulkPut(mTxs);
               await this.db.settings.bulkPut(mSets);
 
-              const content = JSON.stringify({
+              const newContent = {
                 users: mUsers,
                 transactions: mTxs,
                 settings: mSets,
-              });
-              const meta = {
-                name: "flexcheck_master.json",
-                mimeType: "application/json",
               };
-              const form = new FormData();
-              form.append(
-                "metadata",
-                new Blob([JSON.stringify(meta)], { type: "application/json" })
-              );
-              form.append(
-                "file",
-                new Blob([content], { type: "application/json" })
-              );
+              const newContentStr = JSON.stringify(newContent);
 
-              const url = fileId
-                ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
-                : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
-              const push = await (
-                await fetch(url, {
+              // ONLY upload if content has changed from what was on remote
+              if (newContentStr !== remoteContentStr) {
+                const meta = {
+                  name: "flexcheck_master.json",
+                  mimeType: "application/json",
+                };
+                const form = new FormData();
+                form.append(
+                  "metadata",
+                  new Blob([JSON.stringify(meta)], { type: "application/json" })
+                );
+                form.append(
+                  "file",
+                  new Blob([newContentStr], { type: "application/json" })
+                );
+
+                const url = fileId
+                  ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+                  : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+
+                const pushRes = await fetch(url, {
                   method: fileId ? "PATCH" : "POST",
                   headers: { Authorization: `Bearer ${token}` },
                   body: form,
-                })
-              ).json();
+                });
 
-              if (!fileId) localStorage.setItem("gdrive_file_id", push.id);
+                const push = await pushRes.json();
+
+                if (!fileId && push.id)
+                  localStorage.setItem("gdrive_file_id", push.id);
+                console.log("Synced changes to Drive.");
+              } else {
+                console.log("No changes to sync to Drive.");
+              }
+
               this.syncStatus = "Connected";
               await this.refresh();
+              this.lastSyncTime = Date.now();
             } catch (e) {
+              console.error(e);
               this.syncStatus = "Error";
+            } finally {
+              this.isSyncing = false;
             }
           },
 
@@ -502,17 +900,47 @@
             this.search();
           },
 
+          getDailyCheckins() {
+            return this.allTransactions
+              .filter(
+                (t) =>
+                  t.type === "checkin" &&
+                  new Date(t.timestamp).toISOString().split("T")[0] ===
+                    this.reportDate
+              )
+              .map((t) => {
+                const user = this.allUsers.find((u) => u.uuid === t.userUuid);
+                return {
+                  ...t,
+                  userName: user
+                    ? `${user.firstName} ${user.lastName}`
+                    : "Unknown",
+                };
+              })
+              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          },
+
           search() {
             const q = this.searchQuery.toLowerCase();
             this.searchResults = this.allUsers
-              .filter((u) => u.nameSearch.includes(q))
+              .filter((u) => u.isActive === 1 && u.nameSearch.includes(q))
               .slice(0, 10);
           },
           async showUser(u) {
             this.selectedUser = u;
-            this.userHistory = this.allTransactions
+            let balance = 0;
+            // Calculate running balance from oldest to newest
+            const sorted = this.allTransactions
               .filter((x) => x.userUuid === u.uuid)
-              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+              .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+              .map((tx) => {
+                balance += tx.amount;
+                return { ...tx, runningBalance: balance };
+              });
+            // Show newest first
+            this.userHistory = sorted.sort(
+              (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+            );
           },
           async saveUser(u) {
             await this.db.users.put(JSON.parse(JSON.stringify(u)));
@@ -520,13 +948,13 @@
           },
           async addFunds() {
             const a = parseFloat(this.depositAmount);
-            if (isNaN(a) || a <= 0) return;
+            if (isNaN(a) || a === 0) return;
             await this.db.transactions.add({
               uuid: crypto.randomUUID(),
               userUuid: this.selectedUser.uuid,
               amount: a,
               type: "deposit",
-              description: "Account Refill",
+              description: this.depositDescription,
               timestamp: new Date().toISOString(),
             });
             this.depositAmount = null;
@@ -553,6 +981,7 @@
                 lastName: ls,
                 nameSearch: `${f} ${ls}`.toLowerCase(),
                 parentEmail: "",
+                parentPhone: "",
                 isActive: 1,
               });
             }
@@ -560,7 +989,118 @@
             this.showBulk = false;
             await this.refresh();
           },
+          async exportBackup() {
+            const users = await this.db.users.toArray();
+            const transactions = await this.db.transactions.toArray();
+            const settings = (await this.db.settings.toArray()).filter(
+              (s) => s.id !== "admin_config"
+            );
+            const backup = { users, transactions, settings };
+            const blob = new Blob([JSON.stringify(backup, null, 2)], {
+              type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `flexcheck_backup_${new Date().toISOString().split("T")[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          },
+
+          async importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (
+              !confirm(
+                "This will MERGE existing data with the backup file. Proceed?"
+              )
+            ) {
+              event.target.value = "";
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+              try {
+                const data = JSON.parse(e.target.result);
+                if (!data.users || !data.transactions || !data.settings) {
+                  alert("Invalid backup file format.");
+                  return;
+                }
+
+                // Filter out admin_config from imported settings to preserve current password
+                const safeSettings = data.settings.filter(
+                  (s) => s.id !== "admin_config"
+                );
+
+                // Merge Logic (similar to sync)
+                const mUsers = this.merge(
+                  data.users,
+                  await this.db.users.toArray()
+                );
+                const mTxs = this.merge(
+                  data.transactions,
+                  await this.db.transactions.toArray()
+                );
+                const mSets = this.merge(
+                  safeSettings,
+                  await this.db.settings.toArray()
+                );
+
+                await this.db.users.bulkPut(mUsers);
+                await this.db.transactions.bulkPut(mTxs);
+                await this.db.settings.bulkPut(mSets);
+
+                alert("Backup restored successfully!");
+                await this.refresh();
+                this.syncWithDrive();
+              } catch (err) {
+                console.error(err);
+                alert("Error importing backup: " + err.message);
+              } finally {
+                event.target.value = "";
+              }
+            };
+            reader.readAsText(file);
+          },
+
+          async submitChangePassword() {
+            if (!this.cpCurrent || !this.cpNew || !this.cpConfirm) {
+              alert("Please fill in all fields.");
+              return;
+            }
+            const config = await this.db.settings.get("admin_config");
+            const hashed = await this.hash(this.cpCurrent);
+
+            if (hashed !== config.passwordHash) {
+              alert("Incorrect current password.");
+              return;
+            }
+
+            if (this.cpNew !== this.cpConfirm) {
+              alert("New passwords do not match.");
+              return;
+            }
+
+            const newHash = await this.hash(this.cpNew);
+            await this.db.settings.put({
+              id: "admin_config",
+              passwordHash: newHash,
+            });
+            
+            alert("Password updated successfully.");
+            this.showChangePasswordModal = false;
+            this.cpCurrent = "";
+            this.cpNew = "";
+            this.cpConfirm = "";
+            this.syncWithDrive();
+          },
           connectGoogle() {
+            alert("Google Sync is temporarily disabled for local testing.");
+            return;
             google.accounts.oauth2
               .initTokenClient({
                 client_id: this.CLIENT_ID,
