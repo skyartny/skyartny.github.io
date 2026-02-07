@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flex-Check Pro - Admin User Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 font-sans p-6 md:p-12">
+    <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-[2rem] shadow-xl">
+      <h1 class="text-3xl font-black italic tracking-tighter uppercase mb-8 text-center">
+        Flex-Check <span class="text-blue-600">Pro</span> Guide
+      </h1>
+
+      <p class="mb-8 text-lg text-slate-600">
+        This guide is designed to help administrators effectively manage student
+        rosters, track class attendance, and handle data using Flex-Check Pro.
+      </p>
+
+      <div class="space-y-12">
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            1. Getting Started
+          </h2>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            Install App Icon (Add to Home Screen)
+          </h3>
+          <p class="mb-4">
+            For quick access, you can add Flex-Check Pro to your device's home
+            screen like a native app.
+          </p>
+
+          <p class="mb-2">
+            <strong>App URL:</strong>
+            <a
+              href="https://flexcheck.framedghosts.com/"
+              class="text-blue-600 font-bold underline"
+              >https://flexcheck.framedghosts.com/</a
+            >
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-8 mt-6">
+            <div class="bg-slate-50 p-6 rounded-2xl border">
+              <p class="font-black text-sm uppercase text-slate-400 mb-2">
+                iPhone / iPad (Safari)
+              </p>
+              <ol class="list-decimal list-inside space-y-2 text-sm">
+                <li>Open the app link above in <strong>Safari</strong>.</li>
+                <li>
+                  Tap the <strong>Share</strong> icon (square with arrow up).
+                </li>
+                <li>
+                  Scroll down and tap <strong>Add to Home Screen</strong>.
+                </li>
+                <li>Tap <strong>Add</strong>.</li>
+              </ol>
+              <img
+                src="ios_install.png"
+                alt="iOS Installation Guide"
+                class="mt-4 w-full max-w-[200px] mx-auto rounded-xl shadow-sm border"
+              />
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-2xl border">
+              <p class="font-black text-sm uppercase text-slate-400 mb-2">
+                Android (Chrome)
+              </p>
+              <ol class="list-decimal list-inside space-y-2 text-sm">
+                <li>Open the app link above in <strong>Chrome</strong>.</li>
+                <li>
+                  Tap the <strong>Menu</strong> icon (three dots) at top right.
+                </li>
+                <li>
+                  Tap <strong>Install app</strong> or
+                  <strong>Add to Home Screen</strong>.
+                </li>
+                <li>Follow the prompt to install.</li>
+              </ol>
+              <img
+                src="android_install.png"
+                alt="Android Installation Guide"
+                class="mt-4 w-full max-w-[200px] mx-auto rounded-xl shadow-sm border"
+              />
+            </div>
+          </div>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-8">
+            Initial Setup
+          </h3>
+          <p class="mb-4">
+            When you first launch the application, you must set up the admin
+            account to secure the Roster data.
+          </p>
+          <ol class="list-decimal list-inside space-y-2 ml-4">
+            <li>Click on the <strong>ROSTER</strong> tab.</li>
+            <li>You will see the <strong>Setup Admin</strong> screen.</li>
+            <li>
+              <strong>Create Password</strong>: Enter a secure password and
+              confirm it.
+            </li>
+            <li>
+              <strong>Security Question</strong>: Select a question and provide
+              an answer.
+              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
+                <li>
+                  <em>Important</em>: This is the <strong>only</strong> way to
+                  reset your password if you forget it without losing data.
+                </li>
+              </ul>
+            </li>
+            <li>Click <strong>CREATE ACCOUNT</strong>.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            2. Student Management
+          </h2>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            Adding Students (Bulk Import)
+          </h3>
+          <ol class="list-decimal list-inside space-y-2 ml-4">
+            <li>
+              In the <strong>ROSTER</strong> tab, click the
+              <strong>+ BULK IMPORT</strong> button.
+            </li>
+            <li>
+              In the text box, enter student names, one per line.
+              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
+                <li>
+                  Format: <code>First Last</code> (e.g., <code>John Smith</code>)
+                  or <code>Last, First</code> (e.g., <code>Smith, John</code>).
+                </li>
+              </ul>
+            </li>
+            <li>Click <strong>IMPORT LIST</strong>.</li>
+            <li>
+              <strong>Duplicate Handling</strong>:
+              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
+                <li>
+                  If a name already exists, the system will ask to import with a
+                  suffix (e.g., "John Smith 2") or skip.
+                </li>
+              </ul>
+            </li>
+          </ol>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            Editing & Deactivating
+          </h3>
+          <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>
+              <strong>Edit Name</strong>: Click on a student in the Roster list,
+              then click directly on their name to edit.
+            </li>
+            <li>
+              <strong>Contact Info</strong>: Update Parent Email/Phone in the
+              student profile. Auto-saves on exit.
+            </li>
+            <li>
+              <strong>Deactivate (Recommended)</strong>: Toggle the
+              <strong>Active/Inactive</strong> button. Hides student from
+              Check-In but keeps history.
+            </li>
+            <li>
+              <strong>Delete (Permanent)</strong>: Click
+              <strong>DELETE STUDENT ACCOUNT</strong>.
+              <span class="text-red-500 font-bold"
+                >Warning: Permanently deletes all history.</span
+              >
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            3. Class Management
+          </h2>
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            Adding Classes & Adjustments
+          </h3>
+          <ol class="list-decimal list-inside space-y-2 ml-4">
+            <li>Open a student's profile in <strong>ROSTER</strong>.</li>
+            <li>Locate the <strong>Add Classes</strong> section.</li>
+            <li>Select type (e.g., "Refill").</li>
+            <li>
+              Enter number of classes (e.g., <code>10</code>). Use a negative
+              number (e.g., <code>-1</code>) to fix mistakes.
+            </li>
+            <li>Click <strong>ADD</strong>.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            4. Daily Operations
+          </h2>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+                Check-In Process
+              </h3>
+              <ol class="list-decimal list-inside space-y-2 ml-4">
+                <li>Go to <strong>CHECK-IN</strong> tab.</li>
+                <li>Search for student name.</li>
+                <li>Click the black <strong>CHECK IN</strong> button.</li>
+                <li>
+                  System deducts <strong>1 Class</strong> and marks as checked
+                  in.
+                </li>
+              </ol>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+                Daily Reports
+              </h3>
+              <ol class="list-decimal list-inside space-y-2 ml-4">
+                <li>Go to <strong>ROSTER</strong> tab (login required).</li>
+                <li>View <strong>Daily Report</strong> section at top.</li>
+                <li>Use date picker to view past history.</li>
+                <li>Title badge shows total count for the day.</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            5. Data & Export
+          </h2>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
+              <h3 class="font-black text-emerald-800 uppercase mb-2">
+                Excel Export
+              </h3>
+              <p class="text-sm mb-4">
+                Download detailed reports for analysis.
+              </p>
+              <ol class="list-decimal list-inside space-y-1 text-sm">
+                <li>Go to <strong>ROSTER</strong> > <strong>Data Management</strong>.</li>
+                <li>Click <strong>EXPORT TO EXCEL</strong>.</li>
+                <li>Contains: Student List & Full Transaction History.</li>
+              </ol>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+              <h3 class="font-black text-blue-800 uppercase mb-2">
+                Backup & Restore
+              </h3>
+              <p class="text-sm mb-4">
+                <strong>Crucial:</strong> Clear cache deletes data!
+              </p>
+              <ol class="list-decimal list-inside space-y-1 text-sm">
+                <li>Click <strong>DOWNLOAD BACKUP</strong> regularly.</li>
+                <li>Save the <code>.json</code> file securely.</li>
+                <li>Use <strong>RESTORE BACKUP</strong> to recover data.</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            6. Troubleshooting
+          </h2>
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            Forgot Password?
+          </h3>
+          <p class="ml-4">
+            Click <strong>Forgot Password?</strong> on login screen and answer
+            your security question.
+          </p>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            Data Lost / App Reset?
+          </h3>
+          <p class="ml-4">
+            If browser cache was cleared, use <strong>RESTORE BACKUP</strong> with
+            your saved <code>.json</code> file. If no backup exists, data is
+            permanently lost.
+          </p>
+        </section>
+      </div>
+<img src="ios_install.png" width="300" alt="iOS Installation Guide">
+
+<p><strong>Android (Chrome):</strong></p>
+<ol>
+<li>Open the app link above in <strong>Chrome</strong>.</li>
+<li>Tap the <strong>Menu</strong> icon (three dots) at the top right.</li>
+<li>Tap <strong>Install app</strong> or <strong>Add to Home Screen</strong>.</li>
+<li>Follow the prompt to install.</li>
+</ol>
+<img src="android_install.png" width="300" alt="Android Installation Guide">
+
+<h3>Initial Setup</h3>
+<p>When you first launch the application, you must set up the admin account to secure the Roster data.</p>
+<ol>
+<li>Click on the <strong>ROSTER</strong> tab.</li>
+<li>You will see the <strong>Setup Admin</strong> screen.</li>
+<li><strong>Create Password</strong>: Enter a secure password and confirm it.</li>
+<li><strong>Security Question</strong>: Select a question and provide an answer.<ul>
+<li><em>Important</em>: This is the <strong>only</strong> way to reset your password if you forget it without losing data.</li>
+</ul>
+</li>
+<li>Click <strong>CREATE ACCOUNT</strong>.</li>
+</ol>
+<h3>Logging In</h3>
+<ol>
+<li>Click on the <strong>ROSTER</strong> tab.</li>
+<li>Enter your password and click <strong>UNLOCK</strong>.</li>
+</ol>
+<hr>
+<h2>2. Student Management</h2>
+<h3>Adding Students (Bulk Import)</h3>
+<ol>
+<li>In the <strong>ROSTER</strong> tab, click the <strong>+ BULK IMPORT</strong> button.</li>
+<li>In the text box, enter student names, one per line.<ul>
+<li>Format: <code>First Last</code> (e.g., <code>John Smith</code>) or <code>Last, First</code> (e.g., <code>Smith, John</code>).</li>
+</ul>
+</li>
+<li>Click <strong>IMPORT LIST</strong>.</li>
+<li><strong>Duplicate Handling</strong>:<ul>
+<li>If a name already exists, the system will pause and ask:<ul>
+<li><strong>OK</strong>: Import the new student with a number suffix (e.g., &quot;John Smith 2&quot;).</li>
+<li><strong>Cancel</strong>: Skip this student (useful if they are already in the system).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>A summary will appear showing how many students were added or skipped.</li>
+</ol>
+<h3>Editing Student Details</h3>
+<ol>
+<li>In the <strong>ROSTER</strong> list, click on a student&#39;s name to open their profile.</li>
+<li><strong>Edit Name</strong>: Click directly on the First Name or Last Name text at the top to type a new name.<ul>
+<li><em>Note</em>: If you try to change a name to one that already exists, the system will alert you and revert the change to prevent duplicates.</li>
+</ul>
+</li>
+<li><strong>Contact Info</strong>: Update <strong>Parent Email</strong> or <strong>Parent Phone</strong>. The system saves automatically when you click away.</li>
+</ol>
+<h3>Deactivating vs. Deleting</h3>
+<ul>
+<li><strong>Deactivate (Recommended)</strong>:<ul>
+<li>Toggle the <strong>Active/Inactive</strong> button in the student profile.</li>
+<li>Inactive students are <strong>hidden</strong> from the Check-In search but their history and balance are preserved.</li>
+<li>Useful for students taking a break.</li>
+</ul>
+</li>
+<li><strong>Delete (Permanent)</strong>:<ul>
+<li>Click <strong>DELETE STUDENT ACCOUNT</strong> at the bottom of the profile.</li>
+<li><strong>Warning</strong>: This permanently removes the student and <strong>all their class history</strong>. This cannot be undone unless you have a backup.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>3. Class Management</h2>
+<h3>Adding Classes (Refill)</h3>
+<p>When a parent pays for a new package of classes:</p>
+<ol>
+<li>Open the student&#39;s profile in <strong>ROSTER</strong>.</li>
+<li>Locate the <strong>Add Classes</strong> section.</li>
+<li>Select the type (e.g., &quot;Refill&quot; or &quot;Adjustment&quot;).</li>
+<li>Enter the number of classes (e.g., <code>10</code> or <code>20</code>).</li>
+<li>Click <strong>ADD</strong>.</li>
+<li>The <strong>Classes Left</strong> balance will update immediately.</li>
+</ol>
+<h3>Fixing Mistakes (Adjustments)</h3>
+<p>If you added too many classes or need to correct a balance:</p>
+<ol>
+<li>Use the <strong>Add Classes</strong> section.</li>
+<li>Enter a <strong>negative number</strong> (e.g., <code>-1</code>) to deduct classes manually.</li>
+<li>Select &quot;Adjustment&quot; as the description.</li>
+</ol>
+<h3>Viewing History</h3>
+<ul>
+<li>Scroll to the bottom of the student profile to see <strong>Class History</strong>.</li>
+<li>This shows a chronological list of every Check-In (-1) and Deposit (+X), along with the date and time.</li>
+</ul>
+<hr>
+<h2>4. Daily Operations</h2>
+<h3>The Check-In Process</h3>
+<ol>
+<li>Go to the <strong>CHECK-IN</strong> tab.</li>
+<li>Type the student&#39;s name in the search bar.</li>
+<li>Click the black <strong>CHECK IN</strong> button next to their name.</li>
+<li><strong>Result</strong>:<ul>
+<li>The system deducts <strong>1 Class</strong>.</li>
+<li>The student card turns gray, shows &quot;Checked In&quot;, and moves to the bottom of the list.</li>
+</ul>
+</li>
+</ol>
+<h3>Daily Reports</h3>
+<ol>
+<li>Go to the <strong>ROSTER</strong> tab and log in.</li>
+<li>The <strong>Daily Report</strong> section is at the top.</li>
+<li><strong>Date Selection</strong>: Use the date picker to view history for past days.</li>
+<li><strong>Summary</strong>:<ul>
+<li>The title shows the total count (e.g., <strong>Daily Report 15</strong>).</li>
+<li>The list shows every student who checked in that day, their check-in time, and their current remaining classes.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>5. Data &amp; Export</h2>
+<h3>Excel Export</h3>
+<p>Useful for end-of-month reporting or external analysis.</p>
+<ol>
+<li>In <strong>ROSTER</strong>, scroll to the <strong>Data Management</strong> section at the bottom.</li>
+<li>Click the green <strong>EXPORT TO EXCEL</strong> button.</li>
+<li>A file named <code>FlexCheck_Export_YYYY-MM-DD.xlsx</code> will download.<ul>
+<li><strong>Students Tab</strong>: Lists all students, active status, contact info, and current balance.</li>
+<li><strong>Transactions Tab</strong>: Lists every single transaction history record.</li>
+</ul>
+</li>
+</ol>
+<h3>Backup &amp; Restore</h3>
+<p><strong>Crucial for data safety.</strong> Since this app lives in your browser, clearing your browser cache will delete the data.</p>
+<ol>
+<li><strong>Backup</strong>: Click <strong>DOWNLOAD BACKUP</strong> regularly (e.g., weekly). Save the <code>.json</code> file to a secure location (Google Drive, USB, etc.).</li>
+<li><strong>Restore</strong>:<ul>
+<li>Click <strong>RESTORE BACKUP</strong>.</li>
+<li>Select your <code>.json</code> file.</li>
+<li><strong>Warning</strong>: This merges the backup data with your current data.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>6. Troubleshooting</h2>
+<h3>I forgot my Admin Password</h3>
+<ol>
+<li>On the login screen, click <strong>Forgot Password?</strong>.</li>
+<li>Answer the Security Question you set up.</li>
+<li>If correct, you can create a new password immediately.</li>
+</ol>
+<h3>I cleared my browser cache / &quot;App Reset&quot;</h3>
+<p>If you cleared your browser data, the app will look like it&#39;s brand new.</p>
+<ol>
+<li>If you have a <strong>Backup (.json)</strong> file:<ul>
+<li>Complete the &quot;Setup Admin&quot; process with a temporary password.</li>
+<li>Go to <strong>Data Management</strong> and use <strong>RESTORE BACKUP</strong> to reload your data.</li>
+</ul>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flex-Check Pro - 管理员用户指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 font-sans p-6 md:p-12">
+    <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-[2rem] shadow-xl">
+      <h1 class="text-3xl font-black italic tracking-tighter uppercase mb-8 text-center">
+        Flex-Check <span class="text-blue-600">Pro</span> 用户指南
+      </h1>
+
+      <p class="mb-8 text-lg text-slate-600">
+        本指南旨在帮助管理员使用 Flex-Check Pro
+        高效管理学生花名册、追踪出勤情况以及处理数据。
+      </p>
+
+      <div class="space-y-12">
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            1. 开始使用 (Getting Started)
+          </h2>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            安装应用图标 (添加到主屏幕)
+          </h3>
+          <p class="mb-4">
+            为了方便快速访问，您可以将 Flex-Check Pro
+            添加到设备的主屏幕，就像原生应用一样。
+          </p>
+
+          <p class="mb-2">
+            <strong>应用网址:</strong>
+            <a
+              href="https://flexcheck.framedghosts.com/"
+              class="text-blue-600 font-bold underline"
+              >https://flexcheck.framedghosts.com/</a
+            >
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-8 mt-6">
+            <div class="bg-slate-50 p-6 rounded-2xl border">
+              <p class="font-black text-sm uppercase text-slate-400 mb-2">
+                iPhone / iPad (Safari)
+              </p>
+              <ol class="list-decimal list-inside space-y-2 text-sm">
+                <li>在 <strong>Safari</strong> 浏览器中打开上述应用链接。</li>
+                <li>
+                  点击底部或顶部的 <strong>分享</strong> 图标 (带有向上箭头的方框)。
+                </li>
+                <li>
+                  向下滚动并点击 <strong>添加到主屏幕</strong> (Add to Home
+                  Screen)。
+                </li>
+                <li>点击 <strong>添加</strong> (Add)。</li>
+              </ol>
+              <img
+                src="ios_install.png"
+                alt="iOS 安装指南"
+                class="mt-4 w-full max-w-[200px] mx-auto rounded-xl shadow-sm border"
+              />
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-2xl border">
+              <p class="font-black text-sm uppercase text-slate-400 mb-2">
+                Android (Chrome)
+              </p>
+              <ol class="list-decimal list-inside space-y-2 text-sm">
+                <li>在 <strong>Chrome</strong> 浏览器中打开上述应用链接。</li>
+                <li>
+                  点击右上角的 <strong>菜单</strong> 图标 (三个点)。
+                </li>
+                <li>
+                  点击 <strong>安装应用</strong> (Install app) 或
+                  <strong>添加到主屏幕</strong> (Add to Home Screen)。
+                </li>
+                <li>按照提示完成安装。</li>
+              </ol>
+              <img
+                src="android_install.png"
+                alt="Android 安装指南"
+                class="mt-4 w-full max-w-[200px] mx-auto rounded-xl shadow-sm border"
+              />
+            </div>
+          </div>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-8">
+            初始设置
+          </h3>
+          <p class="mb-4">
+            首次启动应用程序时，您必须设置管理员账户以保护花名册数据。
+          </p>
+          <ol class="list-decimal list-inside space-y-2 ml-4">
+            <li>点击 <strong>ROSTER</strong> (花名册) 标签页。</li>
+            <li>您将看到 <strong>Setup Admin</strong> (设置管理员) 屏幕。</li>
+            <li>
+              <strong>Create Password</strong>: 输入并确认一个安全的密码。
+            </li>
+            <li>
+              <strong>Security Question</strong>: 选择一个问题并提供答案。
+              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
+                <li>
+                  <em>重要提示</em>: 如果您忘记密码，这是找回账户且不丢失数据的
+                  <strong>唯一</strong> 方法。
+                </li>
+              </ul>
+            </li>
+            <li>点击 <strong>CREATE ACCOUNT</strong> (创建账户)。</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            2. 学生管理
+          </h2>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            批量添加学生 (Adding Students)
+          </h3>
+          <ol class="list-decimal list-inside space-y-2 ml-4">
+            <li>
+              在 <strong>ROSTER</strong> 标签页，点击
+              <strong>+ BULK IMPORT</strong> (批量导入) 按钮。
+            </li>
+            <li>
+              在文本框中输入学生姓名，每行一个。
+              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
+                <li>
+                  格式: <code>First Last</code> (例如 <code>John Smith</code>) 或
+                  <code>Last, First</code> (例如 <code>Smith, John</code>)。
+                </li>
+              </ul>
+            </li>
+            <li>点击 <strong>IMPORT LIST</strong> (导入列表)。</li>
+            <li>
+              <strong>处理重复</strong>:
+              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
+                <li>
+                  如果姓名已存在，系统会暂停并询问：使用带编号的名称导入（例如
+                  "John Smith 2"）或跳过。
+                </li>
+              </ul>
+            </li>
+          </ol>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            编辑与停用
+          </h3>
+          <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>
+              <strong>编辑姓名</strong>:
+              在列表中点击学生，然后直接点击顶部的姓名进行编辑。
+            </li>
+            <li>
+              <strong>联系信息</strong>: 更新 Parent
+              Email/Phone。退出时自动保存。
+            </li>
+            <li>
+              <strong>停用 (推荐)</strong>: 切换
+              <strong>Active/Inactive</strong> 按钮。从 Check-In
+              中隐藏学生但保留历史记录。
+            </li>
+            <li>
+              <strong>删除 (永久)</strong>: 点击
+              <strong>DELETE STUDENT ACCOUNT</strong>。
+              <span class="text-red-500 font-bold"
+                >警告: 永久删除所有历史记录。</span
+              >
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            3. 课时管理
+          </h2>
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            增加课时与调整
+          </h3>
+          <ol class="list-decimal list-inside space-y-2 ml-4">
+            <li>在 <strong>ROSTER</strong> 中打开学生个人资料。</li>
+            <li>找到 <strong>Add Classes</strong> 部分。</li>
+            <li>选择类型（例如 "Refill"）。</li>
+            <li>
+              输入课时数（例如 <code>10</code>）。使用负数（例如
+              <code>-1</code>）来修正错误。
+            </li>
+            <li>点击 <strong>ADD</strong>。</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            4. 日常操作
+          </h2>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+                签到流程
+              </h3>
+              <ol class="list-decimal list-inside space-y-2 ml-4">
+                <li>进入 <strong>CHECK-IN</strong> 标签页。</li>
+                <li>搜索学生姓名。</li>
+                <li>点击黑色的 <strong>CHECK IN</strong> 按钮。</li>
+                <li>
+                  系统扣除 <strong>1 课时</strong> 并标记为已签到。
+                </li>
+              </ol>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+                每日报告
+              </h3>
+              <ol class="list-decimal list-inside space-y-2 ml-4">
+                <li>进入 <strong>ROSTER</strong> 标签页（需登录）。</li>
+                <li>查看顶部的 <strong>Daily Report</strong> 部分。</li>
+                <li>使用日期选择器查看历史记录。</li>
+                <li>标题徽章显示当天的总人数。</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            5. 数据与导出
+          </h2>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
+              <h3 class="font-black text-emerald-800 uppercase mb-2">
+                Excel 导出
+              </h3>
+              <p class="text-sm mb-4">
+                下载详细报告用于分析。
+              </p>
+              <ol class="list-decimal list-inside space-y-1 text-sm">
+                <li>进入 <strong>ROSTER</strong> > <strong>Data Management</strong>。</li>
+                <li>点击 <strong>EXPORT TO EXCEL</strong>。</li>
+                <li>包含: 学生名单及完整交易历史。</li>
+              </ol>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+              <h3 class="font-black text-blue-800 uppercase mb-2">
+                备份与恢复
+              </h3>
+              <p class="text-sm mb-4">
+                <strong>至关重要:</strong> 清除缓存会删除数据！
+              </p>
+              <ol class="list-decimal list-inside space-y-1 text-sm">
+                <li>定期点击 <strong>DOWNLOAD BACKUP</strong>。</li>
+                <li>安全保存 <code>.json</code> 文件。</li>
+                <li>使用 <strong>RESTORE BACKUP</strong> 恢复数据。</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
+            6. 故障排除
+          </h2>
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            忘记密码？
+          </h3>
+          <p class="ml-4">
+            在登录屏幕上点击 <strong>Forgot Password?</strong> 并回答您的安全问题。
+          </p>
+
+          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
+            数据丢失 / 应用重置？
+          </h3>
+          <p class="ml-4">
+            如果浏览器缓存被清除，请使用您保存的 <code>.json</code> 文件进行 <strong>RESTORE BACKUP</strong>。如果没有备份，数据将永久丢失。
+          </p>
+        </section>
+      </div>
+<img src="ios_install.png" width="300" alt="iOS 安装指南">
+
+<p><strong>Android (Chrome):</strong></p>
+<ol>
+<li>在 <strong>Chrome</strong> 浏览器中打开上述应用链接。</li>
+<li>点击右上角的 <strong>菜单</strong> 图标 (三个点)。</li>
+<li>点击 <strong>安装应用</strong> (Install app) 或 <strong>添加到主屏幕</strong> (Add to Home Screen)。</li>
+<li>按照提示完成安装。</li>
+</ol>
+<img src="android_install.png" width="300" alt="Android 安装指南">
+
+<h3>初始设置</h3>
+<p>首次启动应用程序时，您必须设置管理员账户以保护花名册数据。</p>
+<ol>
+<li>点击 <strong>ROSTER</strong> (花名册) 标签页。</li>
+<li>您将看到 <strong>Setup Admin</strong> (设置管理员) 屏幕。</li>
+<li><strong>Create Password</strong>: 输入并确认一个安全的密码。</li>
+<li><strong>Security Question</strong>: 选择一个问题并提供答案。<ul>
+<li><em>重要提示</em>: 如果您忘记密码，这是找回账户且不丢失数据的 <strong>唯一</strong> 方法。</li>
+</ul>
+</li>
+<li>点击 <strong>CREATE ACCOUNT</strong> (创建账户)。</li>
+</ol>
+<h3>登录</h3>
+<ol>
+<li>点击 <strong>ROSTER</strong> 标签页。</li>
+<li>输入密码并点击 <strong>UNLOCK</strong> (解锁)。</li>
+</ol>
+<hr>
+<h2>2. 学生管理</h2>
+<h3>批量添加学生 (Adding Students)</h3>
+<ol>
+<li>在 <strong>ROSTER</strong> 标签页，点击 <strong>+ BULK IMPORT</strong> (批量导入) 按钮。</li>
+<li>在文本框中输入学生姓名，每行一个。<ul>
+<li>格式: <code>First Last</code> (例如 <code>John Smith</code>) 或 <code>Last, First</code> (例如 <code>Smith, John</code>)。</li>
+</ul>
+</li>
+<li>点击 <strong>IMPORT LIST</strong> (导入列表)。</li>
+<li><strong>处理重复</strong>:<ul>
+<li>如果姓名已存在，系统会暂停并询问：<ul>
+<li><strong>OK</strong>: 使用带编号的名称导入（例如 &quot;John Smith 2&quot;）。</li>
+<li><strong>Cancel</strong>: 跳过此学生（如果他们已经在系统中）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>系统会显示一个摘要，说明添加或跳过了多少学生。</li>
+</ol>
+<h3>编辑学生信息</h3>
+<ol>
+<li>在 <strong>ROSTER</strong> 列表中，点击学生姓名以打开其个人资料。</li>
+<li><strong>编辑姓名</strong>: 直接点击顶部的名字或姓氏文本即可输入新名称。<ul>
+<li><em>注意</em>: 如果您尝试更改为已存在的姓名，系统会提示并撤销更改，以防止重复。</li>
+</ul>
+</li>
+<li><strong>联系信息</strong>: 更新 <strong>Parent Email</strong> (家长邮箱) 或 <strong>Parent Phone</strong> (家长电话)。点击其他地方时系统会自动保存。</li>
+</ol>
+<h3>停用与删除 (Deactivating vs. Deleting)</h3>
+<ul>
+<li><strong>停用 (Active/Inactive - 推荐)</strong>:<ul>
+<li>在学生个人资料中切换 <strong>Active/Inactive</strong> 按钮。</li>
+<li>Inactive (停用) 的学生将从 Check-In 搜索中 <strong>隐藏</strong>，但其历史记录和余额将被保留。</li>
+<li>适用于暂时休学的学生。</li>
+</ul>
+</li>
+<li><strong>删除 (Permanent - 永久)</strong>:<ul>
+<li>点击个人资料底部的 <strong>DELETE STUDENT ACCOUNT</strong> (删除学生账户)。</li>
+<li><strong>警告</strong>: 此操作将永久删除学生及其 <strong>所有课时历史记录</strong>。除非您有备份，否则无法撤销。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>3. 课时管理</h2>
+<h3>增加课时 (Adding Classes/Refill)</h3>
+<p>当家长支付新课包费用时：</p>
+<ol>
+<li>在 <strong>ROSTER</strong> 中打开学生个人资料。</li>
+<li>找到 <strong>Add Classes</strong> (增加课时) 部分。</li>
+<li>选择类型（例如 &quot;Refill&quot; 充值或 &quot;Adjustment&quot; 调整）。</li>
+<li>输入课时数（例如 <code>10</code> 或 <code>20</code>）。</li>
+<li>点击 <strong>ADD</strong> (增加)。</li>
+<li><strong>Classes Left</strong> (剩余课时) 余额将立即更新。</li>
+</ol>
+<h3>修正错误 (Adjustments)</h3>
+<p>如果您添加了太多课时或需要手动更正余额：</p>
+<ol>
+<li>使用 <strong>Add Classes</strong> 部分。</li>
+<li>输入 <strong>负数</strong>（例如 <code>-1</code>）以手动扣除课时。</li>
+<li>选择 &quot;Adjustment&quot; 作为描述。</li>
+</ol>
+<h3>查看历史记录</h3>
+<ul>
+<li>滚动到学生个人资料底部以查看 <strong>Class History</strong> (课时历史)。</li>
+<li>这显示了按时间顺序排列的每笔 Check-In (-1) 和 Deposit (+X)，以及日期和时间。</li>
+</ul>
+<hr>
+<h2>4. 日常操作</h2>
+<h3>签到流程 (The Check-In Process)</h3>
+<ol>
+<li>进入 <strong>CHECK-IN</strong> 标签页。</li>
+<li>在搜索栏中输入学生姓名。</li>
+<li>点击其姓名旁边的黑色 <strong>CHECK IN</strong> 按钮。</li>
+<li><strong>结果</strong>:<ul>
+<li>系统扣除 <strong>1 课时</strong>。</li>
+<li>学生卡变为灰色，显示 &quot;Checked In&quot;，并移至列表底部。</li>
+</ul>
+</li>
+</ol>
+<h3>每日报告 (Daily Reports)</h3>
+<ol>
+<li>进入 <strong>ROSTER</strong> 标签页并登录。</li>
+<li><strong>Daily Report</strong> (每日报告) 部分位于顶部。</li>
+<li><strong>日期选择</strong>: 使用日期选择器查看过去日期的记录。</li>
+<li><strong>摘要</strong>:<ul>
+<li>标题显示当天的总人数 (例如 <strong>Daily Report 15</strong>)。</li>
+<li>列表显示当天签到的每位学生、签到时间及其当前剩余课时。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>5. 数据与导出</h2>
+<h3>Excel 导出 (Excel Export)</h3>
+<p>用于月底报告或外部数据分析。</p>
+<ol>
+<li>在 <strong>ROSTER</strong> 中，滚动到底部的 <strong>Data Management</strong> (数据管理) 部分。</li>
+<li>点击绿色的 <strong>EXPORT TO EXCEL</strong> 按钮。</li>
+<li>将下载名为 <code>FlexCheck_Export_YYYY-MM-DD.xlsx</code> 的文件。<ul>
+<li><strong>Students 标签页</strong>: 列出所有学生、活跃状态、联系信息及当前余额。</li>
+<li><strong>Transactions 标签页</strong>: 列出每一笔历史交易记录。</li>
+</ul>
+</li>
+</ol>
+<h3>备份与恢复 (Backup &amp; Restore)</h3>
+<p><strong>这对数据安全至关重要。</strong> 由于此应用驻留在您的浏览器中，清除浏览器缓存将删除数据。</p>
+<ol>
+<li><strong>备份</strong>: 定期点击 <strong>DOWNLOAD BACKUP</strong> (下载备份)（例如每周）。将 <code>.json</code> 文件保存到安全位置（Google Drive、U盘等）。</li>
+<li><strong>恢复</strong>:<ul>
+<li>点击 <strong>RESTORE BACKUP</strong> (恢复备份)。</li>
+<li>选择您的 <code>.json</code> 文件。</li>
+<li><strong>警告</strong>: 这会将备份数据与您当前的数据合并。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>6. 故障排除</h2>
+<h3>我忘记了管理员密码</h3>
+<ol>
+<li>在登录屏幕上，点击 <strong>Forgot Password?</strong> (忘记密码？)。</li>
+<li>回答您设置的安全问题。</li>
+<li>如果正确，您可以立即创建一个新密码。</li>
+</ol>
+<h3>我清除了浏览器缓存 / &quot;App 重置&quot;</h3>
+<p>如果您清除了浏览器数据，应用看起来就像是全新的。</p>
+<ol>
+<li>如果您有 <strong>备份 (.json)</strong> 文件：<ul>
+<li>使用临时密码完成 &quot;Setup Admin&quot; (设置管理员) 流程。</li>
+<li>进入 <strong>Data Management</strong> 并使用 <strong>RESTORE BACKUP</strong> 重新加载您的数据。</li>
+</ul>
+    </div>
+  </body>
+</html>
