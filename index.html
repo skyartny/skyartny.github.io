@@ -25,7 +25,6 @@
   </head>
   <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
     <div x-data="app()" x-init="init()" class="max-w-2xl mx-auto p-4">
-
       <header class="mb-8 pt-6">
         <div class="flex justify-between items-end mb-6">
           <div>
@@ -77,11 +76,6 @@
                   x-text="user.firstName + ' ' + user.lastName"
                 ></span>
                 <div class="flex items-center gap-2 mt-1">
-                  <span
-                    :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                    class="text-sm font-mono font-black"
-                    x-text="Math.floor(user.balance)"
-                  ></span>
                   <template x-if="user.hasCheckedIn">
                     <span
                       class="text-[10px] font-black text-blue-600 uppercase italic"
@@ -268,10 +262,7 @@
               <div>
                 <h2 class="text-2xl font-black mb-4">Reset Password</h2>
                 <div class="space-y-4">
-
-                  <template
-                    x-if="hasSecurityQuestion"
-                  >
+                  <template x-if="hasSecurityQuestion">
                     <div class="space-y-4 pt-4">
                       <p
                         class="text-xs text-slate-400 font-black uppercase mb-1"
@@ -418,30 +409,30 @@
               <div
                 class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-t-8 border-blue-600 mb-8 animate-in slide-in-from-bottom"
               >
-                  <div class="flex justify-between items-start mb-6">
-                    <div>
-                      <div class="flex gap-2 mb-2">
-                        <input
-                          type="text"
-                          x-model="selectedUser.firstName"
-                          @change="saveUser(selectedUser)"
-                          class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2"
-                        />
-                        <input
-                          type="text"
-                          x-model="selectedUser.lastName"
-                          @change="saveUser(selectedUser)"
-                          class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2"
-                        />
-                      </div>
-                      <span
-                        :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                        class="text-sm font-mono font-black mt-1 block"
-                        x-text="'Classes Left: ' + Math.floor(selectedUser.balance)"
-                      ></span>
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <div class="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        x-model="selectedUser.firstName"
+                        @change="saveUser(selectedUser)"
+                        class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2"
+                      />
+                      <input
+                        type="text"
+                        x-model="selectedUser.lastName"
+                        @change="saveUser(selectedUser)"
+                        class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2"
+                      />
                     </div>
-                    <button
-                      @click="selectedUser = null"
+                    <span
+                      :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                      class="text-sm font-mono font-black mt-1 block"
+                      x-text="'Classes Left: ' + Math.floor(selectedUser.balance)"
+                    ></span>
+                  </div>
+                  <button
+                    @click="selectedUser = null"
                     class="text-slate-300 text-4xl hover:text-slate-600 transition"
                   >
                     &times;
@@ -612,7 +603,7 @@
                 <thead
                   class="bg-slate-100 text-[10px] font-black text-slate-400 uppercase"
                 >
-                    <tr>
+                  <tr>
                     <th class="p-5">Student Name</th>
                     <th class="p-5 text-right">Classes Left</th>
                   </tr>
@@ -871,7 +862,9 @@
               this.hasAdminConfig = !!config;
 
               // Migration: Convert currency to class units (assume $30 = 1 class)
-              const migration = await this.db.settings.get("migration_v1_classes");
+              const migration = await this.db.settings.get(
+                "migration_v1_classes"
+              );
               if (!migration) {
                 const txs = await this.db.transactions.toArray();
                 const updated = txs.map((t) => ({
@@ -1082,6 +1075,45 @@
           },
           async saveUser(u) {
             u.nameSearch = (u.firstName + " " + u.lastName).toLowerCase();
+
+            // Check for duplicate name
+            const duplicate = this.allUsers.find(
+              (user) =>
+                user.uuid !== u.uuid && user.nameSearch === u.nameSearch
+            );
+
+            if (duplicate) {
+              let suggestedFirst = u.firstName;
+              let suggestedLast = u.lastName;
+              let counter = 2;
+              while (
+                this.allUsers.find(
+                  (user) =>
+                    user.uuid !== u.uuid &&
+                    user.nameSearch ===
+                      (
+                        suggestedFirst +
+                        " " +
+                        suggestedLast +
+                        " " +
+                        counter
+                      ).toLowerCase()
+                )
+              ) {
+                counter++;
+              }
+              const suggestion = `${suggestedFirst} ${suggestedLast} ${counter}`;
+
+              alert(
+                `The name "${u.firstName} ${u.lastName}" already exists.\n\nPlease use a unique name.\nSuggestion: "${suggestion}"`
+              );
+
+              // Revert UI to original state from DB
+              const original = await this.db.users.get(u.uuid);
+              this.selectedUser = original;
+              return;
+            }
+
             await this.db.users.put(JSON.parse(JSON.stringify(u)));
             await this.refresh();
           },
@@ -1138,6 +1170,9 @@
 
           async processBulk() {
             const lines = this.bulkText.split("\n").filter((l) => l.trim());
+            let importedCount = 0;
+            let skippedCount = 0;
+
             for (let l of lines) {
               let f, ls;
               if (l.includes(",")) {
@@ -1147,6 +1182,39 @@
                 f = p[0];
                 ls = p.slice(1).join(" ") || "Student";
               }
+
+              const nameSearch = `${f} ${ls}`.toLowerCase();
+              const exists = this.allUsers.some(
+                (u) => u.nameSearch === nameSearch
+              );
+
+              if (exists) {
+                // Find a suggestion
+                let counter = 2;
+                while (
+                  this.allUsers.some(
+                    (u) =>
+                      u.nameSearch ===
+                      `${f} ${ls} ${counter}`.toLowerCase()
+                  )
+                ) {
+                  counter++;
+                }
+                const suggestion = `${f} ${ls} ${counter}`;
+
+                if (
+                  !confirm(
+                    `User "${f} ${ls}" already exists.\n\nClick OK to import as "${suggestion}" instead.\nClick Cancel to SKIP this user.`
+                  )
+                ) {
+                  skippedCount++;
+                  continue;
+                }
+
+                // If accepted, update name to suggestion
+                ls = `${ls} ${counter}`;
+              }
+
               await this.db.users.add({
                 uuid: crypto.randomUUID(),
                 firstName: f,
@@ -1156,10 +1224,18 @@
                 parentPhone: "",
                 isActive: 1,
               });
+              importedCount++;
             }
+
             this.bulkText = "";
             this.showBulk = false;
             await this.refresh();
+
+            if (importedCount > 0 || skippedCount > 0) {
+              alert(
+                `Import complete.\nAdded: ${importedCount}\nSkipped: ${skippedCount}`
+              );
+            }
           },
           async exportBackup() {
             const users = await this.db.users.toArray();
