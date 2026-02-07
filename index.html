@@ -90,7 +90,7 @@
                   </template>
                   <span
                     class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2"
-                    x-text="Math.floor(user.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left'"
+                    x-text="user.balance.toFixed(1) + ' Classes'"
                   ></span>
                 </div>
               </div>
@@ -427,7 +427,7 @@
                     <span
                       :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
                       class="text-sm font-mono font-black mt-1 block"
-                      x-text="'Current Balance: $' + selectedUser.balance.toFixed(2) + ' (' + Math.floor(selectedUser.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left)'"
+                      x-text="'Classes Left: ' + selectedUser.balance.toFixed(1)"
                     ></span>
                   </div>
                   <button
@@ -469,7 +469,7 @@
                     <div class="space-y-1">
                       <label
                         class="text-[10px] font-black text-slate-400 uppercase"
-                        >Deposit Funds</label
+                        >Add Classes</label
                       >
                       <div class="flex gap-2">
                         <select
@@ -483,7 +483,7 @@
                           type="number"
                           x-model="depositAmount"
                           class="w-full p-3 bg-emerald-50 rounded-xl text-sm border-none shadow-inner"
-                          placeholder="0.00"
+                          placeholder="0"
                         />
                         <button
                           @click="addFunds()"
@@ -532,7 +532,7 @@
                 <h3
                   class="text-[10px] font-black text-slate-400 uppercase mt-8 mb-2"
                 >
-                  Bill History
+                  Class History
                 </h3>
                 <div class="max-h-60 overflow-y-auto divide-y border-t">
                   <template x-for="tx in userHistory" :key="tx.uuid">
@@ -551,11 +551,11 @@
                         <span
                           :class="tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'"
                           class="font-mono font-black block"
-                          x-text="(tx.amount > 0 ? '+' : '') + tx.amount.toFixed(2)"
+                          x-text="(tx.amount > 0 ? '+' : '') + tx.amount.toFixed(1)"
                         ></span>
                         <span
                           class="text-[10px] text-slate-400 font-mono font-bold block"
-                          x-text="'Bal: $' + tx.runningBalance.toFixed(2)"
+                          x-text="'Bal: ' + tx.runningBalance.toFixed(1)"
                         ></span>
                       </div>
                     </div>
@@ -602,9 +602,9 @@
                 <thead
                   class="bg-slate-100 text-[10px] font-black text-slate-400 uppercase"
                 >
-                  <tr>
+                    <tr>
                     <th class="p-5">Student Name</th>
-                    <th class="p-5 text-right">Balance</th>
+                    <th class="p-5 text-right">Classes Left</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -644,11 +644,7 @@
                         <span
                           class="font-mono font-black block"
                           :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                          x-text="'$' + user.balance.toFixed(2)"
-                        ></span>
-                        <span
-                          class="text-[10px] text-slate-400 font-bold uppercase"
-                          x-text="Math.floor(user.balance / (parseFloat(defaultCheckInAmount) || 30.0)) + ' Classes Left'"
+                          x-text="user.balance.toFixed(1)"
                         ></span>
                       </td>
                     </tr>
@@ -692,26 +688,6 @@
 
               <!-- Password Management -->
               <div class="p-6 border-t bg-slate-50 space-y-4">
-                <div class="bg-white p-4 rounded-xl border">
-                  <label
-                    class="block text-[10px] font-black text-slate-400 uppercase mb-2"
-                    >Check-in Fee ($)</label
-                  >
-                  <div class="flex gap-2">
-                    <input
-                      type="number"
-                      x-model="defaultCheckInAmount"
-                      class="flex-1 p-3 rounded-xl border bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      @click="saveCheckInFee()"
-                      class="bg-slate-900 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-700 transition"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-
                 <button
                   @click="showChangePasswordModal = true; cpQuestion = 'What is your mother\'s maiden name?'; cpAnswer = '';"
                   class="w-full text-blue-600 text-xs font-black uppercase tracking-widest hover:text-blue-800 transition"
@@ -838,7 +814,6 @@
           userHistory: [],
           depositAmount: null,
           depositDescription: "Account Refill",
-          defaultCheckInAmount: 30,
           showBulk: false,
           bulkText: "",
           passwordInput: "",
@@ -885,10 +860,20 @@
               const config = await this.db.settings.get("admin_config");
               this.hasAdminConfig = !!config;
 
-              // Load Check-in Fee
-              const feeConfig = await this.db.settings.get("checkin_fee");
-              if (feeConfig) {
-                this.defaultCheckInAmount = feeConfig.amount;
+              // Migration: Convert currency to class units (assume $30 = 1 class)
+              const migration = await this.db.settings.get("migration_v1_classes");
+              if (!migration) {
+                const txs = await this.db.transactions.toArray();
+                const updated = txs.map((t) => ({
+                  ...t,
+                  amount: t.amount / 30, // Convert existing dollar amounts to class units
+                }));
+                await this.db.transactions.bulkPut(updated);
+                await this.db.settings.put({
+                  id: "migration_v1_classes",
+                  done: true,
+                });
+                console.log("Migrated transactions to class units.");
               }
 
               await this.refresh();
@@ -1001,14 +986,13 @@
           async performCheckIn(user) {
             const today = new Date().toISOString().split("T")[0];
             const uuid = crypto.randomUUID();
-            const fee = parseFloat(this.defaultCheckInAmount) || 30.0;
             await this.db.transactions.add({
               uuid,
               userUuid: user.uuid,
               dayKey: `${today}-${user.uuid}`,
-              amount: -fee,
+              amount: -1,
               type: "checkin",
-              description: "Check-in Fee",
+              description: "Class Check-in",
               timestamp: new Date().toISOString(),
             });
             await this.refresh();
@@ -1035,7 +1019,6 @@
           },
 
           getDailyCheckins() {
-            const fee = parseFloat(this.defaultCheckInAmount) || 30.0;
             return this.allTransactions
               .filter(
                 (t) =>
@@ -1052,7 +1035,7 @@
                     ? `${user.firstName} ${user.lastName}`
                     : "Unknown",
                   parentEmail: user ? user.parentEmail : "",
-                  classesLeft: Math.floor(balance / fee),
+                  classesLeft: balance.toFixed(1),
                 };
               })
               .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -1133,13 +1116,6 @@
             this.showUser(
               this.allUsers.find((x) => x.uuid === this.selectedUser.uuid)
             );
-          },
-          async saveCheckInFee() {
-            await this.db.settings.put({
-              id: "checkin_fee",
-              amount: parseFloat(this.defaultCheckInAmount),
-            });
-            alert("Check-in fee updated successfully!");
           },
 
           async processBulk() {
