@@ -1,6 +1,6 @@
 # Flex-Check Pro
 
-Flex-Check Pro is a lightweight, offline-capable student check-in and roster management web application. It is designed to streamline the process of tracking student attendance, managing account balances, and keeping parents informed.
+Flex-Check Pro is a lightweight, offline-capable student check-in and roster management web application. It is designed to streamline the process of tracking student attendance, managing class balances, and keeping parents informed.
 
 Built with a local-first architecture, it stores data instantly in your browser (IndexedDB).
 
@@ -8,24 +8,30 @@ Built with a local-first architecture, it stores data instantly in your browser 
 
 ### 📋 Check-In System
 *   **Fast Search**: Instantly find students by name.
-*   **One-Tap Check-In**: Checks students in and automatically deducts a configurable session fee (default $30).
-*   **Visual Status**: Clear indicators for students who have already checked in or have a low balance.
+*   **One-Tap Check-In**: Checks students in and automatically deducts **1 class** from their balance.
+*   **Visual Status**:
+    *   **Checked In**: Students checked in for the day appear at the bottom of the list with a checkmark.
+    *   **Classes Left**: Displays remaining classes (e.g., "5 Classes Left").
+    *   **Low Balance**: Negative balances are highlighted in red.
 
 ### 🛡️ Admin Dashboard
 *   **Secure Access**: Password-protected admin area with SHA-256 hashing.
 *   **Easy Setup**: Simple first-time setup flow to create an admin password and security question.
-*   **Password Recovery**:
-    *   **Offline**: Reset password using your pre-set Security Question.
+*   **Password Recovery**: Reset password using your pre-set Security Question.
 *   **Student Management**:
-    *   View/Edit details (Name, Parent Email, Phone).
+    *   **View/Edit**: Edit student details (First Name, Last Name, Parent Email, Phone) directly.
+    *   **Duplicate Prevention**: Automatically detects duplicate names and suggests alternatives (e.g., "John Doe 2").
     *   **Active/Inactive Status**: Toggle student status to hide them from the check-in list without deleting data.
-    *   **Transaction History**: Full ledger of check-ins and deposits with running balance.
-    *   **Funds Management**: Deposit funds or make adjustments (supports negative values).
-*   **Daily Reports**: View a chronological list of check-ins for any selected date, including parent contact info.
-*   **Bulk Import**: Quickly add multiple students using a simple text format.
+    *   **Class History**: Full ledger of check-ins (-1) and deposits (+X) with running balance.
+    *   **Add Classes**: Easily add classes to a student's account (e.g., refill or adjustment).
+*   **Daily Reports**:
+    *   View a chronological list of check-ins for any selected date.
+    *   **Count Badge**: Shows the total number of check-ins for the day in the title.
+    *   Displays student name, contact email, and remaining class balance.
+*   **Bulk Import**: Quickly add multiple students using a simple text format. Smartly handles duplicates by prompting for confirmation or renaming.
 
 ### ⚙️ Configuration & Data
-*   **Custom Check-In Fee**: Set the default amount deducted per check-in directly from the admin panel.
+*   **Class-Based System**: Tracks attendance by "Classes" (integers) rather than currency.
 *   **Local-First**: Works offline using Dexie.js (IndexedDB).
 *   **Manual Backup/Restore**: Download a JSON backup of your data or restore from a file at any time.
 
@@ -42,8 +48,8 @@ Since this is a static web application, it does not require a backend server.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/haijuncuny/haijuncuny.github.io.git
-    cd haijuncuny.github.io
+    git clone https://github.com/skyartny/skyartny.github.io.git
+    cd skyartny.github.io
     ```
 
 2.  **Run Locally:**
@@ -64,16 +70,18 @@ Since this is a static web application, it does not require a backend server.
 *   Click **+ BULK IMPORT**.
 *   Enter names (e.g., `John Doe` or `Doe, John`), one per line.
 *   Click **IMPORT LIST**.
+*   If a name already exists, you will be prompted to rename (e.g., to "John Doe 2") or skip.
 
-### 3. Managing Funds & Fees
-*   **Set Check-In Fee**: Scroll to the bottom of the Roster tab ("Data Management"). Enter the desired amount (e.g., 25) and click **Save**.
-*   **Add Funds**: Click on a student's name. Under **Deposit Funds**, select "Refill" or "Adjustment", enter amount, and click **ADD**.
+### 3. Managing Classes
+*   **Add Classes**: Click on a student's name in the Roster. Under **Add Classes**, enter the number of classes (e.g., 10) and click **ADD**.
+*   **Edit Name**: Click on the student's name in the detail view to rename them.
 
 ### 4. Daily Check-In
 *   Go to the **CHECK-IN** tab.
 *   Type the student's name.
 *   Click the black **CHECK IN** button.
-*   The system will deduct the configured fee.
+*   The system will deduct **1 class**.
+*   The student will move to the bottom of the list and show as "Checked In".
 
 ## 🔒 Security
 
@@ -89,8 +97,8 @@ If you forget your Admin Password and cannot recover it via the Security Questio
 2.  Press **F12** (or `Cmd+Option+I` on Mac) to open Developer Tools.
 3.  Go to the **Application** tab.
 4.  In the left sidebar, under **Storage**:
-    *   Click **Clear site data**.
-    *   Click the **Clear site data** button.
+    *   Click **IndexedDB** -> **Delete database**.
+    *   Or click **Storage** -> **Clear site data**.
 5.  Reload the page. You will be prompted to setup a new Admin account.
 
 #### Option 2: Programmatically (Console)
