@@ -15,7 +15,7 @@ For quick access, you can add Flex-Check Pro to your device's home screen like a
 3. Scroll down and tap **Add to Home Screen**.
 4. Tap **Add**.
 
-![iOS Installation Guide](ios_install.png)
+<img src="ios_install.png" width="300" alt="iOS Installation Guide">
 
 **Android (Chrome):**
 1. Open the app link above in **Chrome**.
@@ -23,7 +23,7 @@ For quick access, you can add Flex-Check Pro to your device's home screen like a
 3. Tap **Install app** or **Add to Home Screen**.
 4. Follow the prompt to install.
 
-![Android Installation Guide](android_install.png)
+<img src="android_install.png" width="300" alt="Android Installation Guide">
 
 ### Initial Setup
 When you first launch the application, you must set up the admin account to secure the Roster data.

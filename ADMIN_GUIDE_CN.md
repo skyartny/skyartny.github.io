@@ -15,7 +15,7 @@
 3. 向下滚动并点击 **添加到主屏幕** (Add to Home Screen)。
 4. 点击 **添加** (Add)。
 
-![iOS 安装指南](ios_install.png)
+<img src="ios_install.png" width="300" alt="iOS 安装指南">
 
 **Android (Chrome):**
 1. 在 **Chrome** 浏览器中打开上述应用链接。
@@ -23,7 +23,7 @@
 3. 点击 **安装应用** (Install app) 或 **添加到主屏幕** (Add to Home Screen)。
 4. 按照提示完成安装。
 
-![Android 安装指南](android_install.png)
+<img src="android_install.png" width="300" alt="Android 安装指南">
 
 ### 初始设置
 首次启动应用程序时，您必须设置管理员账户以保护花名册数据。
