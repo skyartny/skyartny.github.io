@@ -1,287 +1,17 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flex-Check Pro - Admin User Guide</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-slate-50 text-slate-900 font-sans p-6 md:p-12">
-    <div class="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-[2rem] shadow-xl">
-      <h1 class="text-3xl font-black italic tracking-tighter uppercase mb-8 text-center">
-        Flex-Check <span class="text-blue-600">Pro</span> Guide
-      </h1>
+<h1>Flex-Check Pro - Admin User Guide</h1>
+<p>This guide is designed to help administrators effectively manage student rosters, track class attendance, and handle data using Flex-Check Pro.</p>
+<h2>1. Getting Started</h2>
+<h3>Install App Icon (Add to Home Screen)</h3>
+<p>For quick access, you can add Flex-Check Pro to your device&#39;s home screen like a native app.</p>
+<p><strong>App URL:</strong> <a href="https://flexcheck.framedghosts.com/">https://flexcheck.framedghosts.com/</a></p>
+<p><strong>iPhone / iPad (Safari):</strong></p>
+<ol>
+<li>Open the app link above in <strong>Safari</strong>.</li>
+<li>Tap the <strong>Share</strong> icon (square with arrow up) at the bottom or top.</li>
+<li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+<li>Tap <strong>Add</strong>.</li>
+</ol>
 
-      <p class="mb-8 text-lg text-slate-600">
-        This guide is designed to help administrators effectively manage student
-        rosters, track class attendance, and handle data using Flex-Check Pro.
-      </p>
-
-      <div class="space-y-12">
-        <section>
-          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
-            1. Getting Started
-          </h2>
-
-          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-            Install App Icon (Add to Home Screen)
-          </h3>
-          <p class="mb-4">
-            For quick access, you can add Flex-Check Pro to your device's home
-            screen like a native app.
-          </p>
-
-          <p class="mb-2">
-            <strong>App URL:</strong>
-            <a
-              href="https://flexcheck.framedghosts.com/"
-              class="text-blue-600 font-bold underline"
-              >https://flexcheck.framedghosts.com/</a
-            >
-          </p>
-
-          <div class="grid md:grid-cols-2 gap-8 mt-6">
-            <div class="bg-slate-50 p-6 rounded-2xl border">
-              <p class="font-black text-sm uppercase text-slate-400 mb-2">
-                iPhone / iPad (Safari)
-              </p>
-              <ol class="list-decimal list-inside space-y-2 text-sm">
-                <li>Open the app link above in <strong>Safari</strong>.</li>
-                <li>
-                  Tap the <strong>Share</strong> icon (square with arrow up).
-                </li>
-                <li>
-                  Scroll down and tap <strong>Add to Home Screen</strong>.
-                </li>
-                <li>Tap <strong>Add</strong>.</li>
-              </ol>
-              <img
-                src="ios_install.png"
-                alt="iOS Installation Guide"
-                class="mt-4 w-full max-w-[200px] mx-auto rounded-xl shadow-sm border"
-              />
-            </div>
-
-            <div class="bg-slate-50 p-6 rounded-2xl border">
-              <p class="font-black text-sm uppercase text-slate-400 mb-2">
-                Android (Chrome)
-              </p>
-              <ol class="list-decimal list-inside space-y-2 text-sm">
-                <li>Open the app link above in <strong>Chrome</strong>.</li>
-                <li>
-                  Tap the <strong>Menu</strong> icon (three dots) at top right.
-                </li>
-                <li>
-                  Tap <strong>Install app</strong> or
-                  <strong>Add to Home Screen</strong>.
-                </li>
-                <li>Follow the prompt to install.</li>
-              </ol>
-              <img
-                src="android_install.png"
-                alt="Android Installation Guide"
-                class="mt-4 w-full max-w-[200px] mx-auto rounded-xl shadow-sm border"
-              />
-            </div>
-          </div>
-
-          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-8">
-            Initial Setup
-          </h3>
-          <p class="mb-4">
-            When you first launch the application, you must set up the admin
-            account to secure the Roster data.
-          </p>
-          <ol class="list-decimal list-inside space-y-2 ml-4">
-            <li>Click on the <strong>ROSTER</strong> tab.</li>
-            <li>You will see the <strong>Setup Admin</strong> screen.</li>
-            <li>
-              <strong>Create Password</strong>: Enter a secure password and
-              confirm it.
-            </li>
-            <li>
-              <strong>Security Question</strong>: Select a question and provide
-              an answer.
-              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
-                <li>
-                  <em>Important</em>: This is the <strong>only</strong> way to
-                  reset your password if you forget it without losing data.
-                </li>
-              </ul>
-            </li>
-            <li>Click <strong>CREATE ACCOUNT</strong>.</li>
-          </ol>
-        </section>
-
-        <section>
-          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
-            2. Student Management
-          </h2>
-
-          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-            Adding Students (Bulk Import)
-          </h3>
-          <ol class="list-decimal list-inside space-y-2 ml-4">
-            <li>
-              In the <strong>ROSTER</strong> tab, click the
-              <strong>+ BULK IMPORT</strong> button.
-            </li>
-            <li>
-              In the text box, enter student names, one per line.
-              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
-                <li>
-                  Format: <code>First Last</code> (e.g., <code>John Smith</code>)
-                  or <code>Last, First</code> (e.g., <code>Smith, John</code>).
-                </li>
-              </ul>
-            </li>
-            <li>Click <strong>IMPORT LIST</strong>.</li>
-            <li>
-              <strong>Duplicate Handling</strong>:
-              <ul class="list-disc list-inside ml-6 mt-1 text-slate-500 text-sm">
-                <li>
-                  If a name already exists, the system will ask to import with a
-                  suffix (e.g., "John Smith 2") or skip.
-                </li>
-              </ul>
-            </li>
-          </ol>
-
-          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-            Editing & Deactivating
-          </h3>
-          <ul class="list-disc list-inside space-y-2 ml-4">
-            <li>
-              <strong>Edit Name</strong>: Click on a student in the Roster list,
-              then click directly on their name to edit.
-            </li>
-            <li>
-              <strong>Contact Info</strong>: Update Parent Email/Phone in the
-              student profile. Auto-saves on exit.
-            </li>
-            <li>
-              <strong>Deactivate (Recommended)</strong>: Toggle the
-              <strong>Active/Inactive</strong> button. Hides student from
-              Check-In but keeps history.
-            </li>
-            <li>
-              <strong>Delete (Permanent)</strong>: Click
-              <strong>DELETE STUDENT ACCOUNT</strong>.
-              <span class="text-red-500 font-bold"
-                >Warning: Permanently deletes all history.</span
-              >
-            </li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
-            3. Class Management
-          </h2>
-          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-            Adding Classes & Adjustments
-          </h3>
-          <ol class="list-decimal list-inside space-y-2 ml-4">
-            <li>Open a student's profile in <strong>ROSTER</strong>.</li>
-            <li>Locate the <strong>Add Classes</strong> section.</li>
-            <li>Select type (e.g., "Refill").</li>
-            <li>
-              Enter number of classes (e.g., <code>10</code>). Use a negative
-              number (e.g., <code>-1</code>) to fix mistakes.
-            </li>
-            <li>Click <strong>ADD</strong>.</li>
-          </ol>
-        </section>
-
-        <section>
-          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
-            4. Daily Operations
-          </h2>
-          <div class="grid md:grid-cols-2 gap-8">
-            <div>
-              <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-                Check-In Process
-              </h3>
-              <ol class="list-decimal list-inside space-y-2 ml-4">
-                <li>Go to <strong>CHECK-IN</strong> tab.</li>
-                <li>Search for student name.</li>
-                <li>Click the black <strong>CHECK IN</strong> button.</li>
-                <li>
-                  System deducts <strong>1 Class</strong> and marks as checked
-                  in.
-                </li>
-              </ol>
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-                Daily Reports
-              </h3>
-              <ol class="list-decimal list-inside space-y-2 ml-4">
-                <li>Go to <strong>ROSTER</strong> tab (login required).</li>
-                <li>View <strong>Daily Report</strong> section at top.</li>
-                <li>Use date picker to view past history.</li>
-                <li>Title badge shows total count for the day.</li>
-              </ol>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
-            5. Data & Export
-          </h2>
-          <div class="grid md:grid-cols-2 gap-4">
-            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
-              <h3 class="font-black text-emerald-800 uppercase mb-2">
-                Excel Export
-              </h3>
-              <p class="text-sm mb-4">
-                Download detailed reports for analysis.
-              </p>
-              <ol class="list-decimal list-inside space-y-1 text-sm">
-                <li>Go to <strong>ROSTER</strong> > <strong>Data Management</strong>.</li>
-                <li>Click <strong>EXPORT TO EXCEL</strong>.</li>
-                <li>Contains: Student List & Full Transaction History.</li>
-              </ol>
-            </div>
-            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-              <h3 class="font-black text-blue-800 uppercase mb-2">
-                Backup & Restore
-              </h3>
-              <p class="text-sm mb-4">
-                <strong>Crucial:</strong> Clear cache deletes data!
-              </p>
-              <ol class="list-decimal list-inside space-y-1 text-sm">
-                <li>Click <strong>DOWNLOAD BACKUP</strong> regularly.</li>
-                <li>Save the <code>.json</code> file securely.</li>
-                <li>Use <strong>RESTORE BACKUP</strong> to recover data.</li>
-              </ol>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2 class="text-2xl font-black mb-4 pb-2 border-b">
-            6. Troubleshooting
-          </h2>
-          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-            Forgot Password?
-          </h3>
-          <p class="ml-4">
-            Click <strong>Forgot Password?</strong> on login screen and answer
-            your security question.
-          </p>
-
-          <h3 class="text-lg font-bold text-slate-700 mb-2 mt-6">
-            Data Lost / App Reset?
-          </h3>
-          <p class="ml-4">
-            If browser cache was cleared, use <strong>RESTORE BACKUP</strong> with
-            your saved <code>.json</code> file. If no backup exists, data is
-            permanently lost.
-          </p>
-        </section>
-      </div>
 <img src="ios_install.png" width="300" alt="iOS Installation Guide">
 
 <p><strong>Android (Chrome):</strong></p>
@@ -291,6 +21,7 @@
 <li>Tap <strong>Install app</strong> or <strong>Add to Home Screen</strong>.</li>
 <li>Follow the prompt to install.</li>
 </ol>
+
 <img src="android_install.png" width="300" alt="Android Installation Guide">
 
 <h3>Initial Setup</h3>
@@ -440,6 +171,6 @@
 <li>Complete the &quot;Setup Admin&quot; process with a temporary password.</li>
 <li>Go to <strong>Data Management</strong> and use <strong>RESTORE BACKUP</strong> to reload your data.</li>
 </ul>
-    </div>
-  </body>
-</html>
+</li>
+<li>If you do <strong>not</strong> have a backup, the data is lost permanently. <strong>Please backup regularly.</strong></li>
+</ol>
