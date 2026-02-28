@@ -113,7 +113,29 @@ If you added too many classes or need to correct a balance:
 
 ---
 
-## 5. Data & Export
+## 5. App Customization
+
+### Changing the App Title or Logo
+You can customize the main header of the application to display your organization's name or logo.
+1. In **ROSTER**, scroll to the **Data Management** section at the bottom.
+2. Click **Customize App Title**.
+3. Choose either **Text** or **Image**.
+   * **Text**: Enter a custom name (e.g., "My Studio"). The text will be displayed with a colorful gradient effect.
+   * **Image**: Upload a logo image file directly from your device.
+     * **Best size**: 280 × 64 pixels (wide & short format).
+     * **Format**: PNG or SVG with a transparent background works best.
+     * **Max size**: 1 MB.
+4. Click **Save Title**.
+
+### Changing the Language
+The admin interface supports multiple languages.
+1. In **ROSTER**, locate the **Data Management** section.
+2. At the top right of the section header, use the **Language** dropdown.
+3. Select your preferred language (e.g., English or 中文). The interface will update immediately, and your preference will be saved.
+
+---
+
+## 6. Data & Export
 
 ### Excel Export
 Useful for end-of-month reporting or external analysis.
@@ -133,7 +155,7 @@ Useful for end-of-month reporting or external analysis.
 
 ---
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 ### I forgot my Admin Password
 1.  On the login screen, click **Forgot Password?**.
