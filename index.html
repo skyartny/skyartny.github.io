@@ -1147,6 +1147,8 @@
           resetShowNew: false,
           resetShowConfirm: false,
 
+          wakeLock: null,
+
           reportDate: new Date().toISOString().split("T")[0],
           todayDate: new Date().toLocaleDateString("en-US", {
             weekday: "long",
@@ -1198,8 +1200,28 @@
               }
 
               await this.refresh();
+
+              // Initialize Wake Lock to keep screen awake
+              this.requestWakeLock();
+              document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                  this.requestWakeLock();
+                }
+              });
+
             } catch (e) {
               console.error("Initialization error:", e);
+            }
+          },
+
+          async requestWakeLock() {
+            if ('wakeLock' in navigator) {
+              try {
+                this.wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Screen Wake Lock acquired');
+              } catch (err) {
+                console.error(`Wake Lock error: ${err.name}, ${err.message}`);
+              }
             }
           },
 
