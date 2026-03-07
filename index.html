@@ -1,647 +1,411 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Flex-Check Pro: A lightweight, offline-first student attendance and class management system. Track check-ins, manage rosters, and export data easily."
-    />
-    <meta
-      name="keywords"
-      content="student check-in, attendance tracker, roster management, offline web app, class tracking, Flex-Check Pro"
-    />
-    <meta name="author" content="FramedGhosts" />
-    <title>Flex-Check Pro</title>
 
-    <link rel="icon" type="image/x-icon" href="flexcheck.ico" />
-    <link rel="manifest" href="manifest.json" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <link
-      rel="apple-touch-icon"
-      href="icon-192.png"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Flex-Check Pro: A lightweight, offline-first student attendance and class management system. Track check-ins, manage rosters, and export data easily." />
+  <meta name="keywords"
+    content="student check-in, attendance tracker, roster management, offline web app, class tracking, Flex-Check Pro" />
+  <meta name="author" content="FramedGhosts" />
+  <title>Flex-Check Pro</title>
 
-    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script
-      defer
-      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-    ></script>
-  </head>
-  <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
-    <div x-data="app()" x-init="init()" class="max-w-2xl mx-auto p-4">
-      <header class="mb-8 pt-6">
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <!-- Dynamic title: text or image, configured by admin -->
-            <template x-if="siteTitle.type === 'image' && siteTitle.imageUrl">
-              <img :src="siteTitle.imageUrl" alt="Site Logo" class="h-16 w-auto max-w-[280px] object-contain object-left block rounded-lg">
-            </template>
-            <template x-if="!(siteTitle.type === 'image' && siteTitle.imageUrl)">
-              <h1 class="text-3xl font-black italic tracking-tighter uppercase drop-shadow-sm" x-html="coloredTitle(siteTitle.text || 'FlexCheck')"></h1>
-            </template>
-            <p
-              class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1"
-              x-text="todayDate"
-            ></p>
-          </div>
-          <nav class="flex bg-slate-200 p-1 rounded-2xl">
-            <button
-              @click="view = 'checkin'; selectedUser = null; isAdminUnlocked = false"
-              :class="view === 'checkin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
-              class="px-5 py-2 rounded-xl text-xs font-black transition"
-            >
-              <span x-text="t('checkin')"></span>
-            </button>
-            <button
-              @click="tryAccessAdmin()"
-              :class="view === 'admin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
-              class="px-5 py-2 rounded-xl text-xs font-black transition"
-            >
-              ROSTER
-            </button>
-          </nav>
+  <link rel="icon" type="image/x-icon" href="flexcheck.ico" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
+  <div x-data="app()" x-init="init()" class="max-w-2xl mx-auto p-4">
+    <header class="mb-8 pt-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <!-- Dynamic title: text or image, configured by admin -->
+          <template x-if="siteTitle.type === 'image' && siteTitle.imageUrl">
+            <img :src="siteTitle.imageUrl" alt="Site Logo"
+              class="h-16 w-auto max-w-[280px] object-contain object-left block rounded-lg">
+          </template>
+          <template x-if="!(siteTitle.type === 'image' && siteTitle.imageUrl)">
+            <h1 class="text-3xl font-black italic tracking-tighter uppercase drop-shadow-sm"
+              x-html="coloredTitle(siteTitle.text || 'FlexCheck')"></h1>
+          </template>
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1" x-text="todayDate"></p>
         </div>
-      </header>
+        <nav class="flex bg-slate-200 p-1 rounded-2xl">
+          <button @click="view = 'checkin'; selectedUser = null; isAdminUnlocked = false"
+            :class="view === 'checkin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
+            class="px-5 py-2 rounded-xl text-xs font-black transition">
+            <span x-text="t('checkin')"></span>
+          </button>
+          <button @click="tryAccessAdmin()"
+            :class="view === 'admin' ? 'bg-white shadow text-blue-600' : 'text-slate-500'"
+            class="px-5 py-2 rounded-xl text-xs font-black transition">
+            ROSTER
+          </button>
+        </nav>
+      </div>
+    </header>
 
-      <div x-show="view === 'checkin'" x-transition>
-        <input
-          type="text"
-          x-model="searchQuery"
-          @input="search()"
-          placeholder="Type student name..."
-          class="w-full p-5 rounded-3xl border-none shadow-xl focus:ring-2 focus:ring-blue-500 outline-none text-xl mb-8"
-        />
+    <div x-show="view === 'checkin'" x-transition>
+      <input type="text" x-model="searchQuery" @input="search()" placeholder="Type student name..."
+        class="w-full p-5 rounded-3xl border-none shadow-xl focus:ring-2 focus:ring-blue-500 outline-none text-xl mb-8" />
 
-        <div class="space-y-4">
-          <template x-for="user in searchResults" :key="user.uuid">
-            <div
-              class="bg-white p-6 rounded-[2rem] border flex justify-between items-center transition"
-              :class="user.hasCheckedIn ? 'opacity-40 grayscale' : (user.balance < 0 ? 'border-red-100 bg-red-50/30' : 'border-transparent')"
-            >
-              <div>
-                <span
-                  class="font-black text-xl block leading-tight"
-                  x-text="user.firstName + ' ' + user.lastName"
-                ></span>
-                <div class="flex items-center gap-2 mt-1">
-                  <template x-if="user.hasCheckedIn">
-                    <span
-                      class="text-[10px] font-black text-blue-600 uppercase italic"
-                      >✓ Checked In</span
-                    >
-                  </template>
-                  <span
-                    class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2"
-                    x-text="Math.floor(user.balance) + ' Classes Left'"
-                  ></span>
-                </div>
+      <div class="space-y-4">
+        <template x-for="user in searchResults" :key="user.uuid">
+          <div class="bg-white p-6 rounded-[2rem] border flex justify-between items-center transition"
+            :class="user.hasCheckedIn ? 'opacity-40 grayscale' : (user.balance < 0 ? 'border-red-100 bg-red-50/30' : 'border-transparent')">
+            <div>
+              <span class="font-black text-xl block leading-tight" x-text="user.firstName + ' ' + user.lastName"></span>
+              <div class="flex items-center gap-2 mt-1">
+                <template x-if="user.hasCheckedIn">
+                  <span class="text-[10px] font-black text-blue-600 uppercase italic">✓ Checked In</span>
+                </template>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2"
+                  x-text="Math.floor(user.balance) + ' Classes Left'"></span>
               </div>
-              <button
-                @click="performCheckIn(user)"
-                :disabled="user.hasCheckedIn"
-                :class="user.hasCheckedIn ? 'bg-slate-200 text-slate-400' : 'bg-slate-900 text-white hover:scale-105 shadow-lg'"
-                class="px-8 py-4 rounded-2xl font-black transition active:scale-95 uppercase tracking-tighter"
-              >
-                Check In
-              </button>
+            </div>
+            <button @click="performCheckIn(user)" :disabled="user.hasCheckedIn"
+              :class="user.hasCheckedIn ? 'bg-slate-200 text-slate-400' : 'bg-slate-900 text-white hover:scale-105 shadow-lg'"
+              class="px-8 py-4 rounded-2xl font-black transition active:scale-95 uppercase tracking-tighter">
+              Check In
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <div x-show="view === 'admin'" x-transition>
+      <!-- LOCKED STATE -->
+      <template x-if="!isAdminUnlocked">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border text-center">
+          <template x-if="!isResettingPassword">
+            <div>
+              <!-- SETUP MODE -->
+              <template x-if="!hasAdminConfig">
+                <div>
+                  <h2 class="text-2xl font-black mb-4" x-text="t('setupAdmin')"></h2>
+                  <form @submit.prevent="createAdminAccount" class="space-y-4">
+                    <div class="relative">
+                      <input :type="cpShowNew ? 'text' : 'password'" x-model="cpNew" :placeholder="t('createPassword')"
+                        class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12" />
+                      <button type="button" @click="cpShowNew = !cpShowNew"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+                        <span x-text="cpShowNew ? '🙈' : '👁️'"></span>
+                      </button>
+                    </div>
+
+                    <div class="relative">
+                      <input :type="cpShowConfirm ? 'text' : 'password'" x-model="cpConfirm"
+                        :placeholder="t('confirmPassword')"
+                        class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12" />
+                      <button type="button" @click="cpShowConfirm = !cpShowConfirm"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+                        <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
+                      </button>
+                    </div>
+
+                    <div class="text-left space-y-2 bg-slate-50 p-4 rounded-xl border">
+                      <label class="block text-[10px] font-black text-slate-400 uppercase"
+                        x-text="t('securityQuestion')"></label>
+                      <select x-model="cpQuestion"
+                        class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm">
+                        <option :value="t('sqOption1')" x-text="t('sqOption1')"></option>
+                        <option :value="t('sqOption2')" x-text="t('sqOption2')"></option>
+                        <option :value="t('sqOption3')" x-text="t('sqOption3')"></option>
+                        <option :value="t('sqOption4')" x-text="t('sqOption4')"></option>
+                      </select>
+                      <input type="text" x-model="cpAnswer" :placeholder="t('answer')"
+                        class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+
+                    <button type="submit"
+                      class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition">
+                      <span x-text="t('createAccount')"></span>
+                    </button>
+                  </form>
+                </div>
+              </template>
+
+              <!-- LOGIN MODE -->
+              <template x-if="hasAdminConfig">
+                <div>
+                  <h2 class="text-2xl font-black mb-4" x-text="t('adminAccess')"></h2>
+                  <form @submit.prevent="tryUnlockAdmin" class="space-y-4">
+                    <div class="relative">
+                      <input :type="showPassword ? 'text' : 'password'" x-model="passwordInput"
+                        :placeholder="t('enterPassword')"
+                        class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12" />
+                      <button type="button" @click="showPassword = !showPassword"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+                        <template x-if="!showPassword">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </template>
+                        <template x-if="showPassword">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                          </svg>
+                        </template>
+                      </button>
+                    </div>
+                    <button type="submit"
+                      class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition">
+                      <span x-text="t('unlock')"></span>
+                    </button>
+                    <button type="button" @click="initiateReset()"
+                      class="text-xs text-slate-400 hover:text-blue-600 font-bold underline decoration-slate-300 underline-offset-4">
+                      <span x-text="t('forgotPassword')"></span>
+                    </button>
+                  </form>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <template x-if="isResettingPassword">
+            <div>
+              <h2 class="text-2xl font-black mb-4" x-text="t('resetPassword')"></h2>
+              <div class="space-y-4">
+                <template x-if="hasSecurityQuestion">
+                  <div class="space-y-4 pt-4">
+                    <p class="text-xs text-slate-400 font-black uppercase mb-1" x-text="t('securityQuestionLabel')"
+                      Security Question </p>
+                    <p class="text-sm font-bold text-slate-700 mb-2" x-text="securityQuestion"></p>
+                    <input type="text" x-model="resetAnswer" :placeholder="t('yourAnswer')"
+                      class="w-full p-3 rounded-xl border bg-slate-50 text-center focus:ring-2 focus:ring-blue-500" />
+
+                    <!-- Only show password fields if answer is typed (visual cue) or we do validation on submit -->
+                    <div x-show="resetAnswer.length > 0" x-transition>
+                      <div class="relative mt-2">
+                        <input :type="resetShowNew ? 'text' : 'password'" x-model="resetNew"
+                          :placeholder="t('newPassword')"
+                          class="w-full p-3 rounded-xl border bg-slate-50 text-center focus:ring-2 focus:ring-blue-500 pr-10" />
+                        <button type="button" @click="resetShowNew = !resetShowNew"
+                          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                          <span x-text="resetShowNew ? '🙈' : '👁️'"></span>
+                        </button>
+                      </div>
+                      <div class="relative mt-2">
+                        <input :type="resetShowConfirm ? 'text' : 'password'" x-model="resetConfirm"
+                          :placeholder="t('confirmPassword')"
+                          class="w-full p-3 rounded-xl border bg-slate-50 text-center focus:ring-2 focus:ring-blue-500 pr-10" />
+                        <button type="button" @click="resetShowConfirm = !resetShowConfirm"
+                          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                          <span x-text="resetShowConfirm ? '🙈' : '👁️'"></span>
+                        </button>
+                      </div>
+                      <button @click="confirmReset()"
+                        class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition mt-4">
+                        <span x-text="t('resetWithAnswer')"></span>
+                      </button>
+                    </div>
+                  </div>
+                </template>
+
+                <template x-if="!hasSecurityQuestion">
+                  <div class="text-center p-4">
+                    <p class="text-sm text-red-500 font-bold" x-text="t('noSecurityQuestion')"></p>
+                  </div>
+                </template>
+
+                <button type="button" @click="isResettingPassword = false"
+                  class="w-full text-slate-400 font-bold text-sm uppercase tracking-widest hover:text-slate-600 mt-4">
+                  <span x-text="t('cancel')"></span>
+                </button>
+              </div>
             </div>
           </template>
         </div>
-      </div>
+      </template>
 
-      <div x-show="view === 'admin'" x-transition>
-        <!-- LOCKED STATE -->
-        <template x-if="!isAdminUnlocked">
-          <div
-            class="bg-white p-8 rounded-[2.5rem] shadow-xl border text-center"
-          >
-            <template x-if="!isResettingPassword">
-              <div>
-                <!-- SETUP MODE -->
-                <template x-if="!hasAdminConfig">
-                  <div>
-                    <h2 class="text-2xl font-black mb-4" x-text="t('setupAdmin')"></h2>
-                    <form
-                      @submit.prevent="createAdminAccount"
-                      class="space-y-4"
-                    >
-                      <div class="relative">
-                        <input
-                          :type="cpShowNew ? 'text' : 'password'"
-                          x-model="cpNew"
-                          :placeholder="t('createPassword')"
-                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                        />
-                        <button
-                          type="button"
-                          @click="cpShowNew = !cpShowNew"
-                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                        >
-                          <span x-text="cpShowNew ? '🙈' : '👁️'"></span>
-                        </button>
-                      </div>
-
-                      <div class="relative">
-                        <input
-                          :type="cpShowConfirm ? 'text' : 'password'"
-                          x-model="cpConfirm"
-                          :placeholder="t('confirmPassword')"
-                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                        />
-                        <button
-                          type="button"
-                          @click="cpShowConfirm = !cpShowConfirm"
-                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                        >
-                          <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
-                        </button>
-                      </div>
-
-                      <div
-                        class="text-left space-y-2 bg-slate-50 p-4 rounded-xl border"
-                      >
-                        <label
-                          class="block text-[10px] font-black text-slate-400 uppercase"
-                          x-text="t('securityQuestion')"
-                        ></label>
-                        <select
-                          x-model="cpQuestion"
-                          class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm"
-                        >
-                          <option :value="t('sqOption1')" x-text="t('sqOption1')"></option>
-                          <option :value="t('sqOption2')" x-text="t('sqOption2')"></option>
-                          <option :value="t('sqOption3')" x-text="t('sqOption3')"></option>
-                          <option :value="t('sqOption4')" x-text="t('sqOption4')"></option>
-                        </select>
-                        <input
-                          type="text"
-                          x-model="cpAnswer"
-                          :placeholder="t('answer')"
-                          class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition"
-                      >
-                        <span x-text="t('createAccount')"></span>
-                      </button>
-                    </form>
-                  </div>
-                </template>
-
-                <!-- LOGIN MODE -->
-                <template x-if="hasAdminConfig">
-                  <div>
-                    <h2 class="text-2xl font-black mb-4" x-text="t('adminAccess')"></h2>
-                    <form @submit.prevent="tryUnlockAdmin" class="space-y-4">
-                      <div class="relative">
-                        <input
-                          :type="showPassword ? 'text' : 'password'"
-                          x-model="passwordInput"
-                          :placeholder="t('enterPassword')"
-                          class="w-full p-4 rounded-xl border bg-slate-50 text-center text-lg focus:ring-2 focus:ring-blue-500 pr-12"
-                        />
-                        <button
-                          type="button"
-                          @click="showPassword = !showPassword"
-                          class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                        >
-                          <template x-if="!showPassword">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke-width="1.5"
-                              stroke="currentColor"
-                              class="w-6 h-6"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                              />
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                            </svg>
-                          </template>
-                          <template x-if="showPassword">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke-width="1.5"
-                              stroke="currentColor"
-                              class="w-6 h-6"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                              />
-                            </svg>
-                          </template>
-                        </button>
-                      </div>
-                      <button
-                        type="submit"
-                        class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition"
-                      >
-                        <span x-text="t('unlock')"></span>
-                      </button>
-                      <button
-                        type="button"
-                        @click="initiateReset()"
-                        class="text-xs text-slate-400 hover:text-blue-600 font-bold underline decoration-slate-300 underline-offset-4"
-                      >
-                        <span x-text="t('forgotPassword')"></span>
-                      </button>
-                    </form>
-                  </div>
-                </template>
+      <!-- UNLOCKED STATE -->
+      <template x-if="isAdminUnlocked">
+        <div>
+          <!-- Daily Check-in Report -->
+          <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden mb-6">
+            <div class="p-4 bg-slate-200 flex justify-between items-center border-b">
+              <div class="flex items-center gap-2">
+                <h3 class="font-black text-slate-500 uppercase text-[10px]" x-text="t('dailyReport')"></h3>
+                <span class="bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full"
+                  x-text="getDailyCheckins().length"></span>
               </div>
-            </template>
-
-            <template x-if="isResettingPassword">
-              <div>
-                <h2 class="text-2xl font-black mb-4" x-text="t('resetPassword')"></h2>
-                <div class="space-y-4">
-                  <template x-if="hasSecurityQuestion">
-                    <div class="space-y-4 pt-4">
-                      <p
-                        class="text-xs text-slate-400 font-black uppercase mb-1"
-                        x-text="t('securityQuestionLabel')"
-                        Security Question
-                      </p>
-                      <p
-                        class="text-sm font-bold text-slate-700 mb-2"
-                        x-text="securityQuestion"
-                      ></p>
-                      <input
-                        type="text"
-                        x-model="resetAnswer"
-                          :placeholder="t('yourAnswer')"
-                        class="w-full p-3 rounded-xl border bg-slate-50 text-center focus:ring-2 focus:ring-blue-500"
-                      />
-
-                      <!-- Only show password fields if answer is typed (visual cue) or we do validation on submit -->
-                      <div x-show="resetAnswer.length > 0" x-transition>
-                        <div class="relative mt-2">
-                          <input
-                            :type="resetShowNew ? 'text' : 'password'"
-                            x-model="resetNew"
-                            :placeholder="t('newPassword')"
-                            class="w-full p-3 rounded-xl border bg-slate-50 text-center focus:ring-2 focus:ring-blue-500 pr-10"
-                          />
-                          <button
-                            type="button"
-                            @click="resetShowNew = !resetShowNew"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                          >
-                            <span x-text="resetShowNew ? '🙈' : '👁️'"></span>
-                          </button>
-                        </div>
-                        <div class="relative mt-2">
-                          <input
-                            :type="resetShowConfirm ? 'text' : 'password'"
-                            x-model="resetConfirm"
-                            :placeholder="t('confirmPassword')"
-                            class="w-full p-3 rounded-xl border bg-slate-50 text-center focus:ring-2 focus:ring-blue-500 pr-10"
-                          />
-                          <button
-                            type="button"
-                            @click="resetShowConfirm = !resetShowConfirm"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                          >
-                            <span
-                              x-text="resetShowConfirm ? '🙈' : '👁️'"
-                            ></span>
-                          </button>
-                        </div>
-                        <button
-                          @click="confirmReset()"
-                          class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition mt-4"
-                        >
-                          <span x-text="t('resetWithAnswer')"></span>
-                        </button>
-                      </div>
-                    </div>
-                  </template>
-
-                  <template x-if="!hasSecurityQuestion">
-                    <div class="text-center p-4">
-                      <p class="text-sm text-red-500 font-bold" x-text="t('noSecurityQuestion')"></p>
-                    </div>
-                  </template>
-
-                  <button
-                    type="button"
-                    @click="isResettingPassword = false"
-                    class="w-full text-slate-400 font-bold text-sm uppercase tracking-widest hover:text-slate-600 mt-4"
-                  >
-                    <span x-text="t('cancel')"></span>
-                  </button>
-                </div>
-              </div>
-            </template>
-          </div>
-        </template>
-
-        <!-- UNLOCKED STATE -->
-        <template x-if="isAdminUnlocked">
-          <div>
-            <!-- Daily Check-in Report -->
-            <div
-              class="bg-white rounded-[2rem] shadow-sm border overflow-hidden mb-6"
-            >
-              <div
-                class="p-4 bg-slate-200 flex justify-between items-center border-b"
-              >
-                <div class="flex items-center gap-2">
-                  <h3 class="font-black text-slate-500 uppercase text-[10px]" x-text="t('dailyReport')"></h3>
-                  <span
-                    class="bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full"
-                    x-text="getDailyCheckins().length"
-                  ></span>
-                </div>
-                <input
-                  type="date"
-                  x-model="reportDate"
-                  class="bg-white border px-3 py-1.5 rounded-lg text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div class="max-h-60 overflow-y-auto divide-y">
-                <template
-                  x-for="checkin in getDailyCheckins()"
-                  :key="checkin.uuid"
-                >
-                  <div
-                    class="p-4 flex justify-between items-center hover:bg-slate-50"
-                  >
-                    <div>
-                      <span
-                        class="font-black text-sm block"
-                        x-text="checkin.userName"
-                      ></span>
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter"
-                          x-text="checkin.parentEmail || t('noEmail')"
-                        ></span>
-                        <span
-                          class="text-[10px] font-black uppercase tracking-tighter"
-                          :class="checkin.classesLeft < 0 ? 'text-red-500' : 'text-blue-600'"
-                          x-text="t('classesLeftPrefix') + checkin.classesLeft"
-                        ></span>
-                      </div>
-                    </div>
-                    <span
-                      class="text-[10px] font-bold text-slate-400"
-                      x-text="formatTime(checkin.timestamp)"
-                    ></span>
-                  </div>
-                </template>
-                <template x-if="getDailyCheckins().length === 0">
-                    <div class="p-8 text-center text-slate-400 text-xs italic" x-text="t('noCheckins')"></div>
-                </template>
-              </div>
+              <input type="date" x-model="reportDate"
+                class="bg-white border px-3 py-1.5 rounded-lg text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
-
-            <!-- Selected User Detail View -->
-            <template x-if="selectedUser">
-              <div
-                class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-t-8 border-blue-600 mb-8 animate-in slide-in-from-bottom"
-              >
-                <div class="flex justify-between items-start mb-6">
+            <div class="max-h-60 overflow-y-auto divide-y">
+              <template x-for="checkin in getDailyCheckins()" :key="checkin.uuid">
+                <div class="p-4 flex justify-between items-center hover:bg-slate-50">
                   <div>
-                    <div class="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        x-model="selectedUser.firstName"
-                        @change="saveUser(selectedUser)"
-                        class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2"
-                      />
-                      <input
-                        type="text"
-                        x-model="selectedUser.lastName"
-                        @change="saveUser(selectedUser)"
-                        class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2"
-                      />
+                    <span class="font-black text-sm block" x-text="checkin.userName"></span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter"
+                        x-text="checkin.parentEmail || t('noEmail')"></span>
+                      <span class="text-[10px] font-black uppercase tracking-tighter"
+                        :class="checkin.classesLeft < 0 ? 'text-red-500' : 'text-blue-600'"
+                        x-text="t('classesLeftPrefix') + checkin.classesLeft"></span>
                     </div>
-                    <span
-                      :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                      class="text-sm font-mono font-black mt-1 block"
-                      x-text="t('classesLeftPrefix') + Math.floor(selectedUser.balance)"
-                    ></span>
                   </div>
-                  <button
-                    @click="selectedUser = null"
-                    class="text-slate-300 text-4xl hover:text-slate-600 transition"
-                  >
-                    &times;
-                  </button>
+                  <span class="text-[10px] font-bold text-slate-400" x-text="formatTime(checkin.timestamp)"></span>
                 </div>
+              </template>
+              <template x-if="getDailyCheckins().length === 0">
+                <div class="p-8 text-center text-slate-400 text-xs italic" x-text="t('noCheckins')"></div>
+              </template>
+            </div>
+          </div>
 
-                <div class="space-y-6">
-                  <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                      <div class="space-y-1">
-                        <label
-                          class="text-[10px] font-black text-slate-400 uppercase"
-                          x-text="t('parentEmail')"></label>
-                        >
-                        <input
-                          type="email"
-                          x-model="selectedUser.parentEmail"
-                          @change="saveUser(selectedUser)"
-                          class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div class="space-y-1">
-                        <label
-                          class="text-[10px] font-black text-slate-400 uppercase"
-                          x-text="t('parentPhone')"></label>
-                        >
-                        <input
-                          type="tel"
-                          x-model="selectedUser.parentPhone"
-                          @change="saveUser(selectedUser)"
-                          class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
+          <!-- Selected User Detail View -->
+          <template x-if="selectedUser">
+            <div
+              class="bg-white p-8 rounded-[2.5rem] shadow-2xl border-t-8 border-blue-600 mb-8 animate-in slide-in-from-bottom">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <div class="flex gap-2 mb-2">
+                    <input type="text" x-model="selectedUser.firstName" @change="saveUser(selectedUser)"
+                      class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2" />
+                    <input type="text" x-model="selectedUser.lastName" @change="saveUser(selectedUser)"
+                      class="bg-transparent text-2xl font-black tracking-tight border-b-2 border-transparent hover:border-slate-200 focus:border-blue-600 focus:outline-none w-1/2" />
+                  </div>
+                  <span :class="selectedUser.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
+                    class="text-sm font-mono font-black mt-1 block"
+                    x-text="t('classesLeftPrefix') + Math.floor(selectedUser.balance)"></span>
+                </div>
+                <button @click="selectedUser = null" class="text-slate-300 text-4xl hover:text-slate-600 transition">
+                  &times;
+                </button>
+              </div>
+
+              <div class="space-y-6">
+                <div class="space-y-4">
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                      <label class="text-[10px] font-black text-slate-400 uppercase" x-text="t('parentEmail')"></label>
+                      >
+                      <input type="email" x-model="selectedUser.parentEmail" @change="saveUser(selectedUser)"
+                        class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500" />
                     </div>
                     <div class="space-y-1">
-                      <label
-                        class="text-[10px] font-black text-slate-400 uppercase"
-                        x-text="t('addClasses')"></label>
+                      <label class="text-[10px] font-black text-slate-400 uppercase" x-text="t('parentPhone')"></label>
                       >
-                      <div class="flex gap-2">
-                        <select
-                          x-model="depositDescription"
-                          class="bg-slate-50 rounded-xl text-sm border-none shadow-inner px-3 py-3 w-1/3 focus:ring-2 focus:ring-emerald-500"
-                        >
-                          <option value="Account Refill" x-text="t('refill')"></option>
-                          <option value="Adjustment" x-text="t('adjust')"></option>
-                        </select>
-                        <input
-                          type="number"
-                          x-model="depositAmount"
-                          class="w-full p-3 bg-emerald-50 rounded-xl text-sm border-none shadow-inner"
-                          placeholder="0"
-                        />
-                        <button
-                          @click="addFunds()"
-                          class="bg-emerald-600 text-white px-5 rounded-xl font-black whitespace-nowrap flex-shrink-0"
-                        >
-                          <span x-text="t('add')"></span>
-                        </button>
-                      </div>
+                      <input type="tel" x-model="selectedUser.parentPhone" @change="saveUser(selectedUser)"
+                        class="w-full p-3 bg-slate-50 rounded-xl border-none text-sm focus:ring-2 focus:ring-blue-500" />
                     </div>
                   </div>
                   <div class="space-y-1">
-                    <label
-                      class="text-[10px] font-black text-slate-400 uppercase"
-                      x-text="t('status')"></label>
+                    <label class="text-[10px] font-black text-slate-400 uppercase" x-text="t('addClasses')"></label>
                     >
-                    <div
-                      class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl"
-                    >
-                      <button
-                        @click="selectedUser.isActive = selectedUser.isActive ? 0 : 1; saveUser(selectedUser)"
-                        class="relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        :class="selectedUser.isActive ? 'bg-green-500' : 'bg-slate-300'"
-                      >
-                        <span
-                          class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out"
-                          :class="selectedUser.isActive ? 'translate-x-6' : 'translate-x-0'"
-                        ></span>
+                    <div class="flex gap-2">
+                      <select x-model="depositDescription"
+                        class="bg-slate-50 rounded-xl text-sm border-none shadow-inner px-3 py-3 w-1/3 focus:ring-2 focus:ring-emerald-500">
+                        <option value="Account Refill" x-text="t('refill')"></option>
+                        <option value="Adjustment" x-text="t('adjust')"></option>
+                      </select>
+                      <input type="number" x-model="depositAmount"
+                        class="w-full p-3 bg-emerald-50 rounded-xl text-sm border-none shadow-inner" placeholder="0" />
+                      <button @click="addFunds()"
+                        class="bg-emerald-600 text-white px-5 rounded-xl font-black whitespace-nowrap flex-shrink-0">
+                        <span x-text="t('add')"></span>
                       </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[10px] font-black text-slate-400 uppercase" x-text="t('status')"></label>
+                  >
+                  <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-xl">
+                    <button @click="selectedUser.isActive = selectedUser.isActive ? 0 : 1; saveUser(selectedUser)"
+                      class="relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      :class="selectedUser.isActive ? 'bg-green-500' : 'bg-slate-300'">
                       <span
-                        class="text-xs font-black uppercase"
-                        :class="selectedUser.isActive ? 'text-green-600' : 'text-slate-400'"
-                        x-text="selectedUser.isActive ? t('active') : t('deactivated')"
-                      ></span>
-                    </div>
-                  </div>
-                  <div class="pt-4">
-                    <button
-                      @click="confirmDeleteUser()"
-                      class="w-full text-red-500 text-xs font-black uppercase tracking-widest hover:text-red-700 transition border border-red-100 bg-red-50 py-3 rounded-xl"
-                    >
-                      <span x-text="t('deleteStudent')"></span>
+                        class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out"
+                        :class="selectedUser.isActive ? 'translate-x-6' : 'translate-x-0'"></span>
                     </button>
+                    <span class="text-xs font-black uppercase"
+                      :class="selectedUser.isActive ? 'text-green-600' : 'text-slate-400'"
+                      x-text="selectedUser.isActive ? t('active') : t('deactivated')"></span>
                   </div>
                 </div>
-
-                <h3
-                  class="text-[10px] font-black text-slate-400 uppercase mt-8 mb-2"
-                  x-text="t('classHistory')"></h3>
-                <div class="max-h-60 overflow-y-auto divide-y border-t">
-                  <template x-for="tx in userHistory" :key="tx.uuid">
-                    <div class="py-4 flex justify-between items-center">
-                      <div>
-                        <p
-                          class="text-sm font-black text-slate-700"
-                          x-text="tx.description"
-                        ></p>
-                        <p
-                          class="text-[10px] text-slate-400 font-bold"
-                          x-text="formatDate(tx.timestamp) + ' ' + formatTime(tx.timestamp)"
-                        ></p>
-                      </div>
-                      <div class="text-right">
-                        <span
-                          :class="tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'"
-                          class="font-mono font-black block"
-                          x-text="(tx.amount > 0 ? '+' : '') + Math.round(tx.amount)"
-                        ></span>
-                        <span
-                          class="text-[10px] text-slate-400 font-mono font-bold block"
-                          x-text="t('balPrefix') + Math.floor(tx.runningBalance)"
-                        ></span>
-                      </div>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </template>
-
-            <!-- User List View -->
-            <div
-              class="bg-white rounded-[2rem] shadow-sm border overflow-hidden mb-6"
-            >
-              <div
-                class="p-4 bg-slate-200 flex justify-between items-center border-b"
-              >
-                <div class="flex items-center gap-2">
-                  <button
-                    @click="showBulk = !showBulk"
-                    class="text-[10px] font-black text-blue-600 bg-white px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm"
-                  >
-                    <span x-text="t('bulkImport')"></span>
+                <div class="pt-4">
+                  <button @click="confirmDeleteUser()"
+                    class="w-full text-red-500 text-xs font-black uppercase tracking-widest hover:text-red-700 transition border border-red-100 bg-red-50 py-3 rounded-xl">
+                    <span x-text="t('deleteStudent')"></span>
                   </button>
-                  <span
-                    class="text-[10px] font-black text-slate-500 uppercase ml-2"
-                    x-text="t('activePrefix') + allUsers.filter(u => u.isActive === 1).length"
-                  ></span>
                 </div>
-                <input
-                  type="text"
-                  x-model="adminSearchQuery"
-                  :placeholder="t('search')"
-                  class="bg-white border-none px-3 py-1.5 rounded-full text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
-                />
               </div>
-              <div x-show="showBulk" class="p-6 bg-blue-50 border-b">
-                <textarea
-                  x-model="bulkText"
-                  rows="4"
-                  class="w-full p-4 rounded-2xl border-none shadow-inner text-sm mb-3"
-                  placeholder="John Smith&#10;Doe, Jane"
-                ></textarea>
-                <button
-                  @click="processBulk()"
-                  class="w-full bg-blue-600 text-white py-3 rounded-xl font-black"
-                >
-                  <span x-text="t('importList')"></span>
+
+              <h3 class="text-[10px] font-black text-slate-400 uppercase mt-8 mb-2" x-text="t('classHistory')"></h3>
+              <div class="max-h-60 overflow-y-auto divide-y border-t">
+                <template x-for="tx in userHistory" :key="tx.uuid">
+                  <div class="py-4 flex justify-between items-center">
+                    <div>
+                      <p class="text-sm font-black text-slate-700" x-text="tx.description"></p>
+                      <p class="text-[10px] text-slate-400 font-bold"
+                        x-text="formatDate(tx.timestamp) + ' ' + formatTime(tx.timestamp)"></p>
+                    </div>
+                    <div class="text-right">
+                      <span :class="tx.amount < 0 ? 'text-red-500' : 'text-emerald-600'"
+                        class="font-mono font-black block"
+                        x-text="(tx.amount > 0 ? '+' : '') + Math.round(tx.amount)"></span>
+                      <span class="text-[10px] text-slate-400 font-mono font-bold block"
+                        x-text="t('balPrefix') + Math.floor(tx.runningBalance)"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <!-- User List View -->
+          <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden mb-6">
+            <div class="p-4 bg-slate-200 flex justify-between items-center border-b">
+              <div class="flex items-center gap-2">
+                <button @click="showBulk = !showBulk"
+                  class="text-[10px] font-black text-blue-600 bg-white px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                  <span x-text="t('bulkImport')"></span>
                 </button>
+                <span class="text-[10px] font-black text-slate-500 uppercase ml-2"
+                  x-text="t('activePrefix') + allUsers.filter(u => u.isActive === 1).length"></span>
               </div>
-              <div class="max-h-[60vh] overflow-y-auto">
-                <table class="w-full text-left relative">
-                  <thead
-                    class="bg-slate-100 text-[10px] font-black text-slate-400 uppercase sticky top-0 z-10"
-                  >
-                    <tr>
-                      <th class="p-5" x-text="t('studentName')"></th>
-                      <th class="p-5 text-right" x-text="t('classesLeft')"></th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y">
+              <input type="text" x-model="adminSearchQuery" :placeholder="t('search')"
+                class="bg-white border-none px-3 py-1.5 rounded-full text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32" />
+            </div>
+            <div x-show="showBulk" class="p-6 bg-blue-50 border-b">
+              <textarea x-model="bulkText" rows="4" class="w-full p-4 rounded-2xl border-none shadow-inner text-sm mb-3"
+                placeholder="John Smith&#10;Doe, Jane"></textarea>
+              <button @click="processBulk()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-black">
+                <span x-text="t('importList')"></span>
+              </button>
+            </div>
+            <div class="max-h-[60vh] overflow-y-auto">
+              <table class="w-full text-left relative">
+                <thead class="bg-slate-100 text-[10px] font-black text-slate-400 uppercase sticky top-0 z-10">
+                  <tr>
+                    <th class="p-5" x-text="t('studentName')"></th>
+                    <th class="p-5 text-right" x-text="t('classesLeft')"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y">
                   <template
                     x-for="user in allUsers.filter(u => !adminSearchQuery || u.nameSearch.includes(adminSearchQuery.toLowerCase()))"
-                    :key="user.uuid"
-                  >
-                    <tr
-                      @click="showUser(user)"
-                      class="hover:bg-blue-50/50 cursor-pointer transition"
-                    >
+                    :key="user.uuid">
+                    <tr @click="showUser(user)" class="hover:bg-blue-50/50 cursor-pointer transition">
                       <td class="p-5">
                         <div class="flex items-center gap-2">
-                          <p
-                            class="font-black text-slate-800"
-                            x-text="user.firstName + ' ' + user.lastName"
-                          ></p>
+                          <p class="font-black text-slate-800" x-text="user.firstName + ' ' + user.lastName"></p>
                           <template x-if="user.isActive === 0">
                             <span
                               class="text-[9px] text-red-500 font-black uppercase bg-red-50 px-2 py-0.5 rounded-full"
@@ -655,1209 +419,1190 @@
                             >
                           </template>
                         </div>
-                        <p
-                          class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
-                          x-text="user.parentEmail || t('noParentContact')"
-                        ></p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter"
+                          x-text="user.parentEmail || t('noParentContact')"></p>
                       </td>
                       <td class="p-5 text-right">
-                        <span
-                          class="font-mono font-black block"
+                        <span class="font-mono font-black block"
                           :class="user.balance < 0 ? 'text-red-600' : 'text-emerald-600'"
-                          x-text="Math.floor(user.balance)"
-                        ></span>
+                          x-text="Math.floor(user.balance)"></span>
                       </td>
                     </tr>
                   </template>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Data Management -->
-            <div
-              class="bg-white rounded-[2rem] shadow-sm border overflow-hidden"
-            >
-              <div
-                class="p-4 bg-slate-200 flex justify-between items-center border-b"
-              >
-                <h3 class="font-black text-slate-500 uppercase text-[10px]" x-text="t('dataManagement')"></h3>
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-black text-slate-500 uppercase" x-text="t('language')"></span>
-                  <select 
-                    x-model="lang" 
-                    @change="setLang(lang)"
-                    class="bg-white border-none px-2 py-1 rounded-lg text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="en">English</option>
-                    <option value="zh">中文</option>
-                  </select>
-                </div>
-              </div>
-              <div class="p-6 flex flex-col gap-4">
-                <div class="flex gap-4">
-                  <button
-                    @click="exportBackup()"
-                    class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition text-[10px]"
-                  >
-                    <span x-text="t('downloadBackup')"></span>
-                  </button>
-                  <div class="flex-1 relative group">
-                    <input
-                      type="file"
-                      accept=".json"
-                      @change="importBackup($event)"
-                      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    />
-                    <button
-                      class="w-full bg-white border border-slate-200 text-slate-900 py-3 rounded-xl font-black uppercase tracking-widest group-hover:bg-slate-50 transition text-[10px]"
-                    >
-                      <span x-text="t('restoreBackup')"></span>
-                    </button>
-                  </div>
-                </div>
-                <button
-                  @click="exportExcel()"
-                  class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-700 transition text-[10px]"
-                >
-                  <span x-text="t('exportExcel')"></span>
-                </button>
-              </div>
-
-              <!-- Title Configuration -->
-              <div class="p-6 border-t bg-slate-50 space-y-4">
-                <button
-                  @click="showTitleConfig = !showTitleConfig; titleConfig = { ...siteTitle }"
-                  class="w-full text-blue-600 text-xs font-black uppercase tracking-widest hover:text-blue-800 transition"
-                >
-                  <span x-text="t('customizeTitle')"></span>
-                </button>
-                <div x-show="showTitleConfig" x-transition class="space-y-4 pt-2">
-                  <!-- Type selector -->
-                  <div class="flex gap-3">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="titleType" value="text" x-model="titleConfig.type" class="accent-blue-600">
-                      <span class="text-xs font-black text-slate-600 uppercase tracking-widest" x-text="t('titleTypeText')"></span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="titleType" value="image" x-model="titleConfig.type" class="accent-blue-600">
-                      <span class="text-xs font-black text-slate-600 uppercase tracking-widest" x-text="t('titleTypeImage')"></span>
-                    </label>
-                  </div>
-
-                  <!-- Text input -->
-                  <template x-if="titleConfig.type === 'text'">
-                    <div>
-                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1" x-text="t('titleTextLabel')"></label>
-                      <input
-                        type="text"
-                        x-model="titleConfig.text"
-                        :placeholder="t('titleTextPlaceholder')"
-                        class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm font-black"
-                        maxlength="40"
-                      />
-                    </div>
-                  </template>
-
-                  <!-- Image upload -->
-                  <template x-if="titleConfig.type === 'image'">
-                    <div class="space-y-2">
-                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1" x-text="t('uploadLogo')"></label>
-                      <p class="text-[10px] text-slate-400 leading-relaxed" x-html="t('logoSizeHint')"></p>
-                      <div class="relative">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          @change="handleLogoUpload($event)"
-                          class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                        />
-                        <div class="w-full p-3 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-center text-xs font-black text-slate-400 uppercase tracking-widest hover:border-blue-400 hover:bg-blue-50 transition">
-                          <span x-text="t('chooseFile')"></span>
-                        </div>
-                      </div>
-                      <template x-if="titleConfig.imageUrl">
-                        <div class="flex items-center gap-3">
-                          <img :src="titleConfig.imageUrl" alt="Preview" class="h-16 w-auto max-w-[280px] object-contain object-left rounded-lg border bg-white p-1 flex-shrink-0">
-                          <button @click="titleConfig.imageUrl = ''" class="text-[10px] font-black text-red-400 uppercase tracking-widest hover:text-red-600 transition" x-text="t('remove')"></button>
-                        </div>
-                      </template>
-                    </div>
-                  </template>
-
-                  <!-- Save button -->
-                  <button
-                    @click="saveTitleConfig()"
-                    class="w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition text-[10px]"
-                  >
-                    <span x-text="t('saveTitle')"></span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Password Management -->
-              <div class="p-6 border-t bg-slate-50 space-y-4">
-                <button
-                  @click="showChangePasswordModal = true; cpQuestion = 'What is your mother\'s maiden name?'; cpAnswer = '';"
-                  class="w-full text-blue-600 text-xs font-black uppercase tracking-widest hover:text-blue-800 transition"
-                >
-                  <span x-text="t('changePasswordBtn')"></span>
-                </button>
-              </div>
+                </tbody>
+              </table>
             </div>
           </div>
-        </template>
 
-        <!-- Change Password Modal -->
-        <template x-if="showChangePasswordModal">
-          <div
-            class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          >
-            <div class="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl">
-                <h3 class="text-xl font-black mb-6 text-center" x-text="t('changePassword')"></h3>
-              <div class="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
-                <template x-if="isAdminUnlocked">
-                  <div class="relative">
-                    <input
-                      :type="cpShowCurrent ? 'text' : 'password'"
-                      x-model="cpCurrent"
-                      :placeholder="t('currentPassword')"
-                      class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10"
-                    />
-                    <button
-                      @click="cpShowCurrent = !cpShowCurrent"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                    >
-                      <span x-text="cpShowCurrent ? '🙈' : '👁️'"></span>
-                    </button>
-                  </div>
-                </template>
-                <div class="relative">
-                  <input
-                    :type="cpShowNew ? 'text' : 'password'"
-                    x-model="cpNew"
-                    :placeholder="t('newPassword')"
-                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10"
-                  />
+          <!-- Data Management -->
+          <div class="bg-white rounded-[2rem] shadow-sm border overflow-hidden">
+            <div class="p-4 bg-slate-200 flex justify-between items-center border-b">
+              <h3 class="font-black text-slate-500 uppercase text-[10px]" x-text="t('dataManagement')"></h3>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black text-slate-500 uppercase" x-text="t('language')"></span>
+                <select x-model="lang" @change="setLang(lang)"
+                  class="bg-white border-none px-2 py-1 rounded-lg text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="en">English</option>
+                  <option value="zh">中文</option>
+                </select>
+              </div>
+            </div>
+            <div class="p-6 flex flex-col gap-4">
+              <div class="flex gap-4">
+                <button @click="exportBackup()"
+                  class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition text-[10px]">
+                  <span x-text="t('downloadBackup')"></span>
+                </button>
+                <div class="flex-1 relative group">
+                  <input type="file" accept=".json" @change="importBackup($event)"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                   <button
-                    @click="cpShowNew = !cpShowNew"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  >
-                    <span x-text="cpShowNew ? '🙈' : '👁️'"></span>
+                    class="w-full bg-white border border-slate-200 text-slate-900 py-3 rounded-xl font-black uppercase tracking-widest group-hover:bg-slate-50 transition text-[10px]">
+                    <span x-text="t('restoreBackup')"></span>
                   </button>
                 </div>
-                <div class="relative">
-                  <input
-                    :type="cpShowConfirm ? 'text' : 'password'"
-                    x-model="cpConfirm"
-                    :placeholder="t('confirmNewPassword')"
-                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10"
-                  />
-                  <button
-                    @click="cpShowConfirm = !cpShowConfirm"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  >
-                    <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
-                  </button>
-                </div>
+              </div>
+              <button @click="exportExcel()"
+                class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-700 transition text-[10px]">
+                <span x-text="t('exportExcel')"></span>
+              </button>
+            </div>
 
-                <div class="border-t pt-4 mt-4">
-                  <label
-                    class="block text-xs font-black text-slate-400 uppercase mb-2"
-                    x-text="!hasAdminConfig ? t('sqRequired') : t('sqOptional')"
-                  >
+            <!-- Title Configuration -->
+            <div class="p-6 border-t bg-slate-50 space-y-4">
+              <button @click="showTitleConfig = !showTitleConfig; titleConfig = { ...siteTitle }"
+                class="w-full text-blue-600 text-xs font-black uppercase tracking-widest hover:text-blue-800 transition">
+                <span x-text="t('customizeTitle')"></span>
+              </button>
+              <div x-show="showTitleConfig" x-transition class="space-y-4 pt-2">
+                <!-- Type selector -->
+                <div class="flex gap-3">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="titleType" value="text" x-model="titleConfig.type"
+                      class="accent-blue-600">
+                    <span class="text-xs font-black text-slate-600 uppercase tracking-widest"
+                      x-text="t('titleTypeText')"></span>
                   </label>
-                  <select
-                    x-model="cpQuestion"
-                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 text-sm mb-2"
-                  >
-                    <option :value="t('sqOption1')" x-text="t('sqOption1')"></option>
-                    <option :value="t('sqOption2')" x-text="t('sqOption2')"></option>
-                    <option :value="t('sqOption3')" x-text="t('sqOption3')"></option>
-                    <option :value="t('sqOption4')" x-text="t('sqOption4')"></option>
-                  </select>
-                  <input
-                    type="text"
-                    x-model="cpAnswer"
-                    :placeholder="t('answer')"
-                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="titleType" value="image" x-model="titleConfig.type"
+                      class="accent-blue-600">
+                    <span class="text-xs font-black text-slate-600 uppercase tracking-widest"
+                      x-text="t('titleTypeImage')"></span>
+                  </label>
                 </div>
-              </div>
-              <div class="flex gap-4 mt-8">
-                <template x-if="isAdminUnlocked || isResettingPassword">
-                  <button
-                    @click="showChangePasswordModal = false; cpCurrent=''; cpNew=''; cpConfirm=''"
-                    class="flex-1 py-3 rounded-xl font-black text-slate-400 hover:bg-slate-50"
-                  >
-                    <span x-text="t('cancelUpper')"></span>
-                  </button>
+
+                <!-- Text input -->
+                <template x-if="titleConfig.type === 'text'">
+                  <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1"
+                      x-text="t('titleTextLabel')"></label>
+                    <input type="text" x-model="titleConfig.text" :placeholder="t('titleTextPlaceholder')"
+                      class="w-full p-3 rounded-xl border bg-white focus:ring-2 focus:ring-blue-500 text-sm font-black"
+                      maxlength="40" />
+                  </div>
                 </template>
-                <button
-                  @click="submitChangePassword()"
-                  class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black shadow-lg hover:bg-blue-700"
-                >
-                  <span x-text="t('save')"></span>
+
+                <!-- Image upload -->
+                <template x-if="titleConfig.type === 'image'">
+                  <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1"
+                      x-text="t('uploadLogo')"></label>
+                    <p class="text-[10px] text-slate-400 leading-relaxed" x-html="t('logoSizeHint')"></p>
+                    <div class="relative">
+                      <input type="file" accept="image/*" @change="handleLogoUpload($event)"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                      <div
+                        class="w-full p-3 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-center text-xs font-black text-slate-400 uppercase tracking-widest hover:border-blue-400 hover:bg-blue-50 transition">
+                        <span x-text="t('chooseFile')"></span>
+                      </div>
+                    </div>
+                    <template x-if="titleConfig.imageUrl">
+                      <div class="flex items-center gap-3">
+                        <img :src="titleConfig.imageUrl" alt="Preview"
+                          class="h-16 w-auto max-w-[280px] object-contain object-left rounded-lg border bg-white p-1 flex-shrink-0">
+                        <button @click="titleConfig.imageUrl = ''"
+                          class="text-[10px] font-black text-red-400 uppercase tracking-widest hover:text-red-600 transition"
+                          x-text="t('remove')"></button>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+
+                <!-- Save button -->
+                <button @click="saveTitleConfig()"
+                  class="w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition text-[10px]">
+                  <span x-text="t('saveTitle')"></span>
                 </button>
               </div>
             </div>
-          </div>
-        </template>
-      </div>
 
-      <footer class="mt-12 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest pb-4">
-        <div class="flex justify-center gap-4 mb-2">
-          <a href="ADMIN_GUIDE.html" target="_blank" class="hover:text-blue-600 transition">Admin Guide</a>
-          <span class="text-slate-300">|</span>
-          <a href="ADMIN_GUIDE_CN.html" target="_blank" class="hover:text-blue-600 transition">用户指南 (中文)</a>
+            <!-- Password Management -->
+            <div class="p-6 border-t bg-slate-50 space-y-4">
+              <button
+                @click="showChangePasswordModal = true; cpQuestion = 'What is your mother\'s maiden name?'; cpAnswer = '';"
+                class="w-full text-blue-600 text-xs font-black uppercase tracking-widest hover:text-blue-800 transition">
+                <span x-text="t('changePasswordBtn')"></span>
+              </button>
+            </div>
+          </div>
         </div>
-        &copy; 2026 FramedGhosts
-      </footer>
+      </template>
+
+      <!-- Change Password Modal -->
+      <template x-if="showChangePasswordModal">
+        <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl">
+            <h3 class="text-xl font-black mb-6 text-center" x-text="t('changePassword')"></h3>
+            <div class="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
+              <template x-if="isAdminUnlocked">
+                <div class="relative">
+                  <input :type="cpShowCurrent ? 'text' : 'password'" x-model="cpCurrent"
+                    :placeholder="t('currentPassword')"
+                    class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10" />
+                  <button @click="cpShowCurrent = !cpShowCurrent"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <span x-text="cpShowCurrent ? '🙈' : '👁️'"></span>
+                  </button>
+                </div>
+              </template>
+              <div class="relative">
+                <input :type="cpShowNew ? 'text' : 'password'" x-model="cpNew" :placeholder="t('newPassword')"
+                  class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10" />
+                <button @click="cpShowNew = !cpShowNew"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <span x-text="cpShowNew ? '🙈' : '👁️'"></span>
+                </button>
+              </div>
+              <div class="relative">
+                <input :type="cpShowConfirm ? 'text' : 'password'" x-model="cpConfirm"
+                  :placeholder="t('confirmNewPassword')"
+                  class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 pr-10" />
+                <button @click="cpShowConfirm = !cpShowConfirm"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <span x-text="cpShowConfirm ? '🙈' : '👁️'"></span>
+                </button>
+              </div>
+
+              <div class="border-t pt-4 mt-4">
+                <label class="block text-xs font-black text-slate-400 uppercase mb-2"
+                  x-text="!hasAdminConfig ? t('sqRequired') : t('sqOptional')">
+                </label>
+                <select x-model="cpQuestion"
+                  class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 text-sm mb-2">
+                  <option :value="t('sqOption1')" x-text="t('sqOption1')"></option>
+                  <option :value="t('sqOption2')" x-text="t('sqOption2')"></option>
+                  <option :value="t('sqOption3')" x-text="t('sqOption3')"></option>
+                  <option :value="t('sqOption4')" x-text="t('sqOption4')"></option>
+                </select>
+                <input type="text" x-model="cpAnswer" :placeholder="t('answer')"
+                  class="w-full p-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-500 text-sm" />
+              </div>
+            </div>
+            <div class="flex gap-4 mt-8">
+              <template x-if="isAdminUnlocked || isResettingPassword">
+                <button @click="showChangePasswordModal = false; cpCurrent=''; cpNew=''; cpConfirm=''"
+                  class="flex-1 py-3 rounded-xl font-black text-slate-400 hover:bg-slate-50">
+                  <span x-text="t('cancelUpper')"></span>
+                </button>
+              </template>
+              <button @click="submitChangePassword()"
+                class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black shadow-lg hover:bg-blue-700">
+                <span x-text="t('save')"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
 
-    <script>
-      function app() {
-        return {
-          view: "checkin",
-          isAdminUnlocked: false,
-          db: null,
-          searchQuery: "",
+    <footer class="mt-12 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest pb-4">
+      <div class="flex justify-center gap-4 mb-2">
+        <a href="ADMIN_GUIDE.html" target="_blank" class="hover:text-blue-600 transition">Admin Guide</a>
+        <span class="text-slate-300">|</span>
+        <a href="ADMIN_GUIDE_CN.html" target="_blank" class="hover:text-blue-600 transition">用户指南 (中文)</a>
+      </div>
+      <div class="mb-2">&copy; 2026 FramedGhosts</div>
+      <div class="flex items-center justify-center gap-1 text-slate-400 mt-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        <span x-text="visitorCount"></span> <span x-text="t('uniqueVisitors')"></span>
+      </div>
+    </footer>
+  </div>
 
-          // i18n
-          lang: "en",
-          i18n: {
-            en: {
-              // Nav
-              checkin: "Check-In", roster: "Roster",
-              // Setup
-              setupAdmin: "Setup Admin", createPassword: "Create Password", confirmPassword: "Confirm Password",
-              securityQuestion: "Security Question (Required)", answer: "Answer", createAccount: "Create Account",
-              sqOption1: "What is your mother's maiden name?",
-              sqOption2: "What was the name of your first pet?",
-              sqOption3: "What city were you born in?",
-              sqOption4: "What is your favorite book?",
-              // Login
-              adminAccess: "Admin Access", enterPassword: "Enter Password", unlock: "Unlock", forgotPassword: "Forgot Password?",
-              // Reset
-              resetPassword: "Reset Password", securityQuestionLabel: "Security Question", yourAnswer: "Your Answer",
-              newPassword: "New Password", resetWithAnswer: "Reset with Security Answer",
-              noSecurityQuestion: "No security question set. Please contact support or reset the application (clear data).",
-              cancel: "Cancel",
-              // Daily report
-              dailyReport: "Daily Report", noCheckins: "No check-ins found for this date.",
-              classesLeft: "Classes Left", noEmail: "No Email",
-              // User detail
-              parentEmail: "Parent Email", parentPhone: "Parent Phone",
-              addClasses: "Add Classes", refill: "Refill", adjust: "Adjust", add: "ADD",
-              status: "Status", active: "Active", deactivated: "Deactivated",
-              deleteStudent: "Delete Student Account", classHistory: "Class History",
-              balPrefix: "Bal: ", classesLeftPrefix: "Classes Left: ",
-              // Roster
-              bulkImport: "+ Bulk Import", activePrefix: "Active: ", search: "Search...",
-              importList: "IMPORT LIST", studentName: "Student Name", inactive: "Inactive",
-              noParentContact: "No Parent Contact",
-              // Data management
-              dataManagement: "Data Management", downloadBackup: "Download Backup",
-              restoreBackup: "Restore Backup", exportExcel: "Export to Excel",
-              customizeTitle: "Customize App Title",
-              // Title config
-              titleTypeText: "Text", titleTypeImage: "Image", titleTextLabel: "Title Text",
-              titleTextPlaceholder: "e.g. FlexCheck", uploadLogo: "Upload Logo Image",
-              logoSizeHint: "Best size: <span class=\"font-black text-slate-500\">280 × 64 px</span> (wide &amp; short). PNG or SVG with a transparent background works best. Max file size: <span class=\"font-black text-slate-500\">1 MB</span>.",
-              chooseFile: "Choose File", remove: "Remove", saveTitle: "Save Title",
-              // Password management
-              changePasswordBtn: "Change Admin Password & Security Settings",
-              // Change password modal
-              changePassword: "Change Password", currentPassword: "Current Password",
-              confirmNewPassword: "Confirm New Password",
-              sqRequired: "Security Question (Required)", sqOptional: "Security Question (Optional)",
-              cancelUpper: "CANCEL", save: "SAVE",
-              // Language
-              language: "Language",
-              // Alerts / confirms
-              alertImageTooLarge: "Image is too large. Please use a file under 1 MB.",
-              alertAnswerSecurity: "Please answer the security question.",
-              alertEnterNewPassword: "Please enter a new password.",
-              alertPasswordsMismatch: "Passwords do not match.",
-              alertIncorrectSecurityAnswer: "Incorrect security answer.",
-              alertAuthFailed: "Authentication failed.",
-              alertPasswordReset: "Password reset successfully. You are now logged in.",
-              alertIncorrectPassword: "Incorrect Password",
-              alertReload: "Please reload the page to set up the admin account.",
-              alertImportComplete: (added, skipped) => `Import complete.\nAdded: ${added}\nSkipped: ${skipped}`,
-              alertExcelError: (msg) => "Error exporting to Excel: " + msg,
-              alertInvalidBackup: "Invalid backup file format.",
-              alertBackupRestored: "Backup restored successfully!",
-              alertBackupError: (msg) => "Error importing backup: " + msg,
-              alertEnterConfirmPassword: "Please enter and confirm your new password.",
-              alertAdminCreated: "Admin account created successfully!",
-              alertFillAllFields: "Please fill in all fields.",
-              alertEnterCurrentPassword: "Please enter current password.",
-              alertIncorrectCurrentPassword: "Incorrect current password.",
-              alertNewPasswordsMismatch: "New passwords do not match.",
-              alertSetSecurityAnswer: "Please set a security answer for password recovery.",
-              alertPasswordUpdated: "Password updated successfully.",
-              alertAdminSet: "Admin password and security question set!",
-              alertAnswerSecurityForRecovery: "Please answer the security question for account recovery.",
-              alertNameExists: (name, suggestion) => `The name "${name}" already exists.\n\nPlease use a unique name.\nSuggestion: "${suggestion}"`,
-              alertDeleted: (name) => `${name} has been deleted.`,
-              alertDeleteError: (msg) => "Error deleting user: " + msg,
-              confirmDelete: (name) => `Are you sure you want to PERMANENTLY DELETE ${name}? \n\nThis action cannot be undone. All transaction history for this student will also be deleted.\n\nTip: You can deactivate the student instead to keep their history but hide them from check-in.`,
-              confirmDuplicateImport: (f, ls, suggestion) => `User "${f} ${ls}" already exists.\n\nClick OK to import as "${suggestion}" instead.\nClick Cancel to SKIP this user.`,
-              confirmMergeBackup: "This will MERGE existing data with the backup file. Proceed?",
-              // Excel headers
-              xlsFirstName: "First Name", xlsLastName: "Last Name", xlsActive: "Active",
-              xlsParentEmail: "Parent Email", xlsParentPhone: "Parent Phone",
-              xlsClassesLeft: "Classes Left", xlsUUID: "UUID",
-              xlsDate: "Date", xlsTime: "Time", xlsStudent: "Student",
-              xlsType: "Type", xlsDescription: "Description",
-              xlsAmount: "Amount (Classes)", xlsUserUUID: "User UUID",
-              xlsSheetStudents: "Students", xlsSheetTransactions: "Transactions",
-              xlsYes: "Active", xlsNo: "Inactive", xlsUnknown: "Unknown",
-            },
-            zh: {
-              // Nav
-              checkin: "签到", roster: "名单",
-              // Setup
-              setupAdmin: "管理员设置", createPassword: "创建密码", confirmPassword: "确认密码",
-              securityQuestion: "安全问题（必填）", answer: "答案", createAccount: "创建账户",
-              sqOption1: "您母亲的娘家姓是什么？",
-              sqOption2: "您第一只宠物叫什么名字？",
-              sqOption3: "您出生在哪个城市？",
-              sqOption4: "您最喜欢的书是什么？",
-              // Login
-              adminAccess: "管理员登录", enterPassword: "输入密码", unlock: "解锁", forgotPassword: "忘记密码？",
-              // Reset
-              resetPassword: "重置密码", securityQuestionLabel: "安全问题", yourAnswer: "您的答案",
-              newPassword: "新密码", resetWithAnswer: "用安全答案重置密码",
-              noSecurityQuestion: "未设置安全问题，请联系支持人员或重置应用程序（清除数据）。",
-              cancel: "取消",
-              // Daily report
-              dailyReport: "每日报告", noCheckins: "该日期未找到签到记录。",
-              classesLeft: "剩余课时", noEmail: "无邮箱",
-              // User detail
-              parentEmail: "家长邮箱", parentPhone: "家长电话",
-              addClasses: "增加课时", refill: "充值", adjust: "调整", add: "添加",
-              status: "状态", active: "活跃", deactivated: "已停用",
-              deleteStudent: "删除学员账户", classHistory: "课时记录",
-              balPrefix: "余额：", classesLeftPrefix: "剩余课时：",
-              // Roster
-              bulkImport: "+ 批量导入", activePrefix: "活跃：", search: "搜索...",
-              importList: "导入名单", studentName: "学员姓名", inactive: "未激活",
-              noParentContact: "无家长联系方式",
-              // Data management
-              dataManagement: "数据管理", downloadBackup: "下载备份",
-              restoreBackup: "恢复备份", exportExcel: "导出到 Excel",
-              customizeTitle: "自定义应用标题",
-              // Title config
-              titleTypeText: "文字", titleTypeImage: "图片", titleTextLabel: "标题文字",
-              titleTextPlaceholder: "例如：FlexCheck", uploadLogo: "上传 Logo 图片",
-              logoSizeHint: "建议尺寸：<span class=\"font-black text-slate-500\">280 × 64 像素</span>（宽扁型）。推荐使用透明背景的 PNG 或 SVG。最大文件大小：<span class=\"font-black text-slate-500\">1 MB</span>。",
-              chooseFile: "选择文件", remove: "删除", saveTitle: "保存标题",
-              // Password management
-              changePasswordBtn: "更改管理员密码和安全设置",
-              // Change password modal
-              changePassword: "更改密码", currentPassword: "当前密码",
-              confirmNewPassword: "确认新密码",
-              sqRequired: "安全问题（必填）", sqOptional: "安全问题（可选）",
-              cancelUpper: "取消", save: "保存",
-              // Language
-              language: "语言",
-              // Alerts / confirms
-              alertImageTooLarge: "图片太大，请使用 1 MB 以下的文件。",
-              alertAnswerSecurity: "请回答安全问题。",
-              alertEnterNewPassword: "请输入新密码。",
-              alertPasswordsMismatch: "两次密码不一致。",
-              alertIncorrectSecurityAnswer: "安全答案不正确。",
-              alertAuthFailed: "验证失败。",
-              alertPasswordReset: "密码重置成功，您现在已登录。",
-              alertIncorrectPassword: "密码不正确",
-              alertReload: "请重新加载页面以设置管理员账户。",
-              alertImportComplete: (added, skipped) => `导入完成。\n已添加：${added}\n已跳过：${skipped}`,
-              alertExcelError: (msg) => "导出 Excel 时出错：" + msg,
-              alertInvalidBackup: "备份文件格式无效。",
-              alertBackupRestored: "备份恢复成功！",
-              alertBackupError: (msg) => "导入备份时出错：" + msg,
-              alertEnterConfirmPassword: "请输入并确认新密码。",
-              alertAdminCreated: "管理员账户创建成功！",
-              alertFillAllFields: "请填写所有字段。",
-              alertEnterCurrentPassword: "请输入当前密码。",
-              alertIncorrectCurrentPassword: "当前密码不正确。",
-              alertNewPasswordsMismatch: "两次新密码不一致。",
-              alertSetSecurityAnswer: "请设置安全答案以便密码恢复。",
-              alertPasswordUpdated: "密码更新成功。",
-              alertAdminSet: "管理员密码和安全问题已设置！",
-              alertAnswerSecurityForRecovery: "请回答安全问题以完成账户恢复。",
-              alertNameExists: (name, suggestion) => `姓名"${name}"已存在。\n\n请使用唯一姓名。\n建议："${suggestion}"`,
-              alertDeleted: (name) => `${name} 已被删除。`,
-              alertDeleteError: (msg) => "删除用户时出错：" + msg,
-              confirmDelete: (name) => `确定要永久删除 ${name} 吗？\n\n此操作无法撤销，该学员的所有课时记录也将被删除。\n\n提示：您可以将学员设为停用状态，以保留记录但隐藏于签到界面。`,
-              confirmDuplicateImport: (f, ls, suggestion) => `用户"${f} ${ls}"已存在。\n\n点击确定以"${suggestion}"导入。\n点击取消跳过该用户。`,
-              confirmMergeBackup: "此操作将把备份文件中的数据与现有数据合并，是否继续？",
-              // Excel headers
-              xlsFirstName: "名", xlsLastName: "姓", xlsActive: "状态",
-              xlsParentEmail: "家长邮箱", xlsParentPhone: "家长电话",
-              xlsClassesLeft: "剩余课时", xlsUUID: "UUID",
-              xlsDate: "日期", xlsTime: "时间", xlsStudent: "学员",
-              xlsType: "类型", xlsDescription: "描述",
-              xlsAmount: "课时数量", xlsUserUUID: "用户UUID",
-              xlsSheetStudents: "学员", xlsSheetTransactions: "课时记录",
-              xlsYes: "活跃", xlsNo: "关闭", xlsUnknown: "未知",
-            },
+  <script>
+    function app() {
+      return {
+        view: "checkin",
+        isAdminUnlocked: false,
+        db: null,
+        searchQuery: "",
+        visitorCount: "...",
+
+        // i18n
+        lang: "en",
+        i18n: {
+          en: {
+            // Nav
+            checkin: "Check-In", roster: "Roster",
+            // Setup
+            setupAdmin: "Setup Admin", createPassword: "Create Password", confirmPassword: "Confirm Password",
+            securityQuestion: "Security Question (Required)", answer: "Answer", createAccount: "Create Account",
+            sqOption1: "What is your mother's maiden name?",
+            sqOption2: "What was the name of your first pet?",
+            sqOption3: "What city were you born in?",
+            sqOption4: "What is your favorite book?",
+            // Login
+            adminAccess: "Admin Access", enterPassword: "Enter Password", unlock: "Unlock", forgotPassword: "Forgot Password?",
+            // Reset
+            resetPassword: "Reset Password", securityQuestionLabel: "Security Question", yourAnswer: "Your Answer",
+            newPassword: "New Password", resetWithAnswer: "Reset with Security Answer",
+            noSecurityQuestion: "No security question set. Please contact support or reset the application (clear data).",
+            cancel: "Cancel",
+            // Daily report
+            dailyReport: "Daily Report", noCheckins: "No check-ins found for this date.",
+            classesLeft: "Classes Left", noEmail: "No Email",
+            // User detail
+            parentEmail: "Parent Email", parentPhone: "Parent Phone",
+            addClasses: "Add Classes", refill: "Refill", adjust: "Adjust", add: "ADD",
+            status: "Status", active: "Active", deactivated: "Deactivated",
+            deleteStudent: "Delete Student Account", classHistory: "Class History",
+            balPrefix: "Bal: ", classesLeftPrefix: "Classes Left: ",
+            // Roster
+            bulkImport: "+ Bulk Import", activePrefix: "Active: ", search: "Search...",
+            importList: "IMPORT LIST", studentName: "Student Name", inactive: "Inactive",
+            noParentContact: "No Parent Contact",
+            // Data management
+            dataManagement: "Data Management", downloadBackup: "Download Backup",
+            restoreBackup: "Restore Backup", exportExcel: "Export to Excel",
+            customizeTitle: "Customize App Title",
+            uniqueVisitors: "Unique Visitors",
+            // Title config
+            titleTypeText: "Text", titleTypeImage: "Image", titleTextLabel: "Title Text",
+            titleTextPlaceholder: "e.g. FlexCheck", uploadLogo: "Upload Logo Image",
+            logoSizeHint: "Best size: <span class=\"font-black text-slate-500\">280 × 64 px</span> (wide &amp; short). PNG or SVG with a transparent background works best. Max file size: <span class=\"font-black text-slate-500\">1 MB</span>.",
+            chooseFile: "Choose File", remove: "Remove", saveTitle: "Save Title",
+            // Password management
+            changePasswordBtn: "Change Admin Password & Security Settings",
+            // Change password modal
+            changePassword: "Change Password", currentPassword: "Current Password",
+            confirmNewPassword: "Confirm New Password",
+            sqRequired: "Security Question (Required)", sqOptional: "Security Question (Optional)",
+            cancelUpper: "CANCEL", save: "SAVE",
+            // Language
+            language: "Language",
+            // Alerts / confirms
+            alertImageTooLarge: "Image is too large. Please use a file under 1 MB.",
+            alertAnswerSecurity: "Please answer the security question.",
+            alertEnterNewPassword: "Please enter a new password.",
+            alertPasswordsMismatch: "Passwords do not match.",
+            alertIncorrectSecurityAnswer: "Incorrect security answer.",
+            alertAuthFailed: "Authentication failed.",
+            alertPasswordReset: "Password reset successfully. You are now logged in.",
+            alertIncorrectPassword: "Incorrect Password",
+            alertReload: "Please reload the page to set up the admin account.",
+            alertImportComplete: (added, skipped) => `Import complete.\nAdded: ${added}\nSkipped: ${skipped}`,
+            alertExcelError: (msg) => "Error exporting to Excel: " + msg,
+            alertInvalidBackup: "Invalid backup file format.",
+            alertBackupRestored: "Backup restored successfully!",
+            alertBackupError: (msg) => "Error importing backup: " + msg,
+            alertEnterConfirmPassword: "Please enter and confirm your new password.",
+            alertAdminCreated: "Admin account created successfully!",
+            alertFillAllFields: "Please fill in all fields.",
+            alertEnterCurrentPassword: "Please enter current password.",
+            alertIncorrectCurrentPassword: "Incorrect current password.",
+            alertNewPasswordsMismatch: "New passwords do not match.",
+            alertSetSecurityAnswer: "Please set a security answer for password recovery.",
+            alertPasswordUpdated: "Password updated successfully.",
+            alertAdminSet: "Admin password and security question set!",
+            alertAnswerSecurityForRecovery: "Please answer the security question for account recovery.",
+            alertNameExists: (name, suggestion) => `The name "${name}" already exists.\n\nPlease use a unique name.\nSuggestion: "${suggestion}"`,
+            alertDeleted: (name) => `${name} has been deleted.`,
+            alertDeleteError: (msg) => "Error deleting user: " + msg,
+            confirmDelete: (name) => `Are you sure you want to PERMANENTLY DELETE ${name}? \n\nThis action cannot be undone. All transaction history for this student will also be deleted.\n\nTip: You can deactivate the student instead to keep their history but hide them from check-in.`,
+            confirmDuplicateImport: (f, ls, suggestion) => `User "${f} ${ls}" already exists.\n\nClick OK to import as "${suggestion}" instead.\nClick Cancel to SKIP this user.`,
+            confirmMergeBackup: "This will MERGE existing data with the backup file. Proceed?",
+            // Excel headers
+            xlsFirstName: "First Name", xlsLastName: "Last Name", xlsActive: "Active",
+            xlsParentEmail: "Parent Email", xlsParentPhone: "Parent Phone",
+            xlsClassesLeft: "Classes Left", xlsUUID: "UUID",
+            xlsDate: "Date", xlsTime: "Time", xlsStudent: "Student",
+            xlsType: "Type", xlsDescription: "Description",
+            xlsAmount: "Amount (Classes)", xlsUserUUID: "User UUID",
+            xlsSheetStudents: "Students", xlsSheetTransactions: "Transactions",
+            xlsYes: "Active", xlsNo: "Inactive", xlsUnknown: "Unknown",
           },
-          t(key, ...args) {
-            const val = this.i18n[this.lang]?.[key] ?? this.i18n.en[key] ?? key;
-            return typeof val === 'function' ? val(...args) : val;
+          zh: {
+            // Nav
+            checkin: "签到", roster: "名单",
+            // Setup
+            setupAdmin: "管理员设置", createPassword: "创建密码", confirmPassword: "确认密码",
+            securityQuestion: "安全问题（必填）", answer: "答案", createAccount: "创建账户",
+            sqOption1: "您母亲的娘家姓是什么？",
+            sqOption2: "您第一只宠物叫什么名字？",
+            sqOption3: "您出生在哪个城市？",
+            sqOption4: "您最喜欢的书是什么？",
+            // Login
+            adminAccess: "管理员登录", enterPassword: "输入密码", unlock: "解锁", forgotPassword: "忘记密码？",
+            // Reset
+            resetPassword: "重置密码", securityQuestionLabel: "安全问题", yourAnswer: "您的答案",
+            newPassword: "新密码", resetWithAnswer: "用安全答案重置密码",
+            noSecurityQuestion: "未设置安全问题，请联系支持人员或重置应用程序（清除数据）。",
+            cancel: "取消",
+            // Daily report
+            dailyReport: "每日报告", noCheckins: "该日期未找到签到记录。",
+            classesLeft: "剩余课时", noEmail: "无邮箱",
+            // User detail
+            parentEmail: "家长邮箱", parentPhone: "家长电话",
+            addClasses: "增加课时", refill: "充值", adjust: "调整", add: "添加",
+            status: "状态", active: "活跃", deactivated: "已停用",
+            deleteStudent: "删除学员账户", classHistory: "课时记录",
+            balPrefix: "余额：", classesLeftPrefix: "剩余课时：",
+            // Roster
+            bulkImport: "+ 批量导入", activePrefix: "活跃：", search: "搜索...",
+            importList: "导入名单", studentName: "学员姓名", inactive: "未激活",
+            noParentContact: "无家长联系方式",
+            // Data management
+            dataManagement: "数据管理", downloadBackup: "下载备份",
+            restoreBackup: "恢复备份", exportExcel: "导出到 Excel",
+            customizeTitle: "自定义应用标题",
+            uniqueVisitors: "独立访客",
+            // Title config
+            titleTypeText: "文字", titleTypeImage: "图片", titleTextLabel: "标题文字",
+            titleTextPlaceholder: "例如：FlexCheck", uploadLogo: "上传 Logo 图片",
+            logoSizeHint: "建议尺寸：<span class=\"font-black text-slate-500\">280 × 64 像素</span>（宽扁型）。推荐使用透明背景的 PNG 或 SVG。最大文件大小：<span class=\"font-black text-slate-500\">1 MB</span>。",
+            chooseFile: "选择文件", remove: "删除", saveTitle: "保存标题",
+            // Password management
+            changePasswordBtn: "更改管理员密码和安全设置",
+            // Change password modal
+            changePassword: "更改密码", currentPassword: "当前密码",
+            confirmNewPassword: "确认新密码",
+            sqRequired: "安全问题（必填）", sqOptional: "安全问题（可选）",
+            cancelUpper: "取消", save: "保存",
+            // Language
+            language: "语言",
+            // Alerts / confirms
+            alertImageTooLarge: "图片太大，请使用 1 MB 以下的文件。",
+            alertAnswerSecurity: "请回答安全问题。",
+            alertEnterNewPassword: "请输入新密码。",
+            alertPasswordsMismatch: "两次密码不一致。",
+            alertIncorrectSecurityAnswer: "安全答案不正确。",
+            alertAuthFailed: "验证失败。",
+            alertPasswordReset: "密码重置成功，您现在已登录。",
+            alertIncorrectPassword: "密码不正确",
+            alertReload: "请重新加载页面以设置管理员账户。",
+            alertImportComplete: (added, skipped) => `导入完成。\n已添加：${added}\n已跳过：${skipped}`,
+            alertExcelError: (msg) => "导出 Excel 时出错：" + msg,
+            alertInvalidBackup: "备份文件格式无效。",
+            alertBackupRestored: "备份恢复成功！",
+            alertBackupError: (msg) => "导入备份时出错：" + msg,
+            alertEnterConfirmPassword: "请输入并确认新密码。",
+            alertAdminCreated: "管理员账户创建成功！",
+            alertFillAllFields: "请填写所有字段。",
+            alertEnterCurrentPassword: "请输入当前密码。",
+            alertIncorrectCurrentPassword: "当前密码不正确。",
+            alertNewPasswordsMismatch: "两次新密码不一致。",
+            alertSetSecurityAnswer: "请设置安全答案以便密码恢复。",
+            alertPasswordUpdated: "密码更新成功。",
+            alertAdminSet: "管理员密码和安全问题已设置！",
+            alertAnswerSecurityForRecovery: "请回答安全问题以完成账户恢复。",
+            alertNameExists: (name, suggestion) => `姓名"${name}"已存在。\n\n请使用唯一姓名。\n建议："${suggestion}"`,
+            alertDeleted: (name) => `${name} 已被删除。`,
+            alertDeleteError: (msg) => "删除用户时出错：" + msg,
+            confirmDelete: (name) => `确定要永久删除 ${name} 吗？\n\n此操作无法撤销，该学员的所有课时记录也将被删除。\n\n提示：您可以将学员设为停用状态，以保留记录但隐藏于签到界面。`,
+            confirmDuplicateImport: (f, ls, suggestion) => `用户"${f} ${ls}"已存在。\n\n点击确定以"${suggestion}"导入。\n点击取消跳过该用户。`,
+            confirmMergeBackup: "此操作将把备份文件中的数据与现有数据合并，是否继续？",
+            // Excel headers
+            xlsFirstName: "名", xlsLastName: "姓", xlsActive: "状态",
+            xlsParentEmail: "家长邮箱", xlsParentPhone: "家长电话",
+            xlsClassesLeft: "剩余课时", xlsUUID: "UUID",
+            xlsDate: "日期", xlsTime: "时间", xlsStudent: "学员",
+            xlsType: "类型", xlsDescription: "描述",
+            xlsAmount: "课时数量", xlsUserUUID: "用户UUID",
+            xlsSheetStudents: "学员", xlsSheetTransactions: "课时记录",
+            xlsYes: "活跃", xlsNo: "关闭", xlsUnknown: "未知",
           },
+        },
+        t(key, ...args) {
+          const val = this.i18n[this.lang]?.[key] ?? this.i18n.en[key] ?? key;
+          return typeof val === 'function' ? val(...args) : val;
+        },
 
-          // Title configuration
-          siteTitle: { type: "text", text: "FlexCheck", imageUrl: "" },
-          titleConfig: { type: "text", text: "FlexCheck", imageUrl: "" },
-          showTitleConfig: false,
-          adminSearchQuery: "",
-          searchResults: [],
-          allUsers: [],
-          allTransactions: [],
-          selectedUser: null,
-          userHistory: [],
-          depositAmount: null,
-          depositDescription: "Account Refill",
-          showBulk: false,
-          bulkText: "",
-          passwordInput: "",
-          showPassword: false,
-          showChangePasswordModal: false,
-          isResettingPassword: false,
-          resetNew: "",
-          resetConfirm: "",
-          cpCurrent: "",
-          cpNew: "",
-          cpConfirm: "",
-          cpQuestion: "What is your mother's maiden name?",
-          cpAnswer: "",
-          cpShowCurrent: false,
-          cpShowNew: false,
-          cpShowConfirm: false,
+        // Title configuration
+        siteTitle: { type: "text", text: "FlexCheck", imageUrl: "" },
+        titleConfig: { type: "text", text: "FlexCheck", imageUrl: "" },
+        showTitleConfig: false,
+        adminSearchQuery: "",
+        searchResults: [],
+        allUsers: [],
+        allTransactions: [],
+        selectedUser: null,
+        userHistory: [],
+        depositAmount: null,
+        depositDescription: "Account Refill",
+        showBulk: false,
+        bulkText: "",
+        passwordInput: "",
+        showPassword: false,
+        showChangePasswordModal: false,
+        isResettingPassword: false,
+        resetNew: "",
+        resetConfirm: "",
+        cpCurrent: "",
+        cpNew: "",
+        cpConfirm: "",
+        cpQuestion: "What is your mother's maiden name?",
+        cpAnswer: "",
+        cpShowCurrent: false,
+        cpShowNew: false,
+        cpShowConfirm: false,
 
-          hasAdminConfig: false,
+        hasAdminConfig: false,
 
-          // Reset State
-          resetAnswer: "",
-          securityQuestion: "",
-          hasSecurityQuestion: false,
-          resetShowNew: false,
-          resetShowConfirm: false,
+        // Reset State
+        resetAnswer: "",
+        securityQuestion: "",
+        hasSecurityQuestion: false,
+        resetShowNew: false,
+        resetShowConfirm: false,
 
-          wakeLock: null,
+        wakeLock: null,
 
-          reportDate: new Date().toISOString().split("T")[0],
-          todayDate: new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          }),
+        reportDate: new Date().toISOString().split("T")[0],
+        todayDate: new Date().toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        }),
 
-          async init() {
+        async init() {
+          try {
+            this.db = new Dexie("FlexCheck_V4");
+            this.db.version(1).stores({
+              users: "uuid, nameSearch",
+              transactions: "uuid, userUuid, dayKey, timestamp",
+              settings: "id",
+            });
+
+            // Check for admin config immediately (before loading data)
+            const config = await this.db.settings.get("admin_config");
+            this.hasAdminConfig = !!config;
+
+            // Load title configuration
+            const titleCfg = await this.db.settings.get("title_config");
+            if (titleCfg) {
+              this.siteTitle = { type: titleCfg.titleType, text: titleCfg.titleText, imageUrl: titleCfg.titleImageUrl };
+            }
+
+            // Load language preference
+            const langCfg = await this.db.settings.get("lang_config");
+            if (langCfg && langCfg.lang) {
+              this.lang = langCfg.lang;
+            }
+
+            // Migration: Convert currency to class units (assume $30 = 1 class)
+            const migration = await this.db.settings.get(
+              "migration_v1_classes"
+            );
+            if (!migration) {
+              const txs = await this.db.transactions.toArray();
+              const updated = txs.map((t) => ({
+                ...t,
+                amount: t.amount / 30, // Convert existing dollar amounts to class units
+              }));
+              await this.db.transactions.bulkPut(updated);
+              await this.db.settings.put({
+                id: "migration_v1_classes",
+                done: true,
+              });
+              console.log("Migrated transactions to class units.");
+            }
+
+            await this.refresh();
+
+            // Initialize Wake Lock to keep screen awake
+            this.requestWakeLock();
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState === 'visible') {
+                this.requestWakeLock();
+              }
+            });
+
+            // Track visitors uniquely per browser
             try {
-              this.db = new Dexie("FlexCheck_V4");
-              this.db.version(1).stores({
-                users: "uuid, nameSearch",
-                transactions: "uuid, userUuid, dayKey, timestamp",
-                settings: "id",
-              });
+              const counterUrl = "https://api.counterapi.dev/v1/flexcheck.framedghosts.com/flexcheck";
+              const hasVisited = localStorage.getItem("hasVisitedFlexCheck");
 
-              // Check for admin config immediately (before loading data)
-              const config = await this.db.settings.get("admin_config");
-              this.hasAdminConfig = !!config;
-
-              // Load title configuration
-              const titleCfg = await this.db.settings.get("title_config");
-              if (titleCfg) {
-                this.siteTitle = { type: titleCfg.titleType, text: titleCfg.titleText, imageUrl: titleCfg.titleImageUrl };
+              let res;
+              if (!hasVisited) {
+                res = await fetch(counterUrl + "/up");
+                localStorage.setItem("hasVisitedFlexCheck", "true");
+              } else {
+                res = await fetch(counterUrl);
               }
 
-              // Load language preference
-              const langCfg = await this.db.settings.get("lang_config");
-              if (langCfg && langCfg.lang) {
-                this.lang = langCfg.lang;
+              if (res.ok) {
+                const data = await res.json();
+                this.visitorCount = data.count;
               }
-
-              // Migration: Convert currency to class units (assume $30 = 1 class)
-              const migration = await this.db.settings.get(
-                "migration_v1_classes"
-              );
-              if (!migration) {
-                const txs = await this.db.transactions.toArray();
-                const updated = txs.map((t) => ({
-                  ...t,
-                  amount: t.amount / 30, // Convert existing dollar amounts to class units
-                }));
-                await this.db.transactions.bulkPut(updated);
-                await this.db.settings.put({
-                  id: "migration_v1_classes",
-                  done: true,
-                });
-                console.log("Migrated transactions to class units.");
-              }
-
-              await this.refresh();
-
-              // Initialize Wake Lock to keep screen awake
-              this.requestWakeLock();
-              document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                  this.requestWakeLock();
-                }
-              });
-
-            } catch (e) {
-              console.error("Initialization error:", e);
+            } catch (err) {
+              console.error("Counter error:", err);
             }
-          },
 
-          async requestWakeLock() {
-            if ('wakeLock' in navigator) {
-              try {
-                this.wakeLock = await navigator.wakeLock.request('screen');
-                console.log('Screen Wake Lock acquired');
-              } catch (err) {
-                console.error(`Wake Lock error: ${err.name}, ${err.message}`);
-              }
+          } catch (e) {
+            console.error("Initialization error:", e);
+          }
+        },
+
+        async requestWakeLock() {
+          if ('wakeLock' in navigator) {
+            try {
+              this.wakeLock = await navigator.wakeLock.request('screen');
+              console.log('Screen Wake Lock acquired');
+            } catch (err) {
+              console.error(`Wake Lock error: ${err.name}, ${err.message}`);
             }
-          },
+          }
+        },
 
-          async setLang(l) {
-            this.lang = l;
-            await this.db.settings.put({ id: "lang_config", lang: l });
-          },
+        async setLang(l) {
+          this.lang = l;
+          await this.db.settings.put({ id: "lang_config", lang: l });
+        },
 
-          coloredTitle(text) {
-            const palette = [
-              '#7c3aed', // violet
-              '#db2777', // pink
-              '#ea580c', // orange
-              '#0891b2', // cyan
-              '#16a34a', // green
-              '#ca8a04', // yellow
-            ];
-            return text.split('').map((char, i) => {
-              if (char === ' ') return ' ';
-              const color = palette[i % palette.length];
-              return `<span style="color:${color}">${char}</span>`;
-            }).join('');
-          },
+        coloredTitle(text) {
+          const palette = [
+            '#7c3aed', // violet
+            '#db2777', // pink
+            '#ea580c', // orange
+            '#0891b2', // cyan
+            '#16a34a', // green
+            '#ca8a04', // yellow
+          ];
+          return text.split('').map((char, i) => {
+            if (char === ' ') return ' ';
+            const color = palette[i % palette.length];
+            return `<span style="color:${color}">${char}</span>`;
+          }).join('');
+        },
 
-          handleLogoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (file.size > 1024 * 1024) {
-              alert(this.t('alertImageTooLarge'));
-              event.target.value = "";
+        handleLogoUpload(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+          if (file.size > 1024 * 1024) {
+            alert(this.t('alertImageTooLarge'));
+            event.target.value = "";
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.titleConfig.imageUrl = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        },
+
+        async saveTitleConfig() {
+          await this.db.settings.put({
+            id: "title_config",
+            titleType: this.titleConfig.type,
+            titleText: this.titleConfig.text,
+            titleImageUrl: this.titleConfig.imageUrl,
+          });
+          this.siteTitle = { ...this.titleConfig };
+          this.showTitleConfig = false;
+        },
+
+        async hash(str) {
+          const msgBuffer = new TextEncoder().encode(str);
+          const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+          return Array.from(new Uint8Array(hashBuffer))
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        },
+
+        async tryAccessAdmin() {
+          this.view = "admin";
+          this.passwordInput = "";
+          this.resetAnswer = "";
+        },
+
+        async initiateReset() {
+          this.isResettingPassword = true;
+          this.resetNew = "";
+          this.resetConfirm = "";
+          this.resetAnswer = "";
+
+          // Check config for security question
+          const config = await this.db.settings.get("admin_config");
+          if (config && config.securityQuestion) {
+            this.hasSecurityQuestion = true;
+            this.securityQuestion = config.securityQuestion;
+          } else {
+            this.hasSecurityQuestion = false;
+          }
+        },
+
+        async confirmReset() {
+          if (this.hasSecurityQuestion && !this.resetAnswer) {
+            alert(this.t('alertAnswerSecurity'));
+            return;
+          }
+
+          if (!this.resetNew || !this.resetConfirm) {
+            alert(this.t('alertEnterNewPassword'));
+            return;
+          }
+          if (this.resetNew !== this.resetConfirm) {
+            alert(this.t('alertPasswordsMismatch'));
+            return;
+          }
+
+          const config = await this.db.settings.get("admin_config");
+
+          // Verification logic
+          let verified = false;
+          if (this.hasSecurityQuestion && this.resetAnswer) {
+            const ansHash = await this.hash(
+              this.resetAnswer.trim().toLowerCase()
+            );
+            if (ansHash === config.securityAnswerHash) {
+              verified = true;
+            } else {
+              alert(this.t('alertIncorrectSecurityAnswer'));
               return;
             }
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              this.titleConfig.imageUrl = e.target.result;
+          } else {
+            alert(this.t('alertAuthFailed'));
+            return;
+          }
+
+          if (verified) {
+            const newHash = await this.hash(this.resetNew);
+            const updates = {
+              id: "admin_config",
+              passwordHash: newHash,
+              securityQuestion: config.securityQuestion,
+              securityAnswerHash: config.securityAnswerHash,
             };
-            reader.readAsDataURL(file);
-          },
 
-          async saveTitleConfig() {
-            await this.db.settings.put({
-              id: "title_config",
-              titleType: this.titleConfig.type,
-              titleText: this.titleConfig.text,
-              titleImageUrl: this.titleConfig.imageUrl,
-            });
-            this.siteTitle = { ...this.titleConfig };
-            this.showTitleConfig = false;
-          },
+            await this.db.settings.put(updates);
 
-          async hash(str) {
-            const msgBuffer = new TextEncoder().encode(str);
-            const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-            return Array.from(new Uint8Array(hashBuffer))
-              .map((b) => b.toString(16).padStart(2, "0"))
-              .join("");
-          },
-
-          async tryAccessAdmin() {
-            this.view = "admin";
+            alert(this.t('alertPasswordReset'));
+            this.isResettingPassword = false;
+            this.isAdminUnlocked = true;
             this.passwordInput = "";
             this.resetAnswer = "";
-          },
+          }
+        },
 
-          async initiateReset() {
-            this.isResettingPassword = true;
-            this.resetNew = "";
-            this.resetConfirm = "";
-            this.resetAnswer = "";
-
-            // Check config for security question
-            const config = await this.db.settings.get("admin_config");
-            if (config && config.securityQuestion) {
-              this.hasSecurityQuestion = true;
-              this.securityQuestion = config.securityQuestion;
-            } else {
-              this.hasSecurityQuestion = false;
-            }
-          },
-
-          async confirmReset() {
-            if (this.hasSecurityQuestion && !this.resetAnswer) {
-              alert(this.t('alertAnswerSecurity'));
-              return;
-            }
-
-            if (!this.resetNew || !this.resetConfirm) {
-              alert(this.t('alertEnterNewPassword'));
-              return;
-            }
-            if (this.resetNew !== this.resetConfirm) {
-              alert(this.t('alertPasswordsMismatch'));
-              return;
-            }
-
-            const config = await this.db.settings.get("admin_config");
-
-            // Verification logic
-            let verified = false;
-            if (this.hasSecurityQuestion && this.resetAnswer) {
-              const ansHash = await this.hash(
-                this.resetAnswer.trim().toLowerCase()
-              );
-              if (ansHash === config.securityAnswerHash) {
-                verified = true;
-              } else {
-                alert(this.t('alertIncorrectSecurityAnswer'));
-                return;
-              }
-            } else {
-              alert(this.t('alertAuthFailed'));
-              return;
-            }
-
-            if (verified) {
-              const newHash = await this.hash(this.resetNew);
-              const updates = {
-                id: "admin_config",
-                passwordHash: newHash,
-                securityQuestion: config.securityQuestion,
-                securityAnswerHash: config.securityAnswerHash,
-              };
-
-              await this.db.settings.put(updates);
-
-              alert(this.t('alertPasswordReset'));
-              this.isResettingPassword = false;
+        async tryUnlockAdmin() {
+          if (!this.passwordInput) return;
+          const config = await this.db.settings.get("admin_config");
+          if (config) {
+            const hashed = await this.hash(this.passwordInput);
+            if (hashed === config.passwordHash) {
               this.isAdminUnlocked = true;
               this.passwordInput = "";
-              this.resetAnswer = "";
-            }
-          },
-
-          async tryUnlockAdmin() {
-            if (!this.passwordInput) return;
-            const config = await this.db.settings.get("admin_config");
-            if (config) {
-              const hashed = await this.hash(this.passwordInput);
-              if (hashed === config.passwordHash) {
-                this.isAdminUnlocked = true;
-                this.passwordInput = "";
-              } else {
-                alert(this.t('alertIncorrectPassword'));
-                this.passwordInput = "";
-              }
             } else {
-              // Fallback if UI state is out of sync, though init() should catch this
-              alert(this.t('alertReload'));
+              alert(this.t('alertIncorrectPassword'));
+              this.passwordInput = "";
             }
-          },
+          } else {
+            // Fallback if UI state is out of sync, though init() should catch this
+            alert(this.t('alertReload'));
+          }
+        },
 
-          async performCheckIn(user) {
-            const today = new Date().toISOString().split("T")[0];
-            const uuid = crypto.randomUUID();
-            await this.db.transactions.add({
-              uuid,
-              userUuid: user.uuid,
-              dayKey: `${today}-${user.uuid}`,
-              amount: -1,
-              type: "checkin",
-              description: "Class Check-in",
-              timestamp: new Date().toISOString(),
+        async performCheckIn(user) {
+          const today = new Date().toISOString().split("T")[0];
+          const uuid = crypto.randomUUID();
+          await this.db.transactions.add({
+            uuid,
+            userUuid: user.uuid,
+            dayKey: `${today}-${user.uuid}`,
+            amount: -1,
+            type: "checkin",
+            description: "Class Check-in",
+            timestamp: new Date().toISOString(),
+          });
+          await this.refresh();
+        },
+
+        async refresh() {
+          const u = await this.db.users.toArray();
+          const t = await this.db.transactions.toArray();
+          this.allTransactions = t;
+          const today = new Date().toISOString().split("T")[0];
+          this.allUsers = u
+            .map((user) => {
+              const ut = t.filter((x) => x.userUuid === user.uuid);
+              return {
+                ...user,
+                balance: ut.reduce((s, x) => s + x.amount, 0),
+                hasCheckedIn: ut.some(
+                  (x) => x.dayKey === `${today}-${user.uuid}`
+                ),
+              };
+            })
+            .sort((a, b) => a.balance - b.balance);
+          this.search();
+        },
+
+        getDailyCheckins() {
+          return this.allTransactions
+            .filter(
+              (t) =>
+                t.type === "checkin" &&
+                new Date(t.timestamp).toISOString().split("T")[0] ===
+                this.reportDate
+            )
+            .map((t) => {
+              const user = this.allUsers.find((u) => u.uuid === t.userUuid);
+              const balance = user ? user.balance : 0;
+              return {
+                ...t,
+                userName: user
+                  ? `${user.firstName} ${user.lastName}`
+                  : "Unknown",
+                parentEmail: user ? user.parentEmail : "",
+                classesLeft: Math.floor(balance),
+              };
+            })
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        },
+
+        search() {
+          const q = this.searchQuery.toLowerCase();
+          this.searchResults = this.allUsers
+            .filter((u) => u.isActive === 1 && u.nameSearch.includes(q))
+            .sort((a, b) => {
+              // Sort by checked-in status (false first, true last)
+              if (a.hasCheckedIn && !b.hasCheckedIn) return 1;
+              if (!a.hasCheckedIn && b.hasCheckedIn) return -1;
+              // Secondary sort by name if check-in status is same
+              return a.nameSearch.localeCompare(b.nameSearch);
+            })
+            .slice(0, 10);
+        },
+        async showUser(u) {
+          this.selectedUser = u;
+          let balance = 0;
+          // Calculate running balance from oldest to newest
+          const sorted = this.allTransactions
+            .filter((x) => x.userUuid === u.uuid)
+            .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+            .map((tx) => {
+              balance += tx.amount;
+              return { ...tx, runningBalance: balance };
             });
-            await this.refresh();
-          },
+          // Show newest first
+          this.userHistory = sorted.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          );
+        },
+        async saveUser(u) {
+          u.nameSearch = (u.firstName + " " + u.lastName).toLowerCase();
 
-          async refresh() {
-            const u = await this.db.users.toArray();
-            const t = await this.db.transactions.toArray();
-            this.allTransactions = t;
-            const today = new Date().toISOString().split("T")[0];
-            this.allUsers = u
-              .map((user) => {
-                const ut = t.filter((x) => x.userUuid === user.uuid);
-                return {
-                  ...user,
-                  balance: ut.reduce((s, x) => s + x.amount, 0),
-                  hasCheckedIn: ut.some(
-                    (x) => x.dayKey === `${today}-${user.uuid}`
-                  ),
-                };
-              })
-              .sort((a, b) => a.balance - b.balance);
-            this.search();
-          },
+          // Check for duplicate name
+          const duplicate = this.allUsers.find(
+            (user) =>
+              user.uuid !== u.uuid && user.nameSearch === u.nameSearch
+          );
 
-          getDailyCheckins() {
-            return this.allTransactions
-              .filter(
-                (t) =>
-                  t.type === "checkin" &&
-                  new Date(t.timestamp).toISOString().split("T")[0] ===
-                    this.reportDate
+          if (duplicate) {
+            let suggestedFirst = u.firstName;
+            let suggestedLast = u.lastName;
+            let counter = 2;
+            while (
+              this.allUsers.find(
+                (user) =>
+                  user.uuid !== u.uuid &&
+                  user.nameSearch ===
+                  (
+                    suggestedFirst +
+                    " " +
+                    suggestedLast +
+                    " " +
+                    counter
+                  ).toLowerCase()
               )
-              .map((t) => {
-                const user = this.allUsers.find((u) => u.uuid === t.userUuid);
-                const balance = user ? user.balance : 0;
-                return {
-                  ...t,
-                  userName: user
-                    ? `${user.firstName} ${user.lastName}`
-                    : "Unknown",
-                  parentEmail: user ? user.parentEmail : "",
-                  classesLeft: Math.floor(balance),
-                };
-              })
-              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-          },
+            ) {
+              counter++;
+            }
+            const suggestion = `${suggestedFirst} ${suggestedLast} ${counter}`;
 
-          search() {
-            const q = this.searchQuery.toLowerCase();
-            this.searchResults = this.allUsers
-              .filter((u) => u.isActive === 1 && u.nameSearch.includes(q))
-              .sort((a, b) => {
-                // Sort by checked-in status (false first, true last)
-                if (a.hasCheckedIn && !b.hasCheckedIn) return 1;
-                if (!a.hasCheckedIn && b.hasCheckedIn) return -1;
-                // Secondary sort by name if check-in status is same
-                return a.nameSearch.localeCompare(b.nameSearch);
-              })
-              .slice(0, 10);
-          },
-          async showUser(u) {
-            this.selectedUser = u;
-            let balance = 0;
-            // Calculate running balance from oldest to newest
-            const sorted = this.allTransactions
-              .filter((x) => x.userUuid === u.uuid)
-              .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-              .map((tx) => {
-                balance += tx.amount;
-                return { ...tx, runningBalance: balance };
-              });
-            // Show newest first
-            this.userHistory = sorted.sort(
-              (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+            alert(this.t('alertNameExists', `${u.firstName} ${u.lastName}`, suggestion));
+
+            // Revert UI to original state from DB
+            const original = await this.db.users.get(u.uuid);
+            this.selectedUser = original;
+            return;
+          }
+
+          await this.db.users.put(JSON.parse(JSON.stringify(u)));
+          await this.refresh();
+        },
+
+        async confirmDeleteUser() {
+          if (!this.selectedUser) return;
+          const name = `${this.selectedUser.firstName} ${this.selectedUser.lastName}`;
+
+          if (confirm(this.t('confirmDelete', name))) {
+            try {
+              const uuid = this.selectedUser.uuid;
+
+              // Delete all transactions for this user
+              const userTransactions = this.allTransactions.filter(
+                (t) => t.userUuid === uuid
+              );
+              const txIds = userTransactions.map((t) => t.uuid);
+              await this.db.transactions.bulkDelete(txIds);
+
+              // Delete the user
+              await this.db.users.delete(uuid);
+
+              alert(this.t('alertDeleted', name));
+              this.selectedUser = null;
+              await this.refresh();
+            } catch (e) {
+              console.error(e);
+              alert(this.t('alertDeleteError', e.message));
+            }
+          }
+        },
+
+        async addFunds() {
+          const a = parseFloat(this.depositAmount);
+          if (isNaN(a) || a === 0) return;
+          await this.db.transactions.add({
+            uuid: crypto.randomUUID(),
+            userUuid: this.selectedUser.uuid,
+            amount: a,
+            type: "deposit",
+            description: this.depositDescription,
+            timestamp: new Date().toISOString(),
+          });
+          this.depositAmount = null;
+          await this.refresh();
+          this.showUser(
+            this.allUsers.find((x) => x.uuid === this.selectedUser.uuid)
+          );
+        },
+
+        async processBulk() {
+          const lines = this.bulkText.split("\n").filter((l) => l.trim());
+          let importedCount = 0;
+          let skippedCount = 0;
+
+          for (let l of lines) {
+            let f, ls;
+            if (l.includes(",")) {
+              [ls, f] = l.split(",").map((s) => s.trim());
+            } else {
+              const p = l.trim().split(" ");
+              f = p[0];
+              ls = p.slice(1).join(" ") || "Student";
+            }
+
+            const nameSearch = `${f} ${ls}`.toLowerCase();
+            const exists = this.allUsers.some(
+              (u) => u.nameSearch === nameSearch
             );
-          },
-          async saveUser(u) {
-            u.nameSearch = (u.firstName + " " + u.lastName).toLowerCase();
 
-            // Check for duplicate name
-            const duplicate = this.allUsers.find(
-              (user) =>
-                user.uuid !== u.uuid && user.nameSearch === u.nameSearch
-            );
-
-            if (duplicate) {
-              let suggestedFirst = u.firstName;
-              let suggestedLast = u.lastName;
+            if (exists) {
+              // Find a suggestion
               let counter = 2;
               while (
-                this.allUsers.find(
-                  (user) =>
-                    user.uuid !== u.uuid &&
-                    user.nameSearch ===
-                      (
-                        suggestedFirst +
-                        " " +
-                        suggestedLast +
-                        " " +
-                        counter
-                      ).toLowerCase()
+                this.allUsers.some(
+                  (u) =>
+                    u.nameSearch ===
+                    `${f} ${ls} ${counter}`.toLowerCase()
                 )
               ) {
                 counter++;
               }
-              const suggestion = `${suggestedFirst} ${suggestedLast} ${counter}`;
+              const suggestion = `${f} ${ls} ${counter}`;
 
-              alert(this.t('alertNameExists', `${u.firstName} ${u.lastName}`, suggestion));
-
-              // Revert UI to original state from DB
-              const original = await this.db.users.get(u.uuid);
-              this.selectedUser = original;
-              return;
-            }
-
-            await this.db.users.put(JSON.parse(JSON.stringify(u)));
-            await this.refresh();
-          },
-
-          async confirmDeleteUser() {
-            if (!this.selectedUser) return;
-            const name = `${this.selectedUser.firstName} ${this.selectedUser.lastName}`;
-
-            if (confirm(this.t('confirmDelete', name))) {
-              try {
-                const uuid = this.selectedUser.uuid;
-
-                // Delete all transactions for this user
-                const userTransactions = this.allTransactions.filter(
-                  (t) => t.userUuid === uuid
-                );
-                const txIds = userTransactions.map((t) => t.uuid);
-                await this.db.transactions.bulkDelete(txIds);
-
-                // Delete the user
-                await this.db.users.delete(uuid);
-
-                alert(this.t('alertDeleted', name));
-                this.selectedUser = null;
-                await this.refresh();
-              } catch (e) {
-                console.error(e);
-                alert(this.t('alertDeleteError', e.message));
+              if (!confirm(this.t('confirmDuplicateImport', f, ls, suggestion))) {
+                skippedCount++;
+                continue;
               }
-            }
-          },
 
-          async addFunds() {
-            const a = parseFloat(this.depositAmount);
-            if (isNaN(a) || a === 0) return;
-            await this.db.transactions.add({
+              // If accepted, update name to suggestion
+              ls = `${ls} ${counter}`;
+            }
+
+            await this.db.users.add({
               uuid: crypto.randomUUID(),
-              userUuid: this.selectedUser.uuid,
-              amount: a,
-              type: "deposit",
-              description: this.depositDescription,
-              timestamp: new Date().toISOString(),
+              firstName: f,
+              lastName: ls,
+              nameSearch: `${f} ${ls}`.toLowerCase(),
+              parentEmail: "",
+              parentPhone: "",
+              isActive: 1,
             });
-            this.depositAmount = null;
-            await this.refresh();
-            this.showUser(
-              this.allUsers.find((x) => x.uuid === this.selectedUser.uuid)
-            );
-          },
+            importedCount++;
+          }
 
-          async processBulk() {
-            const lines = this.bulkText.split("\n").filter((l) => l.trim());
-            let importedCount = 0;
-            let skippedCount = 0;
+          this.bulkText = "";
+          this.showBulk = false;
+          await this.refresh();
 
-            for (let l of lines) {
-              let f, ls;
-              if (l.includes(",")) {
-                [ls, f] = l.split(",").map((s) => s.trim());
-              } else {
-                const p = l.trim().split(" ");
-                f = p[0];
-                ls = p.slice(1).join(" ") || "Student";
-              }
-
-              const nameSearch = `${f} ${ls}`.toLowerCase();
-              const exists = this.allUsers.some(
-                (u) => u.nameSearch === nameSearch
-              );
-
-              if (exists) {
-                // Find a suggestion
-                let counter = 2;
-                while (
-                  this.allUsers.some(
-                    (u) =>
-                      u.nameSearch ===
-                      `${f} ${ls} ${counter}`.toLowerCase()
-                  )
-                ) {
-                  counter++;
-                }
-                const suggestion = `${f} ${ls} ${counter}`;
-
-                  if (!confirm(this.t('confirmDuplicateImport', f, ls, suggestion))) {
-                  skippedCount++;
-                  continue;
-                }
-
-                // If accepted, update name to suggestion
-                ls = `${ls} ${counter}`;
-              }
-
-              await this.db.users.add({
-                uuid: crypto.randomUUID(),
-                firstName: f,
-                lastName: ls,
-                nameSearch: `${f} ${ls}`.toLowerCase(),
-                parentEmail: "",
-                parentPhone: "",
-                isActive: 1,
-              });
-              importedCount++;
-            }
-
-            this.bulkText = "";
-            this.showBulk = false;
-            await this.refresh();
-
-            if (importedCount > 0 || skippedCount > 0) {
-              alert(this.t('alertImportComplete', importedCount, skippedCount));
-            }
-          },
-          async exportExcel() {
-            try {
-              const users = await this.db.users.toArray();
-              const transactions = await this.db.transactions.toArray();
-
-              // 1. Prepare Users Sheet
-              const usersData = users.map((u) => {
-                const balance = transactions
-                  .filter((t) => t.userUuid === u.uuid)
-                  .reduce((sum, t) => sum + t.amount, 0);
-                return {
-                  [this.t('xlsFirstName')]: u.firstName,
-                  [this.t('xlsLastName')]: u.lastName,
-                  [this.t('xlsActive')]: u.isActive ? this.t('xlsYes') : this.t('xlsNo'),
-                  [this.t('xlsParentEmail')]: u.parentEmail,
-                  [this.t('xlsParentPhone')]: u.parentPhone,
-                  [this.t('xlsClassesLeft')]: Math.floor(balance),
-                };
-              });
-
-              // 2. Prepare Transactions Sheet
-              const txsData = transactions.map((t) => {
-                const user = users.find((u) => u.uuid === t.userUuid);
-                return {
-                  [this.t('xlsDate')]: this.formatDate(t.timestamp),
-                  [this.t('xlsTime')]: this.formatTime(t.timestamp),
-                  [this.t('xlsStudent')]: user
-                    ? `${user.firstName} ${user.lastName}`
-                    : this.t('xlsUnknown'),
-                  [this.t('xlsType')]: t.type,
-                  [this.t('xlsDescription')]: t.description,
-                  [this.t('xlsAmount')]: Math.round(t.amount),
-                };
-              });
-
-              // 3. Create Workbook
-              const wb = XLSX.utils.book_new();
-              const wsUsers = XLSX.utils.json_to_sheet(usersData);
-              const wsTxs = XLSX.utils.json_to_sheet(txsData);
-
-              XLSX.utils.book_append_sheet(wb, wsUsers, this.t('xlsSheetStudents'));
-              XLSX.utils.book_append_sheet(wb, wsTxs, this.t('xlsSheetTransactions'));
-
-              // 4. Download
-              XLSX.writeFile(
-                wb,
-                `FlexCheck_Export_${new Date().toISOString().split("T")[0]}.xlsx`
-              );
-            } catch (e) {
-              console.error(e);
-              alert(this.t('alertExcelError', e.message));
-            }
-          },
-          async exportBackup() {
+          if (importedCount > 0 || skippedCount > 0) {
+            alert(this.t('alertImportComplete', importedCount, skippedCount));
+          }
+        },
+        async exportExcel() {
+          try {
             const users = await this.db.users.toArray();
             const transactions = await this.db.transactions.toArray();
-            const settings = (await this.db.settings.toArray()).filter(
-              (s) => s.id !== "admin_config"
-            );
-            const backup = { users, transactions, settings };
-            const blob = new Blob([JSON.stringify(backup, null, 2)], {
-              type: "application/json",
+
+            // 1. Prepare Users Sheet
+            const usersData = users.map((u) => {
+              const balance = transactions
+                .filter((t) => t.userUuid === u.uuid)
+                .reduce((sum, t) => sum + t.amount, 0);
+              return {
+                [this.t('xlsFirstName')]: u.firstName,
+                [this.t('xlsLastName')]: u.lastName,
+                [this.t('xlsActive')]: u.isActive ? this.t('xlsYes') : this.t('xlsNo'),
+                [this.t('xlsParentEmail')]: u.parentEmail,
+                [this.t('xlsParentPhone')]: u.parentPhone,
+                [this.t('xlsClassesLeft')]: Math.floor(balance),
+              };
             });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `flexcheck_backup_${new Date().toISOString().split("T")[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          },
 
-          async importBackup(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            // 2. Prepare Transactions Sheet
+            const txsData = transactions.map((t) => {
+              const user = users.find((u) => u.uuid === t.userUuid);
+              return {
+                [this.t('xlsDate')]: this.formatDate(t.timestamp),
+                [this.t('xlsTime')]: this.formatTime(t.timestamp),
+                [this.t('xlsStudent')]: user
+                  ? `${user.firstName} ${user.lastName}`
+                  : this.t('xlsUnknown'),
+                [this.t('xlsType')]: t.type,
+                [this.t('xlsDescription')]: t.description,
+                [this.t('xlsAmount')]: Math.round(t.amount),
+              };
+            });
 
-            if (!confirm(this.t('confirmMergeBackup'))) {
-              event.target.value = "";
-              return;
-            }
+            // 3. Create Workbook
+            const wb = XLSX.utils.book_new();
+            const wsUsers = XLSX.utils.json_to_sheet(usersData);
+            const wsTxs = XLSX.utils.json_to_sheet(txsData);
 
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-              try {
-                const data = JSON.parse(e.target.result);
-                if (!data.users || !data.transactions || !data.settings) {
-                  alert(this.t('alertInvalidBackup'));
-                  return;
-                }
+            XLSX.utils.book_append_sheet(wb, wsUsers, this.t('xlsSheetStudents'));
+            XLSX.utils.book_append_sheet(wb, wsTxs, this.t('xlsSheetTransactions'));
 
-                // Filter out admin_config from imported settings to preserve current password
-                const safeSettings = data.settings.filter(
-                  (s) => s.id !== "admin_config"
-                );
+            // 4. Download
+            XLSX.writeFile(
+              wb,
+              `FlexCheck_Export_${new Date().toISOString().split("T")[0]}.xlsx`
+            );
+          } catch (e) {
+            console.error(e);
+            alert(this.t('alertExcelError', e.message));
+          }
+        },
+        async exportBackup() {
+          const users = await this.db.users.toArray();
+          const transactions = await this.db.transactions.toArray();
+          const settings = (await this.db.settings.toArray()).filter(
+            (s) => s.id !== "admin_config"
+          );
+          const backup = { users, transactions, settings };
+          const blob = new Blob([JSON.stringify(backup, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `flexcheck_backup_${new Date().toISOString().split("T")[0]}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
 
-                // Merge Logic (similar to sync)
-                const mUsers = this.merge(
-                  data.users,
-                  await this.db.users.toArray()
-                );
-                const mTxs = this.merge(
-                  data.transactions,
-                  await this.db.transactions.toArray()
-                );
-                const mSets = this.merge(
-                  safeSettings,
-                  await this.db.settings.toArray()
-                );
+        async importBackup(event) {
+          const file = event.target.files[0];
+          if (!file) return;
 
-                await this.db.users.bulkPut(mUsers);
-                await this.db.transactions.bulkPut(mTxs);
-                await this.db.settings.bulkPut(mSets);
+          if (!confirm(this.t('confirmMergeBackup'))) {
+            event.target.value = "";
+            return;
+          }
 
-                alert(this.t('alertBackupRestored'));
-                await this.refresh();
-              } catch (err) {
-                console.error(err);
-                alert(this.t('alertBackupError', err.message));
-              } finally {
-                event.target.value = "";
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            try {
+              const data = JSON.parse(e.target.result);
+              if (!data.users || !data.transactions || !data.settings) {
+                alert(this.t('alertInvalidBackup'));
+                return;
               }
-            };
-            reader.readAsText(file);
-          },
 
-          async createAdminAccount() {
-            if (!this.cpNew || !this.cpConfirm) {
-              alert(this.t('alertEnterConfirmPassword'));
-              return;
-            }
-            if (this.cpNew !== this.cpConfirm) {
-              alert(this.t('alertPasswordsMismatch'));
-              return;
-            }
-            if (!this.cpAnswer || this.cpAnswer.trim() === "") {
-              alert(this.t('alertAnswerSecurityForRecovery'));
-              return;
-            }
+              // Filter out admin_config from imported settings to preserve current password
+              const safeSettings = data.settings.filter(
+                (s) => s.id !== "admin_config"
+              );
 
-            const passwordHash = await this.hash(this.cpNew);
-            const securityAnswerHash = await this.hash(
+              // Merge Logic (similar to sync)
+              const mUsers = this.merge(
+                data.users,
+                await this.db.users.toArray()
+              );
+              const mTxs = this.merge(
+                data.transactions,
+                await this.db.transactions.toArray()
+              );
+              const mSets = this.merge(
+                safeSettings,
+                await this.db.settings.toArray()
+              );
+
+              await this.db.users.bulkPut(mUsers);
+              await this.db.transactions.bulkPut(mTxs);
+              await this.db.settings.bulkPut(mSets);
+
+              alert(this.t('alertBackupRestored'));
+              await this.refresh();
+            } catch (err) {
+              console.error(err);
+              alert(this.t('alertBackupError', err.message));
+            } finally {
+              event.target.value = "";
+            }
+          };
+          reader.readAsText(file);
+        },
+
+        async createAdminAccount() {
+          if (!this.cpNew || !this.cpConfirm) {
+            alert(this.t('alertEnterConfirmPassword'));
+            return;
+          }
+          if (this.cpNew !== this.cpConfirm) {
+            alert(this.t('alertPasswordsMismatch'));
+            return;
+          }
+          if (!this.cpAnswer || this.cpAnswer.trim() === "") {
+            alert(this.t('alertAnswerSecurityForRecovery'));
+            return;
+          }
+
+          const passwordHash = await this.hash(this.cpNew);
+          const securityAnswerHash = await this.hash(
+            this.cpAnswer.trim().toLowerCase()
+          );
+
+          await this.db.settings.put({
+            id: "admin_config",
+            passwordHash,
+            securityQuestion: this.cpQuestion,
+            securityAnswerHash,
+          });
+
+          this.hasAdminConfig = true;
+          this.isAdminUnlocked = true;
+          this.cpNew = "";
+          this.cpConfirm = "";
+          this.cpAnswer = "";
+
+          alert(this.t('alertAdminCreated'));
+        },
+
+        async submitChangePassword() {
+          if (!this.cpNew || !this.cpConfirm) {
+            alert(this.t('alertFillAllFields'));
+            return;
+          }
+
+          const config = await this.db.settings.get("admin_config");
+
+          // If checking current password (only if config exists and we are not forcing setup)
+          if (config && this.isAdminUnlocked) {
+            if (!this.cpCurrent) {
+              alert(this.t('alertEnterCurrentPassword'));
+              return;
+            }
+            const hashed = await this.hash(this.cpCurrent);
+            if (hashed !== config.passwordHash) {
+              alert(this.t('alertIncorrectCurrentPassword'));
+              return;
+            }
+          }
+
+          if (this.cpNew !== this.cpConfirm) {
+            alert(this.t('alertNewPasswordsMismatch'));
+            return;
+          }
+
+          // Require security answer for first time setup
+          if (!config && (!this.cpAnswer || this.cpAnswer.trim() === "")) {
+            alert(this.t('alertSetSecurityAnswer'));
+            return;
+          }
+
+          const newHash = await this.hash(this.cpNew);
+          const updates = {
+            id: "admin_config",
+            passwordHash: newHash,
+          };
+
+          // Only update security question if provided (or mandatory for first time)
+          if (this.cpAnswer && this.cpAnswer.trim() !== "") {
+            updates.securityQuestion = this.cpQuestion;
+            updates.securityAnswerHash = await this.hash(
               this.cpAnswer.trim().toLowerCase()
             );
+          } else if (config && config.securityQuestion) {
+            // Preserve existing if not changing
+            updates.securityQuestion = config.securityQuestion;
+            updates.securityAnswerHash = config.securityAnswerHash;
+          }
 
-            await this.db.settings.put({
-              id: "admin_config",
-              passwordHash,
-              securityQuestion: this.cpQuestion,
-              securityAnswerHash,
-            });
+          await this.db.settings.put(updates);
 
-            this.hasAdminConfig = true;
+          alert(config ? this.t('alertPasswordUpdated') : this.t('alertAdminSet'));
+
+          this.showChangePasswordModal = false;
+          this.cpCurrent = "";
+          this.cpNew = "";
+          this.cpConfirm = "";
+          this.cpAnswer = "";
+
+          // Unlock if this was first time setup
+          if (!config) {
             this.isAdminUnlocked = true;
-            this.cpNew = "";
-            this.cpConfirm = "";
-            this.cpAnswer = "";
+            this.hasAdminConfig = true;
+          }
+        },
+        formatTime(iso) {
+          return new Date(iso).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        },
+        formatDate(iso) {
+          return new Date(iso).toLocaleDateString();
+        },
 
-            alert(this.t('alertAdminCreated'));
-          },
+        merge(a1, a2) {
+          const m = new Map();
+          [...(a1 || []), ...(a2 || [])].forEach((i) =>
+            m.set(i.uuid || i.id, { ...(m.get(i.uuid || i.id) || {}), ...i })
+          );
+          return Array.from(m.values());
+        },
+      };
+    }
+  </script>
+</body>
 
-          async submitChangePassword() {
-            if (!this.cpNew || !this.cpConfirm) {
-              alert(this.t('alertFillAllFields'));
-              return;
-            }
-
-            const config = await this.db.settings.get("admin_config");
-
-            // If checking current password (only if config exists and we are not forcing setup)
-            if (config && this.isAdminUnlocked) {
-              if (!this.cpCurrent) {
-                alert(this.t('alertEnterCurrentPassword'));
-                return;
-              }
-              const hashed = await this.hash(this.cpCurrent);
-              if (hashed !== config.passwordHash) {
-                alert(this.t('alertIncorrectCurrentPassword'));
-                return;
-              }
-            }
-
-            if (this.cpNew !== this.cpConfirm) {
-              alert(this.t('alertNewPasswordsMismatch'));
-              return;
-            }
-
-            // Require security answer for first time setup
-            if (!config && (!this.cpAnswer || this.cpAnswer.trim() === "")) {
-              alert(this.t('alertSetSecurityAnswer'));
-              return;
-            }
-
-            const newHash = await this.hash(this.cpNew);
-            const updates = {
-              id: "admin_config",
-              passwordHash: newHash,
-            };
-
-            // Only update security question if provided (or mandatory for first time)
-            if (this.cpAnswer && this.cpAnswer.trim() !== "") {
-              updates.securityQuestion = this.cpQuestion;
-              updates.securityAnswerHash = await this.hash(
-                this.cpAnswer.trim().toLowerCase()
-              );
-            } else if (config && config.securityQuestion) {
-              // Preserve existing if not changing
-              updates.securityQuestion = config.securityQuestion;
-              updates.securityAnswerHash = config.securityAnswerHash;
-            }
-
-            await this.db.settings.put(updates);
-
-            alert(config ? this.t('alertPasswordUpdated') : this.t('alertAdminSet'));
-
-            this.showChangePasswordModal = false;
-            this.cpCurrent = "";
-            this.cpNew = "";
-            this.cpConfirm = "";
-            this.cpAnswer = "";
-
-            // Unlock if this was first time setup
-            if (!config) {
-              this.isAdminUnlocked = true;
-              this.hasAdminConfig = true;
-            }
-          },
-          formatTime(iso) {
-            return new Date(iso).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-          },
-          formatDate(iso) {
-            return new Date(iso).toLocaleDateString();
-          },
-
-          merge(a1, a2) {
-            const m = new Map();
-            [...(a1 || []), ...(a2 || [])].forEach((i) =>
-              m.set(i.uuid || i.id, { ...(m.get(i.uuid || i.id) || {}), ...i })
-            );
-            return Array.from(m.values());
-          },
-        };
-      }
-    </script>
-  </body>
 </html>
