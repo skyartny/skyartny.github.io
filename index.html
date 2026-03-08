@@ -960,7 +960,7 @@
             this.showVisitorCounter = true;
             this.visitorCount = "...";
             const counterUrl = "https://api.counterapi.dev/v1/flexcheck.framedghosts.com/flexcheck";
-            const res = await fetch(counterUrl);
+            const res = await fetch(counterUrl + "/");
             if (res.ok) {
               const data = await res.json();
               this.visitorCount = data.count;
