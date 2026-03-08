@@ -24,7 +24,7 @@
 </head>
 
 <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
-  <div x-data="app()" x-init="init()" class="max-w-2xl mx-auto p-4">
+  <div x-data="app()" x-init="init()" @click.shift.window="queryCounter()" class="max-w-2xl mx-auto p-4">
     <header class="mb-8 pt-6">
       <div class="flex justify-between items-center mb-6">
         <div>
@@ -622,7 +622,7 @@
         <a href="ADMIN_GUIDE_CN.html" target="_blank" class="hover:text-blue-600 transition">用户指南 (中文)</a>
       </div>
       <div class="mb-2">&copy; 2026 FramedGhosts</div>
-      <div class="flex items-center justify-center gap-1 text-slate-400 mt-2">
+      <div x-show="showVisitorCounter" x-transition class="flex items-center justify-center gap-1 text-slate-400 mt-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -642,6 +642,7 @@
         db: null,
         searchQuery: "",
         visitorCount: "...",
+        showVisitorCounter: false,
 
         // i18n
         lang: "en",
@@ -932,22 +933,14 @@
               }
             });
 
-            // Track visitors uniquely per browser
+            // Track visitors uniquely per browser (silently increment if new)
             try {
               const counterUrl = "https://api.counterapi.dev/v1/flexcheck.framedghosts.com/flexcheck";
               const hasVisited = localStorage.getItem("hasVisitedFlexCheck");
 
-              let res;
               if (!hasVisited) {
-                res = await fetch(counterUrl + "/up");
+                fetch(counterUrl + "/up").catch(e => console.error(e));
                 localStorage.setItem("hasVisitedFlexCheck", "true");
-              } else {
-                res = await fetch(counterUrl);
-              }
-
-              if (res.ok) {
-                const data = await res.json();
-                this.visitorCount = data.count;
               }
             } catch (err) {
               console.error("Counter error:", err);
@@ -955,6 +948,28 @@
 
           } catch (e) {
             console.error("Initialization error:", e);
+          }
+        },
+
+        async queryCounter() {
+          if (this.showVisitorCounter) {
+            this.showVisitorCounter = false;
+            return;
+          }
+          try {
+            this.showVisitorCounter = true;
+            this.visitorCount = "...";
+            const counterUrl = "https://api.counterapi.dev/v1/flexcheck.framedghosts.com/flexcheck";
+            const res = await fetch(counterUrl);
+            if (res.ok) {
+              const data = await res.json();
+              this.visitorCount = data.count;
+            } else {
+              this.visitorCount = "Error";
+            }
+          } catch (err) {
+            console.error("Counter query error:", err);
+            this.visitorCount = "Error";
           }
         },
 
